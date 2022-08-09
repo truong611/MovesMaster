@@ -1,0 +1,174 @@
+<p-toast key="popup" position="bottom-right"></p-toast>
+
+<div class="tin-nhan-dialog">
+  <form [formGroup]="tinNhanForm">
+    <div class="row">
+      <div class="col-md-2">
+        Tiêu đề <span class="require">(*)</span>:
+      </div>
+      <div class="col-md-10">
+        <div class="row">
+          <div class="col-md-12">
+            <input type="text" class="w100" pInputText formControlName="tieuDeControl"
+              [ngClass]="(tieuDeControl.invalid && (tieuDeControl.dirty || tieuDeControl.touched)) ? 'error-border' : ''" />
+          </div>
+          <div class="col-md-12" [hidden]="tieuDeControl.valid || tieuDeControl.untouched">
+            <span *ngIf="tieuDeControl.hasError('required') || tieuDeControl?.errors?.forbiddenSpaceText"
+              class="error-message">Không được để trống</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-10">
+      <div class="col-md-2">
+        Nội dung <span class="require">(*)</span>:
+      </div>
+      <div class="col-md-10">
+        <div class="row">
+          <div class="col-md-12">
+            <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" formControlName="noiDungControl"
+              class="w100"
+              [ngClass]="(noiDungControl.invalid && (noiDungControl.dirty || noiDungControl.touched)) ? 'error-border' : ''"></textarea>
+          </div>
+          <div class="col-md-12" [hidden]="noiDungControl.valid || noiDungControl.untouched">
+            <span *ngIf="noiDungControl.hasError('required') || noiDungControl?.errors?.forbiddenSpaceText"
+              class="error-message">Không được để trống</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="type == 0 || message?.Status == 0" class="row mt-10">
+      <div class="col-md-2">
+        File đính kèm:
+      </div>
+      <div class="col-md-10">
+        <p-fileUpload #fileUpload name="demo[]" [showUploadButton]="false" [multiple]="true"
+          accept="image/*,video/*,audio/*,.zip,.rar,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"
+          [maxFileSize]="defaultLimitedFileSize" invalidFileSizeMessageSummary="{0}: file kích cỡ quá lớn,"
+          invalidFileSizeMessageDetail="kích cỡ lớn nhất có thể lưu là {0}."
+          invalidFileTypeMessageSummary="{0}: định dạng file bị cấm, "
+          invalidFileTypeMessageDetail="bạn chỉ có thể lưu các file có định dạng như: {0}." chooseLabel="Chọn file"
+          cancelLabel="Hủy toàn bộ file" (onSelect)="handleFile($event)" (onRemove)="removeFile($event)"
+          (onClear)="clearAllFile()">
+          <ng-template let-file pTemplate="file">
+            <div class="row mt-2">
+              <div style="width:25%"></div>
+              <div style="width:25%">{{fixNameFile(file.name)}}</div>
+              <div style="width:25%">{{file.size}} KB</div>
+              <div style="width:25%" class="text-right">
+                <button pButton icon="pi pi-times" (click)="removeFile(file)"></button>
+              </div>
+            </div>
+          </ng-template>
+          <!-- <ng-template pTemplate="content" let-files>
+            <div>Additional content.</div>
+          </ng-template> -->
+        </p-fileUpload>
+      </div>
+    </div>
+    <div *ngIf="type == 1" class="row mt-10">
+      <div class="col-md-2">
+        File đã tải lên:
+      </div>
+      <div class="col-md-10">
+        <p-table [columns]="cols" [value]="fileUploadMes" [responsive]="true" [paginator]="true" [rows]="5"
+          [showCurrentPageReport]="true" responsiveLayout="scroll"
+          currentPageReportTemplate="Có tổng cộng {totalRecords} file" [rowsPerPageOptions]="[10,25,50]">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns" pResizableColumn
+                [ngStyle]="{'text-align': col.textAlign, 'display': col.display, 'width': col.colWith}">
+                {{col.header}}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr>
+              <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                [ngStyle]="{'text-align': col.textAlign, 'display': col.display, 'width': col.colWith}">
+                <span class="p-column-title">{{col.header}}</span>
+                <span *ngSwitchCase="'Stt'">
+                  {{rowIndex + 1}}
+                </span>
+                <span *ngSwitchCase="'Actions'">
+                  <div>
+                    <button pButton *ngIf="message?.Status == 0" pRipple class="delete-button" icon="pi pi-trash"
+                      (click)="deleteFile(rowData)"></button>
+                  </div>
+                </span>
+                <span *ngSwitchDefault>
+                  {{rowData[col.field]}}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <div class="row mt-10">
+      <div class="col-md-2">
+        Người nhận <span class="require">(*)</span>:
+      </div>
+      <div class="col-md-10">
+        <div class="row">
+          <div class="col-md-3">
+            <p-dropdown [options]="listNhomNguoiNhan" formControlName="nhomNguoiNhanControl" optionLabel="name"
+              [showClear]="false" [style]="{'width': '100%'}" (onChange)="changeNhomNguoiNhan()"></p-dropdown>
+          </div>
+          <div class="col-md-3" style="text-align: right; margin-top: 5px;">
+            Phương thức gửi <span class="require">(*)</span>:
+          </div>
+          <div class="col-md-3">
+            <p-checkbox name="group1" value="GTHT" [(ngModel)]="selectedPhuongThuc"
+              [ngModelOptions]="{standalone: true}" inputId="gtht">
+            </p-checkbox>
+            <label for="gtht" class="checkbox-leabel">
+              Gửi trên hệ thống
+            </label>
+          </div>
+          <div class="col-md-3">
+            <p-checkbox name="group1" value="GE" [(ngModel)]="selectedPhuongThuc" [ngModelOptions]="{standalone: true}"
+              inputId="ge">
+            </p-checkbox>
+            <label for="ge" class="checkbox-leabel">
+              Gửi email
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-10">
+      <div class="col-md-2">
+
+      </div>
+      <div class="col-md-1">
+        <p-checkbox formControlName="guiTatCaControl" [binary]="true" inputId="tatca" (onChange)="changeGuiTatCa()">
+        </p-checkbox>
+        <label for="tatca" class="checkbox-leabel">
+          Tất cả
+        </label>
+      </div>
+    </div>
+    <div class="row mt-10">
+      <div class="col-md-2">
+
+      </div>
+      <div class="col-md-10">
+        <p-tree [value]="listTree" selectionMode="checkbox" [(selection)]="listSelected"
+          (onNodeSelect)="handleCheckAll($event)" (onNodeUnselect)="handleCheckAll($event)" [filter]="true"
+          scrollHeight="200px">
+        </p-tree>
+      </div>
+    </div>
+    <div class="row mt-20">
+      <div class="col-md-12" style="text-align: right;">
+        <button *ngIf="type == 0 || message?.Status == 0" [disabled]="awaitRes" pButton type="button" label="Gửi"
+          class="search-button" [style]="{'margin-left': '5px'}" (click)="send()"></button>
+        <button *ngIf="type == 0 || message?.Status == 0" [disabled]="awaitRes" pButton type="button" label="Lưu nháp"
+          class="create-button" [style]="{'margin-left': '5px'}" (click)="save()"></button>
+        <button pButton type="button" label="Hủy" class="close-button" [style]="{'margin-left': '5px'}"
+          (click)="close()"></button>
+      </div>
+    </div>
+  </form>
+</div>

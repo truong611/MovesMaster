@@ -1,0 +1,68 @@
+.quan-ly-thong-bao {
+  background: #fff;
+  border-radius: 8px;
+}
+.quan-ly-thong-bao,
+.quan-ly-thong-bao button,
+::ng-deep .quan-ly-thong-bao button,
+.quan-ly-thong-bao input {
+  font-size: 13px;
+}
+.quan-ly-thong-bao .header-content{
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.content-body .header-content span.title {
+  margin-right: 30px;
+}
+.quan-ly-thong-bao .header-content .input-search{
+  width: 180px;
+}
+
+.quan-ly-thong-bao .header-content button{
+  width: auto !important;
+  padding: 0.5rem 10px;
+}
+.quan-ly-thong-bao .header-content .float-right a{
+  text-decoration: underline;
+  font-style: italic;
+  color: #3A7AFE;
+  font-weight: bold;
+  margin-right: 15px;
+}
+.quan-ly-thong-bao .header-content .import-button input{
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.quan-ly-thong-bao .border{
+  border: 1px solid black;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 15px;
+}
+.quan-ly-thong-bao .noti-title{
+  color: #066351;
+  padding-bottom: 10px;
+}
+.quan-ly-thong-bao .noti-link{
+  text-decoration-line: underline;
+  font-style: italic;
+}
+.quan-ly-thong-bao .line-height{
+  line-height: 2;
+}
+.quan-ly-thong-bao .text-right{
+  float: right;
+  width: 60% !important;
+}
+.quan-ly-thong-bao .mgleft{
+  margin-left: -15px !important;
+  z-index: 1 !important;
+}

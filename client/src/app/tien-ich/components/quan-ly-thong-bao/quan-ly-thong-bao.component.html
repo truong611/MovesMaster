@@ -1,0 +1,63 @@
+<div class="position-relative">
+  <div *ngIf="loading" class="p-loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+  <p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+  <div class="quan-ly-thong-bao content-body">
+    <div class="row no-gutters">
+      <div class="col-md-12 header-content" id="menu2">
+        <span class="title">DANH SÁCH THÔNG BÁO</span>
+        <div class="float-right d-inline-flex align-items-center">
+          <input type="text" pInputText placeholder="Nhập từ khóa tìm kiếm" class="input-search"
+            [(ngModel)]="globalFilter">
+          <button pButton type="button" label="Tìm kiếm" class="search-button" [style]="{'margin-left': '5px'}"
+            (click)="getListData()"></button>
+          <p-button icon="pi pi-replay" class="refresh-button" [loading]="loading" (click)="refresh()"></p-button>
+        </div>
+      </div>
+
+      <div class="col-md-12 p-10">
+        <div class="row border" *ngFor="let item of listThongBao">
+          <div class="col-md-12 noti-title" [ngStyle]="{'font-weight': item.DaXem ? 'none' : 'bold'}"
+            (click)="showBasicDialog(item)">
+            {{ item.TieuDe }}
+          </div>
+          <div class="col-md-12" [ngStyle]="{'font-weight': item.DaXem ? 'none' : 'bold'}"
+            (click)="showBasicDialog(item)">
+            {{ item.NoiDung }}
+          </div>
+          <div class="col-md-12">
+            <p-button label="Đường dẫn đến màn hình chức năng" *ngIf="(item.PageUrl != null)" (click)="goToView(item)"
+              styleClass="p-button-link" class="mgleft"></p-button>
+            <span class="text-right" (click)="showBasicDialog(item)">
+              {{ item.CreatedDate | date: 'dd/MM/yyyy HH:ss' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-dialog header="Nội dung thông báo" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}"
+      [draggable]="false" [resizable]="false">
+      <div *ngIf="thongBao != null" class="row line-height">
+        <div class="col-md-12">
+          {{ thongBao.CreatedDate | date: 'dd/MM/yyyy HH:ss'}}
+        </div>
+        <div class="col-md-12 noti-title">
+          {{ thongBao.TieuDe }}
+        </div>
+        <div class="col-md-12">
+          {{ thongBao.NoiDung }}
+        </div>
+        <div class="col-md-12" *ngIf="(thongBao.PageUrl != null)">
+          <button pButton type="button" (click)="goToView(thongBao)" label="Đường dẫn đến màn hình chức năng"
+            class="p-button-sm p-button-text noti-link"></button>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button (click)="displayModal=false" label="Ok"></p-button>
+      </ng-template>
+    </p-dialog>
+  </div>
+</div>

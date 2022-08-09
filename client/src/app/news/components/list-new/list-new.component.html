@@ -1,0 +1,105 @@
+<p-toast position="bottom-right"></p-toast>
+
+<div class="col-md-12">
+  <div class="page-list-new page-card report">
+    <div class="title-name text-bold mb-3">NEWS</div>
+    <div class="list-btn-add d-inline-flex">
+      <div class="btn-add btn-add-new mr-4" (click)="createNews()" *ngIf="user?.Type != 2">
+        <span class="icon-add">+</span><br>
+        <span>Add a News Item</span>
+      </div>
+  
+      <div class="btn-add btn-count-new">
+        <span class="total-number">{{totalNews}}</span><br>
+        <span class="name">News Item(s)</span>
+      </div>
+    </div>
+  
+    <div class="list-new">
+      <div class="filter">
+        <p-button icon="pi pi-replay" class="refresh-button mr-2" [loading]="loading" (click)="refresh()"></p-button>
+        <span class="p-input-icon-right">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilter"
+            (input)="search()">
+        </span>
+        <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="false" class="custom-overlayPanel">
+          <ng-template pTemplate>
+            <div class="col-md-12">
+              <div class="col-md-12 form-group" *ngFor="let item of listStatus">
+                <div class="field-checkbox" >
+                  <p-checkbox name="group1" value="{{item.Category_ID}}" [(ngModel)]="selectedStatus"></p-checkbox>
+                  <label class="ml-1">{{item.Category_Name}}</label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <button pButton type="button" label="OK" class="search-button" (click)="search()"></button>
+              </div>
+            </div>
+          </ng-template>
+        </p-overlayPanel>
+        <p-button icon="pi pi-filter" class="refresh-button mr-4" [loading]="loading" (click)="op.toggle($event)"></p-button>
+        <p-tabView [(activeIndex)]="activeIndex">
+          <p-tabPanel header="" rightIcon="pi pi-align-justify">
+          </p-tabPanel>
+          <p-tabPanel header="" rightIcon="pi pi-microsoft">
+          </p-tabPanel>
+        </p-tabView>
+      </div>
+      <div class="card-content table-gridview mt-4">
+        <p-table *ngIf="activeIndex == 0" #myTable [columns]="colHeader" [value]="listNews" class="table-center scrollbar-table scrollbar-table-appeal"
+        [scrollable]="true" scrollHeight="60vh" scrollDirection="both">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
+                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                <span *ngIf="i > 0">{{col.header}} <p-sortIcon></p-sortIcon></span>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr>
+              <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                <span class="p-column-title">{{col.header}}</span>
+                <span *ngSwitchCase="'News_Icon_Image'" class="link" (click)="goToDetail(rowData.News_Item_ID)">
+                  <img [src]="rowData[col.field]" [class]="rowData.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                </span>
+                <span *ngSwitchCase="'News_Title'" class="link" (click)="goToDetail(rowData.News_Item_ID)">
+                  {{rowData[col.field]}}
+                </span>
+                <span *ngSwitchCase="'News_Publish_Date'">
+                  {{rowData[col.field] | date: 'dd/MM/yyyy HH:mm'}}
+                </span>
+                <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length">
+                No data found
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div *ngIf="activeIndex == 1" class="grid-view grid-view-appeal">
+          <ul class="nav list-box">
+            <li class="nav-item" *ngFor="let item of listNews">
+              <div class="icon">
+                <img src="{{item.News_Icon_Image}}" [class]="item.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                <div class="more-info" (click)="goToDetail(item.News_Item_ID)">
+                  <p class="status-name status-{{item.News_Status_Name}} m-0">{{item.News_Status_Name}}</p>
+                  <p class="text-more">More info</p>
+                </div>
+              </div>
+              <div class="title-name">
+                {{item.News_Title}}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

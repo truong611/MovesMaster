@@ -1,0 +1,32 @@
+.tin-nhan {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.tin-nhan .header-content {
+  padding: 10px 10px 10px 10px;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: #066351;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.tin-nhan .header-title {
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.tin-nhan .mt-10 {
+  margin-top: 10px !important;
+}
+
+.tin-nhan .pd-10 {
+  padding: 10px !important;
+}

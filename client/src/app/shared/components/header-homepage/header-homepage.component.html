@@ -1,0 +1,77 @@
+<!-- Navbar -->
+<nav class="main-headers navbar navbar-expand navbar-white navbar-light">
+
+  <img src="../../assets/img/logo_text_white.png" class="logo">
+
+  <!-- Center navbar links -->
+  <ul class="navbar-nav navbar-center">
+    <li class="nav-item">
+      <a [routerLink]="['/home']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Ethos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-who-we-are']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Who we are
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-works']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        How it works
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-news']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        News
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-performance']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Performance / Stats
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-directory']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Directory
+      </a>
+    </li>
+  </ul>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ng-container *ngIf="!user">
+      <form class="form-inline my-3 my-lg-1">
+        <button pButton class="btn btn-green my-2" type="button" label="Signup" (click)="signup()"></button>
+        <button pButton type="button" label="Log in" class="btn btn-yellow ml-2" (click)="login()"></button>
+      </form>
+    </ng-container>
+    <ng-container *ngIf="user">
+      <ul class="navbar-nav navbar-right ml-auto">
+        <li class="nav-item nav-home" *ngIf="user?.Is_Web_App_User">
+          <a href="javascript:;" (click)="goToDashboard()"><i class="fas fa-home"></i></a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link icon-user" data-toggle="dropdown" href="#">
+            <div class="text-infor text-center mr-2">
+              <p class="username m-0">{{ (user.Forename ? user.Forename : '') + ' ' + (user.Surname ?
+                user.Surname : '')}}</p>
+            </div>
+            <img class="img-fluid avatar"
+              [src]="user?.User_Avatar ? user?.User_Avatar : 'assets/img/default_avatar.png'">
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a href="#" class="dropdown-item" (click)="logout()">
+              <span>Sign Out</span>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </ng-container>
+  </div>
+</nav>
+<!-- /.navbar -->

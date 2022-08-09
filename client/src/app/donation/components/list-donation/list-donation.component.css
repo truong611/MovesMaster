@@ -1,0 +1,57 @@
+@import url('../../../dashboard/components/reports/reports.component.css');
+
+.page-list-donation .list-donation .filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+::ng-deep .filter-donation .p-multiselect{
+    min-width: 15rem;
+    width: 18rem !important;
+}
+
+.page-list-donation .list-btn-add .title-name{
+    width: 25rem;
+    text-align: center;
+}
+
+.page-list-donation .list-btn-add .btn-count-donation {
+    width: 25rem;
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #25A381;
+    border-radius: 15px;
+    padding: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.page-list-donation .list-btn-add .btn-count-donation .total-number {
+    width: 100%;
+    text-align: center;
+}
+
+.page-list-donation .list-btn-add img {
+    height: 100%;
+}
+
+::ng-deep .page-list-donation .filter .p-tabview .p-tabview-panels {
+    padding: 0;
+}
+
+::ng-deep .page-list-donation .filter .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: #6F2D87;
+}
+
+::ng-deep .page-list-donation .table-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
+::ng-deep .page-list-donation .table-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
+    background-color: #6F2D87;
+}
+
+::ng-deep .page-list-donation .table-gridview .grid-view .list-box .icon:hover:after {
+    border: 2px solid #6F2D87;
+}

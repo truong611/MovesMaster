@@ -1,0 +1,8 @@
+@import url('./../../../dashboard/dashboard.component.css');
+
+.home-dashboard {
+  background-color: #1A1334;
+  padding-bottom: calc(4.1rem) !important;
+  padding: 20px 12.5px;
+  min-height: 100vh;
+}

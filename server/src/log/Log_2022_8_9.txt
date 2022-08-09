@@ -1,0 +1,2 @@
+09:50:06 GMT+0700 (Indochina Time) currentUser: "charity@gmail.com"  "Error: Undefined binding(s) detected when compiling FIRST. Undefined column(s): [Activity_Type_Unit_ID] query: select * from \"Activity_Type_Unit\" where \"Activity_Type_Unit_ID\" = ? limit ?"
+09:50:24 GMT+0700 (Indochina Time) currentUser: "charity@gmail.com"  "Error: Undefined binding(s) detected when compiling FIRST. Undefined column(s): [Activity_Type_Unit_ID] query: select * from \"Activity_Type_Unit\" where \"Activity_Type_Unit_ID\" = ? limit ?"

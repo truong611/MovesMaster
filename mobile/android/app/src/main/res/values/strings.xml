@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Moves Matter</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">S9kJyW0teKJaLMEmTknEBEDR0IL6z3Zd7R8hp</string>
+</resources>

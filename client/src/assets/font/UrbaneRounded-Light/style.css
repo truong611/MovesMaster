@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Urbane Rounded';
+    src: local('Urbane Rounded Light'), local('Urbane-Rounded-Light'),
+        url('UrbaneRounded-Light.woff2') format('woff2'),
+        url('UrbaneRounded-Light.woff') format('woff'),
+        url('UrbaneRounded-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+  }

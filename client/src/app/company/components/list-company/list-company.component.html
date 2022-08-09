@@ -1,0 +1,55 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+<div class="col-md-12">
+  <div class="page-list-company page-card cardr">
+    <div class="list-company">
+      <div class="filter">
+        <div class="title-name text-bold w-50">
+          <span>Companies awaiting Moves Matter Approval</span>
+        </div>
+        <span class="p-input-icon-right text-right w-50">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilter"
+            (input)="applyFilterGlobal()">
+        </span>
+      </div>
+      <div class="card-content table-gridview mt-5">
+        <p-table #myTable [columns]="colHeader" [value]="listCompany"
+          class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true" scrollHeight="70vh">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
+                [ngStyle]="{'justify-content': col.textAlign, 'min-width': col.colWith}">
+                <span>{{col.header}}</span>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr>
+              <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                [ngStyle]="{'justify-content': col.textAlign, 'min-width': col.colWith}">
+                <span class="p-column-title">{{col.header}}</span>
+  
+                <span *ngSwitchCase="'Created_Date'">{{rowData[col.field] | date: 'dd/MM/yyyy'}}</span>
+  
+                <span *ngSwitchCase="'Action'" class="link" (click)="view(rowData)">View</span>
+  
+                <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length">
+                No data found
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>

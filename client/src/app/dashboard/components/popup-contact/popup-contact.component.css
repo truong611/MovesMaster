@@ -1,0 +1,3 @@
+::ng-deep .custom-dialog.p-dialog .p-dialog-content {
+  padding-top: 0;
+}

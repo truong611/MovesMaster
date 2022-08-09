@@ -1,0 +1,118 @@
+.signup {
+  background: #1A1334;
+  min-height: 100vh;
+  padding: 0 0 50px;
+}
+
+.signup .signup-header {
+  height: 100px;
+  padding: 20px;
+}
+
+.signup .signup-header img {
+  height: 100%;
+  width: auto;
+}
+
+.signup .signup-body{
+  padding: 20px 0;
+}
+
+.signup-wrapper {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100% - 100px);
+}
+
+.signup-wrapper .content{
+  width: 900px;
+  color: #ffffff;
+  min-height: 100%;
+}
+
+.signup-wrapper .content .content-left{
+  background: url('/assets/img/banner_login_2x.png') center center no-repeat;
+  padding: 30px;
+  border-radius: 23px;
+}
+
+.signup-wrapper .title{
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.signup-wrapper .content .content-right{
+  padding: 100px 50px;
+  box-shadow: 0px 3px 20px #000000A8;
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 0%,rgba(0,0,0,0.5) 100%), url('/assets/img/blur-charity-collaboration-1493374.png') center center no-repeat;
+}
+
+.signup input,
+::ng-deep .signup p-dropdown .p-dropdown{
+  color: #ffffff;
+  text-align: center;
+}
+
+.signup input::placeholder,
+::ng-deep .signup p-dropdown .p-dropdown .p-dropdown-label.p-placeholder,
+::ng-deep .signup p-dropdown .p-dropdown .p-dropdown-trigger{
+  color: #ffffff;
+}
+
+.signup button {
+  width: 30%;
+  border-radius: 20px;
+  background: #ffffff !important;
+  color: #000000;
+}
+
+.signup-wrapper .content .content-body {
+  margin: auto;
+}
+
+.signup .form-group {
+  margin-bottom: 0.5rem;
+}
+
+.signup .text-error{
+  color: red
+}
+
+::ng-deep .signup .custom {
+  box-shadow: none !important;
+  width: auto !important;
+}
+
+::ng-deep .signup .captcha-actions a {
+  font-size: 25px !important;
+  color: #fff !important;
+}
+
+::ng-deep .signup .captcha-actions input[type=button] {
+  font-weight: bold !important;
+}
+
+.signup .content-rights {
+  padding: 30px 0 30px 100px;
+    font-size: 18px;
+}
+
+.signup .content-rights .content-text{
+  padding-top: 20px;
+}
+
+.signup .content-rights button{
+  position: absolute;
+  bottom: 50px;
+}
+
+::ng-deep .p-dialog.register .title {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+::ng-deep .p-dialog.register .btn {
+  border-radius: 26px;
+}

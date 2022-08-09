@@ -1,0 +1,9 @@
+<div class="wrapper">
+  <app-header *ngIf="!checkHome"></app-header>
+  <app-header-homepage *ngIf="checkHome"></app-header-homepage>
+  <app-menu></app-menu>
+
+  <div [class]="checkHome ? 'contents-wrapper home' : 'content-wrapper home'">
+      <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+::ng-deep .tabview-directory.p-tabview .p-tabview-nav,
+::ng-deep .tabview-directory.p-tabview .p-tabview-panels {
+  background: #2D2252;
+  border: 0;
+  padding-left: 0;
+}
+
+::ng-deep .tabview-directory.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background: unset !important;
+  color: #574e75;
+  border: 0;
+  padding-left: 0;
+  margin-right: 1rem;
+}
+
+::ng-deep .tabview-directory.p-tabview .p-highlight .p-tabview-title {
+  color: #ffffff;
+}
+
+::ng-deep .tabview-directory.p-tabview .p-highlight .p-tabview-nav-link {
+  border-bottom: 2px solid #F0278A !important;
+}
+
+::ng-deep .tabview-directory.p-tabview .p-tabview-nav li:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
+  border-bottom: 2px solid #F0278A;
+  color: #ffffff;
+}
+
+.directory .filter {
+  position: absolute;
+  right: calc(20px + 1rem);
+  top: 20px;
+}
+
+::ng-deep .custom-overlayPanel.custom-form p-multiselect .p-multiselect {
+  background: #2D2252;
+  /* min-width: 15rem;
+  width: 18rem !important; */
+}
+
+::ng-deep .custom-overlayPanel.custom-form {
+  width: 400px;
+}

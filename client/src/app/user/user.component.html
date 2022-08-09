@@ -1,0 +1,19 @@
+<div class="wrapper">
+  <app-header></app-header>
+
+  <app-menu></app-menu>
+
+  <div class="content-wrapper dashboard">
+    <p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-4">
+          <app-list-user (found)="handleResults($event)" [permissionActive]="permissionActive"></app-list-user>
+        </div>
+        <div class="col-md-8">
+          <app-detail-user [resultGridList]="data" [permissionActive]="permissionActive"></app-detail-user>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="home-ethos">
+  <div class="col-md-12 content-body p-0">
+    <div class="page-list-new page-card">
+      <div class="title-name text-white mb-3">News</div>
+      <div class="list-new">
+        <div class="filter">
+          <span class="p-input-icon-right">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilter"
+              (input)="searchNews()">
+          </span>
+        </div>
+        <div class="card-content tables-gridview mt-5">
+          <div class="grid-view grid-view-appeal">
+            <ul class="nav list-box">
+              <li class="nav-item" *ngFor="let item of listNews">
+                <div class="icon">
+                  <img src="{{item.News_Icon_Image}}">
+                  <div class="more-info" (click)="goToDetail(item.News_Item_ID)">
+                  </div>
+                </div>
+                <div class="titles-name text-white" (click)="goToDetail(item.News_Item_ID)">
+                  {{item.News_Title}}
+                </div>
+                <div class="summary-new" [innerHtml]="item.News_Content"></div>
+              </li>
+            </ul>
+          </div>
+          <div class="paginator text-center mt-3 text-white">
+            <p-paginator *ngIf="listNews.length > 0" [rows]="perPage" [totalRecords]="totalRecords"
+              (onPageChange)="onPageChange($event)">
+            </p-paginator>
+            <p *ngIf="listNews.length == 0">No data</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+.profile-page.account {
+  height: calc(30% - 1rem);
+} 
+
+.account .infor img {
+  height: 70px;
+}

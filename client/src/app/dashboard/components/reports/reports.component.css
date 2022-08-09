@@ -1,0 +1,78 @@
+.report {
+  height: 105%;
+}
+
+.report .list-btn-add .btn-add {
+  box-shadow: 0px 0px 10px #00000080;
+  border-radius: 15px;
+  height: 120px;
+}
+
+.report .icon-add {
+  cursor: pointer;
+}
+
+.report .list-btn-add .btn-add.btn-add-appeal {
+  background: #1A1134 0% 0% no-repeat padding-box;
+  border: 2px solid #009FC8;
+  text-align: center;
+  cursor: pointer;
+}
+
+.report .list-btn-add .btn-add.btn-add-campaign {
+  background: #1A1134 0% 0% no-repeat padding-box;
+  border: 2px solid #702789;
+  text-align: center;
+  cursor: pointer;
+}
+
+.report .list-btn-add .icon-add {
+  font-size: 50px;
+}
+
+.report .list-btn-add .btn-add.btn-count-appeal {
+  padding: 30px 15px 0;
+  background: transparent linear-gradient(23deg, #01A0C6 12%, #25A381 48%, #212D91 88%) 0% 0% no-repeat padding-box;
+  cursor: pointer;
+}
+
+.report .list-btn-add .btn-add.btn-count-campaign {
+  padding: 30px 15px 0;
+  background: transparent linear-gradient(23deg, #6F2D87 0%, #F0278A 45%, #F88111 100%) 0% 0% no-repeat padding-box;
+  cursor: pointer;
+}
+
+.report .list-btn-add .total-number {
+  font-size: 30px;
+}
+
+.report .list-btn-add .name {
+  font-size: 20px;
+}
+
+.report .total-donate {
+  text-align: center;
+  border: 1px solid #25A381;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.report .list-report ul li {
+  display: inline-flex;
+  width: 100%;
+  align-items: flex-end;
+  line-height: 1;
+  margin-bottom: 12px;
+
+}
+
+.report .list-report ul li .number {
+  min-width: 100px;
+  text-align: right;
+  font-size: 30px;
+  font-weight: bold;
+  margin-right: 8px;
+}

@@ -1,0 +1,119 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right"></p-toast>
+<div class="appeal-create">
+  <div class="col-md-12">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="appeal-create-page">
+          <div class="title-name text-bold mb-3">CREATE NEWS ITEM</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div [formGroup]="formGroup" class="row custom-form">
+              <div class="col-md-5">
+                <div class="row">
+                  <input type="file" id="imageProfile" accept="image/*" (change)="handleFileUpload($event)"
+                    class="file-input d-none" />
+                  <div class="col-md-12 form-group">
+                    <div class="text-center custom-image">
+                      <div class="image">
+                        <img #currentLogo *ngIf="newLogoUrl" class="d-none" [src]="transform(newLogoUrl)">
+                        <img class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                      </div>
+                      <div class="custom-button-upload">
+                        <div class="btn-upload">
+                          <button pButton type="button" label="" icon="pi pi-upload" class="btn"
+                            (click)="uploadImage()"></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-container *ngIf="user.Type == 1">
+                    <div class="col-md-12 mt-8">
+                      <label>CHARITY</label>
+                      <p class="text-bold">{{charity?.Charity_Name}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>COMPANY (option)</label>
+                      <p-dropdown [options]="listCompany" styleClass="w-100" optionLabel="Company_Text"
+                        optionValue="Moves_Company_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        [autoDisplayFirst]="false" placeholder="Select Company" formControlName="Moves_Company_ID">
+                      </p-dropdown>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>APPEAL (option)</label>
+                      <p-dropdown [options]="listAppeal" styleClass="w-100" optionLabel="Appeal_Name"
+                        optionValue="Appeal_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        formControlName="Appeal_ID" [autoDisplayFirst]="false" placeholder="Select Appeal"
+                        (onChange)="changeAppeal($event)">
+                      </p-dropdown>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>CAMPAIGN (option)</label>
+                      <p-dropdown [options]="listCampaign" styleClass="w-100" optionLabel="Campaign_Name"
+                        optionValue="Campaign_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        [autoDisplayFirst]="false" placeholder="Select Campaign" formControlName="Campaign_ID">
+                      </p-dropdown>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <label>Title</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="News_Title" class="w-100"
+                      [ngClass]="(formGroup.controls.News_Title.errors && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Title.errors">{{
+                      error['News_Title'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Website url</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="News_Url" class="w-100"
+                      [ngClass]="(formGroup.controls.News_Url.errors && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Url.errors">{{
+                      error['News_Url'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Content</label><span class="error-message">*</span>
+                    <p-editor formControlName="News_Content" [style]="{'height':'320px'}"
+                      [ngClass]="(formGroup.controls.News_Content.errors && submitted) ? 'ng-invalid ng-dirty' : ''">
+                    </p-editor>
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Content.errors">{{
+                      error['News_Content'] }}
+                    </p>
+                  </div>
+                  <div class="btn-add-new text-center pt-3 w-100">
+                    <button pButton type="button" label="Create" class="btn btn-yellow btn-create"
+                      (click)="create()"></button>
+                    <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
+                      (click)="cancel()"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="appeal-create-page h-100">
+          <div class="mb-3" style="color: #2D2252;">PREVIEW APPEAL</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div class="text-center btn-add-new mt-3">
+              <button pButton type="button" label="Preview" class="btn btn-white w-30" (click)="preview()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"
+  [style]="{width: previewWidth, height: previewHeight}" [baseZIndex]="10000" [draggable]="false" [resizable]="false"
+  styleClass="popup-preview preview-appeal">
+  <app-preview-new [news]="previewForm" *ngIf="previewForm"></app-preview-new>
+</p-dialog>

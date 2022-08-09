@@ -1,0 +1,80 @@
+img {
+  width: 100%;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+
+  &__text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 16px;
+    margin: 0;
+    color: #6c757d;
+  }
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.login-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-header {
+  background-color: #ffffff;
+  padding: 8px 16px;
+  text-align: center;
+}
+.login-header img {
+  width: 55%;
+}
+
+.login-body {
+  //padding: 64px 16px 48px;
+  padding: 48px 16px 32px;
+  //background-color: #066351
+}
+
+.status-danger {
+  border: 1px solid red;
+}
+
+.text-error {
+  font-size: 13px;
+  color: #ff3d71;
+}
+
+::ng-deep .login-wrapper p-password .p-password {
+  width: 100%;
+
+  input {
+    width: 100%;
+  }
+}
+
+::ng-deep .login-wrapper p-password.status-danger-2 {
+  input {
+    border: 1px solid red !important;
+  }
+}
+
+::ng-deep .login-wrapper p-password.status-basic-2 {
+  input {
+    border: 1px solid #ced4da !important;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .login-wrapper-b {
+    height: 100%;
+  }
+}

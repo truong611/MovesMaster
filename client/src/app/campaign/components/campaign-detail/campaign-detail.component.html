@@ -1,0 +1,355 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right" [baseZIndex]="2147483647"></p-toast>
+<div class="campaign-detail">
+  <div class="col-md-12">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="campaign-detail-page">
+          <div class="title-name text-bold mb-3">CAMPAIGN DETAIL</div>
+          <div class="campaign-body custom-scrollbar custom-scrollbar-yellow">
+            <div [formGroup]="createForm" class="row custom-form">
+              <div class="col-md-5">
+                <div class="row">
+                  <input type="file" id="imageProfile" accept="image/*" (change)="handleFileUpload($event)"
+                    class="file-input d-none" />
+                  <div class="col-md-12 form-group">
+                    <div class="text-center custom-image">
+                      <div [class]="isEdit ? 'image image-edit' : 'image'">
+                        <img *ngIf="isEdit && newLogoUrl" #currentLogo class="d-none" [src]="transform(newLogoUrl)">
+                        <img *ngIf="isEdit" class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                        <img *ngIf="!isEdit" class="img-fluid image-profile" [src]="currentLogoUrl">
+                      </div>
+                      <div *ngIf="isEdit" class="custom-button-upload">
+                        <div class="btn-upload">
+                          <button pButton type="button" label="" icon="pi pi-upload" class="btn"
+                            (click)="uploadImage()"></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 text-center form-group">
+                    <p class="text-bold text-transform">{{campaign?.Campaign_Status_Name}}</p>
+                  </div>
+                  <div class="col-md-12 mt-3">
+                    <label>CHARITY</label>
+                    <p class="text-bold">{{campaign?.Charity_Name}}</p>
+                    <img *ngIf="campaign?.Charity_icon" class="img-fluid select-image" [src]="campaign?.Charity_icon"
+                      (click)="selectImage(campaign?.Charity_icon)">
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>APPEAL</label>
+                    <p-dropdown [options]="listAppeal" styleClass="w-100" optionLabel="Appeal_Name" [filter]="true"
+                      [resetFilterOnHide]="true" [showClear]="true" formControlName="appealControl"
+                      [autoDisplayFirst]="false" placeholder="choice a appeal"
+                      [ngClass]="{'ng-invalid ng-dirty': (appealControl?.invalid && submitted) }">
+                    </p-dropdown>
+                    <img *ngIf="appealControl.value?.Appeal_Icon" class="img-fluid select-image"
+                      [src]="appealControl.value?.Appeal_Icon" (click)="selectImage(appealControl.value?.Appeal_Icon)">
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>COMPANY</label><span class="error-message">*</span>
+                    <p-dropdown [options]="listCompany" styleClass="w-100" optionLabel="Company_Name" [filter]="true"
+                      [resetFilterOnHide]="true" [showClear]="true" formControlName="companyControl"
+                      [autoDisplayFirst]="false" placeholder="choice a company"
+                      [ngClass]="{'ng-invalid ng-dirty': (companyControl?.invalid && submitted) }">
+                    </p-dropdown>
+                    <ng-container *ngIf="companyControl?.invalid && submitted">
+                      <p *ngIf="companyControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                    </ng-container>
+                    <img *ngIf="companyControl.value?.Company_Icon" class="img-fluid select-image"
+                      [src]="companyControl.value?.Company_Icon"
+                      (click)="selectImage(companyControl.value?.Company_Icon)">
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <div class="p-field-checkbox">
+                      <p-checkbox inputId="cp" [formControl]="publicPrivateControl" [binary]="true"></p-checkbox>
+                      <label for="cp" class="ml-1">Private Campaign</label>
+                    </div>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <div class="p-field-checkbox">
+                      <p-checkbox inputId="im" [formControl]="isMatchControl" [binary]="true"></p-checkbox>
+                      <label for="im" class="ml-1">Allow Match</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <label>Name</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="nameControl" class="w-100"
+                      [ngClass]="(nameControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <ng-container *ngIf="nameControl?.invalid && submitted">
+                      <p *ngIf="nameControl?.hasError('required') || nameControl?.errors?.forbiddenSpaceText"
+                        class="error-message">This is mandatory field
+                      </p>
+                      <p *ngIf="nameControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Website url</label>
+                    <input type="text" pInputText formControlName="urlControl" class="w-100"
+                      [ngClass]="(urlControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <ng-container *ngIf="urlControl?.invalid && submitted">
+                      <p *ngIf="urlControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+                      </p>
+                      <p *ngIf="urlControl?.errors?.invalidUrl" class="error-message">The wrong url format
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Description</label>
+                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="desControl" pInputTextarea>
+                    </textarea>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Campaign Launch Date</label><span class="error-message">*</span>
+                    <p-calendar formControlName="launchDateControl" dateFormat="dd/mm/yy" [showTime]="true"
+                      [minDate]="minDate" [maxDate]="endDateControl?.value" [style]="{'width':'100%'}"
+                      [baseZIndex]="999" class="p-input-sm" appendTo="body"
+                      [ngClass]="{'ng-invalid ng-dirty': (launchDateControl?.invalid && submitted) }">
+                    </p-calendar>
+                    <ng-container *ngIf="launchDateControl?.invalid && submitted">
+                      <p *ngIf="launchDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                    </ng-container>
+                  </div>
+                  <!-- <div class="col-md-3 form-group">
+                    <label>Currency</label>
+                    <p-dropdown [options]="listCurrency" styleClass="w-100" optionLabel="Currency_Name" formControlName="currencyControl"
+                      [autoDisplayFirst]="false" (onChange)="changeCurrency()">
+                    </p-dropdown>
+                  </div> -->
+                  <!-- <div class="col-md-12 form-group">
+                    <label>Campaign end date</label><span class="error-message">*</span>
+                    <p-calendar formControlName="endDateControl" dateFormat="dd/mm/yy" [showTime]="true"
+                      [minDate]="launchDateControl?.value" [style]="{'width':'100%'}" [baseZIndex]="999"
+                      class="p-input-sm" appendTo="body"
+                      [ngClass]="{'ng-invalid ng-dirty': (endDateControl?.invalid && submitted) }">
+                    </p-calendar>
+                    <ng-container *ngIf="endDateControl?.invalid && submitted">
+                      <p *ngIf="endDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                    </ng-container>
+                  </div> -->
+                  <div class="col-md-12 form-group">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p-radioButton inputId="ta" name="choiceControl" value="false" formControlName="choiceControl"
+                          (onClick)="changeChoice()">
+                        </p-radioButton>
+                        <label for="ta" class="ml-1">Target amount</label>
+                      </div>
+                      <div class="col-md-6">
+                        <p-radioButton inputId="ced" name="choiceControl" value="true" formControlName="choiceControl"
+                          (onClick)="changeChoice()">
+                        </p-radioButton>
+                        <label for="ced" class="ml-1">Campaign End Date</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <ng-container *ngIf="choiceControl?.value == 'false'">
+                          <p-inputNumber formControlName="targetValueControl" mode="currency" [currency]="currencySelected"
+                            class="text-right" locale="en-US" [min]="0" [max]="2147483647" [minFractionDigits]="2"
+                            [maxFractionDigits]="2"
+                            [ngClass]="{'ng-invalid ng-dirty': (targetValueControl?.invalid && submitted) }">
+                          </p-inputNumber>
+                        </ng-container>
+                        <ng-container *ngIf="targetValueControl?.invalid && submitted">
+                          <p *ngIf="targetValueControl?.hasError('required')" class="error-message">This is mandatory
+                            field
+                          </p>
+                          <p *ngIf="targetValueControl?.hasError('min')" class="error-message">Value should be above
+                            0.01
+                          </p>
+                        </ng-container>
+                      </div>
+                      <div class="col-md-6">
+                        <ng-container *ngIf="choiceControl?.value == 'true'">
+                          <!-- {{endDateControl?.value | date:'dd/MM/yyyy'}} -->
+                          <p-calendar formControlName="endDateControl" dateFormat="dd/mm/yy" [showTime]="true"
+                            [minDate]="launchDateControl?.value" [style]="{'width':'100%'}" [baseZIndex]="999"
+                            class="p-input-sm" appendTo="body"
+                            [ngClass]="{'ng-invalid ng-dirty': (endDateControl?.invalid && submitted) }">
+                          </p-calendar>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Price per move</label><span class="error-message">*</span>
+                    <p-inputNumber formControlName="pricePerMoveControl" mode="currency" [currency]="currencySelected" locale="en-US"
+                      [min]="0" [max]="2147483647" [minFractionDigits]="2" [maxFractionDigits]="2" class="text-right"
+                      [ngClass]="{'ng-invalid ng-dirty': (pricePerMoveControl?.invalid && submitted) }">
+                    </p-inputNumber>
+                    <ng-container *ngIf="pricePerMoveControl?.invalid && submitted">
+                      <p *ngIf="pricePerMoveControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                      <p *ngIf="pricePerMoveControl?.hasError('min')" class="error-message">Value should be above 0.01
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div *ngIf="choiceControl?.value == 'true'" class="col-md-12 form-group">
+                    <label>Time remaining:
+                      {{getDiffDateToDays(launchDateControl?.value, endDateControl?.value)}}-days</label>
+                  </div>
+                  <div *ngIf="choiceControl?.value == 'false' && targetValueControl?.value != 0"
+                    class="col-md-12 form-group">
+                    <label>Percentage Funded:
+                      {{((campaign?.Sterling_Amount / targetValueControl?.value) * 100) | number: '1.0-0'}}%</label>
+                  </div>
+                  <div class="btn-add-new text-center pt-3 w-100">
+                    <ng-container *ngIf="!isEdit">
+                      <button *ngIf="isShowButtonEdit" pButton type="button" label="Edit"
+                        class="btn btn-yellow btn-create" (click)="editDetail()"></button>
+                      <button *ngIf="isShowButtonPublish" pButton type="button" label="Publish"
+                        class="btn btn-green btn-cancel ml-2" (click)="publish()"></button>
+                      <button *ngIf="isShowButtonApprove" pButton type="button" label="Approve"
+                        class="btn btn-yellow btn-create" (click)="approve('campaign')"></button>
+                      <button *ngIf="isShowButtonDecline" pButton type="button" label="Decline"
+                        class="btn btn-white btn-cancel ml-2" (click)="decline()"></button>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <button pButton type="button" label="Save" class="btn btn-yellow btn-create"
+                        (click)="checkForm()"></button>
+                      <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
+                        (click)="cancelEditDetail()"></button>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="campaign-detail-page h-100">
+          <div class="mb-3" style="color: #2D2252;">PREVIEW CAMPAIGN</div>
+          <div class="campaign-body custom-scrollbar custom-scrollbar-yellow">
+            <div class="text-center btn-add-new mt-3">
+              <button pButton type="button" label="Preview" class="btn btn-white w-30" (click)="preview()"></button>
+            </div>
+            <div class="title-name text-bold mt-5 mb-3">MATCHES</div>
+            <div class="list-btn-add">
+              <div class="row">
+                <div class="col-md-6" *ngIf="isShowButtonCreateMatch">
+                  <div class="btn-add btn-add-campaign" (click)="approve('match')">
+                    <span class="icon-add">+</span><br>
+                    <span>Create match</span>
+                  </div>
+                </div>
+                <div [class]="isShowButtonCreateMatch ? 'col-md-6' : 'col-md-12'">
+                  <div class="btn-add btn-count-campaign" (click)="goToListMatch()">
+                    <span class="total-number">{{campaign?.Number_Matches}}</span><br>
+                    <span class="name">Matches</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
+            <div class="total-donate" (click)="goToListDonation()">
+              <span>£{{campaign?.Amount_Raised | number}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog header="" [(visible)]="displayModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+    [resizable]="false" [closable]="true" styleClass="custom-dialog">
+    <div [formGroup]="confirmPass" class="row custom-form" style="display: flex;align-items: center;">
+      <div class="col-md-2">
+        <label>Password:</label>
+      </div>
+      <div class="col-md-10">
+        <input type="password" pInputText formControlName="passControl" class="w-100" placeholder="password"
+          (keyup.enter)="save()" [ngClass]="(submittedConfirm && passControl.invalid) ? 'ng-invalid ng-dirty' : ''" />
+        <ng-container *ngIf="passControl?.invalid && submittedConfirm">
+          <p *ngIf="passControl?.hasError('required') || passControl?.errors?.forbiddenSpaceText" class="error-message">
+            This is mandatory field
+          </p>
+          <p *ngIf="passControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+          </p>
+        </ng-container>
+      </div>
+      <div class="btn-add-new text-center pt-4 w-100">
+        <button pButton type="button" label="Save" class="btn btn-yellow btn-create"
+          (click)="save()"></button>
+        <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
+          style="border-color: #0d89ec;" (click)="cancelDialog()"></button>
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog header="" [(visible)]="displayModalApprove" [modal]="true" [style]="{width: '50vw'}" [draggable]="false"
+    [resizable]="false" [closable]="true" styleClass="custom-dialog">
+    <div class="row custom-form">
+      <div class="col-md-12">
+        {{textApprove}}
+      </div>
+      <div class="col-md-12 mt-2">
+        This is financial commitment
+      </div>
+      <div class="col-md-12 mt-2">
+        <div class="p-field-checkbox">
+          <p-checkbox inputId="cb1" [(ngModel)]="vcb1" [binary]="true"></p-checkbox>
+          <label for="cb1" class="ml-1">Please indicate you understand the <span class="temps"
+              (click)="goToTemps()">terms and conditions</span></label>
+        </div>
+      </div>
+      <div class="col-md-12 mt-1">
+        <div *ngIf="PercentageDiscount != 0" class="p-field-checkbox d-inline-flex">
+          <p-checkbox inputId="cb2" [(ngModel)]="vcb2" [binary]="true"></p-checkbox>
+          <label for="cb2" class="ml-1">You are also agreeing to pay Moves Matter {{PercentageDiscount}}% of the amount
+            raised (you will
+            receive an invoice on completion of the Campaign)</label>
+        </div>
+      </div>
+      <div class="col-md-12 mt-2">
+        To Approve this Campaign on behalf of your company, please enter your password and click the Approve button
+      </div>
+      <div class="col-md-12 mt-3">
+        <div [formGroup]="confirmPass" class="row" style="display: flex;align-items: center;">
+          <div class="col-md-2">
+            <label>Password <span class="error-message">*</span>:</label>
+          </div>
+          <div class="col-md-10">
+            <input type="password" pInputText formControlName="passControl" class="w-100" placeholder="password"
+              (keyup.enter)="acceptApprove()"
+              [ngClass]="(submittedConfirm && passControl.invalid) ? 'ng-invalid ng-dirty' : ''" />
+            <ng-container *ngIf="passControl?.invalid && submittedConfirm">
+              <p *ngIf="passControl?.hasError('required') || passControl?.errors?.forbiddenSpaceText"
+                class="error-message">This is mandatory field
+              </p>
+              <p *ngIf="passControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+              </p>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-add-new text-center pt-4 w-100">
+        <button pButton type="button" label="Approve" class="btn btn-yellow btn-create"
+          [disabled]="!vcb1 || (!vcb2 && PercentageDiscount)" (click)="acceptApprove()"></button>
+        <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
+          style="border-color: #0d89ec;" (click)="cancelApprove()"></button>
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"
+    [style]="{width: previewWidth, height: previewHeight}" [baseZIndex]="10000" [draggable]="false" [resizable]="false"
+    styleClass="popup-preview preview-campaign">
+    <app-preview-campaign [campaign]="previewForm" *ngIf="previewForm"></app-preview-campaign>
+  </p-dialog>
+</div>

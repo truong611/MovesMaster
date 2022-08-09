@@ -1,0 +1,81 @@
+::ng-deep .layout-navbar-fixed .wrapper .brand-link:not([class*=navbar]) {
+  padding: 10px;
+  height: calc(4rem + 1px);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+::ng-deep .main-sidebar .logo img.favicon-icon {
+  display: none;
+}
+::ng-deep .main-sidebar .logo img.logo-icon {
+  height: 100%;
+  width: auto;
+}
+/* ::ng-deep .sidebar-collapse .main-sidebar .logo img.logo-icon {
+  display: none;
+}
+::ng-deep .sidebar-collapse .main-sidebar .logo img.favicon-icon {
+  display: block;
+  height: 90%;
+}
+::ng-deep .sidebar-collapse .main-sidebar:hover {
+  background: #fff;
+}
+::ng-deep .sidebar-collapse .main-sidebar .nav-sidebar .nav-item>.nav-link{
+  padding-left: 1.5rem !important;
+}
+::ng-deep .sidebar-collapse .main-sidebar:hover .nav-sidebar .nav-item>.nav-link{
+  padding-left: 10px !important;
+}
+::ng-deep .sidebar-collapse .main-sidebar .logo {
+  border: 1px solid #D6D9E2;
+  border-top: 0;
+} */
+
+.nav-sidebar .nav-item>.nav-link {
+  color: #fff;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-left: 10px;
+  border-radius: 0;
+}
+.nav-sidebar .nav-item>.nav-link.active,
+.nav-sidebar .nav-item>.nav-link:hover {
+  background: #2d2252;
+  color: #f0278a;
+}
+.nav-sidebar .menu-is-opening>.nav-link i.right,
+.nav-sidebar .menu-open>.nav-link i.right {
+  transform: rotate(90deg);
+}
+.nav-sidebar .menu-open>.nav-link {
+  background: #066351;
+}
+.nav-sidebar .menu-open .nav-link {
+  color: #fff;
+  margin: 0;
+}
+.nav-sidebar .nav-treeview .nav-link {
+  font-weight: 400;
+  padding: .4rem 1rem .4rem 10px;
+  background: rgba(6, 99, 81, 0.82);
+}
+.nav-sidebar .nav-treeview .nav-item:last-child .nav-link {
+  padding-bottom: .8rem;
+}
+.nav-sidebar .nav-treeview .nav-link.active,
+.nav-sidebar .nav-treeview .nav-link:hover {
+  background: rgba(6, 99, 81, 0.82);
+  font-weight: bold;
+}
+.nav-sidebar .menu-open .nav-treeview .nav-link i{
+  font-size: 10px;
+}
+
+
+::ng-deep .os-content {
+  padding: 0 !important;
+}

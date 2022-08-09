@@ -1,0 +1,12 @@
+<div class="profile-page directory mt-3">
+  <div class="title-name text-bold mb-3">DIRECTORY</div>
+  <p class="text-center">Charities and Companies currently active on Moves Matter</p>
+  <div class="list-button text-center mt-3">
+    <button pButton type="button" label="Go to directory" class="btn btn-white w-60" (click)="goToDirectory()"></button><br>
+    <ng-container *ngIf="!charity?.Is_Remove_Privileges && !charity?.Is_Remove_Access">
+      <!-- hiển thị khi tài khoản thuộc charity này-->
+      <button pButton type="button" label="Introduce Company" class="btn btn-white mt-2 w-60" (click)="introduce()"
+        *ngIf="isMyCharity"></button>
+    </ng-container>
+  </div>
+</div>

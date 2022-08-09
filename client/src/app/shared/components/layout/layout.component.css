@@ -1,0 +1,8 @@
+::ng-deep .content-wrapper {
+  /* background-color: #EBEEF6; */
+  min-height: calc(100vh - calc(3.5rem + 1px)) !important;
+}
+
+::ng-deep .layout-footer-fixed .wrapper .content-wrapper{
+  padding-bottom: 0px;
+}

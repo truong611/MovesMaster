@@ -1,0 +1,107 @@
+<!-- Navbar -->
+<nav class="main-header navbar navbar-expand navbar-light navbar-white">
+  <!-- Left navbar links -->
+  <ul class="navbar-nav navbar-left">
+    <!-- <li class="nav-item">
+      <a class="nav-link" data-widget="pushmenu" href="javascript:void(0)" role="button">
+        <i class="fas fa-bars"></i>
+      </a>
+    </li> -->
+    <li class="nav-item d-sm-inline-flex">
+      <span class="text-header">{{textHeader}}</span>
+    </li>
+  </ul>
+
+  <!-- Center navbar links -->
+  <ul class="navbar-nav navbar-center">
+    <li class="nav-item">
+      <a [routerLink]="['/home']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Ethos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-who-we-are']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Who we are
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-works']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        How it works
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-news']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        News
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-performance']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Performance / Stats
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [routerLink]="['/home-directory']" class="nav-link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}">
+        Directory
+      </a>
+    </li>
+  </ul>
+
+  <!-- Right navbar links -->
+  <ul class="navbar-nav navbar-right ml-auto">
+    <!-- Notifications Dropdown Menu -->
+    <li class="nav-item dropdown notifications">
+      <a class="nav-link" data-toggle="dropdown" href="#" (click)="showListNotification()">
+        <i class="far fa-bell"></i>
+        <span class="badge badge-warning navbar-badge">{{ countNotification == 0 ? '' : countNotification }}</span>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <p class="text-center mb-2">NOTIFICATIONS</p>
+        <div class="scroll-bar">
+          <ul class="nav">
+            <li [class]="item.Is_Seen ? 'nav-item read' : 'nav-item unread'" *ngFor="let item of listNotification"
+              (click)="detailNotification(item)">
+              <div class="d-inline-flex w-100">
+                <div class="icon"></div>
+                <div class="infor-noti">
+                  <div class="content mb-2" [innerHtml]="item.Content">
+                  </div>
+                  <div class="title-noti d-inline-flex w-100">
+                    <p class="sender w-50">{{item.Name}}</p>
+                    <p class="text-right w-50">{{item.Email}}</p>
+                  </div>
+                  <p class="time">{{item.TimeText}}</p>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="text-center">
+          <p *ngIf="listNotification.length == 0">No data notification</p>
+          <button *ngIf="listNotification.length > 0" pButton type="button" label="view all notifications"
+            class="btn btn-noborder btn-view" (click)="viewAllNoti()"></button>
+        </div>
+      </div>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link icon-user" data-toggle="dropdown" href="#">
+        <div class="text-infor text-center mr-2">
+          <p class="username m-0">{{ (user.Forename ? user.Forename : '') + ' ' + (user.Surname ? user.Surname : '')}}
+          </p>
+        </div>
+        <img class="img-fluid avatar" [src]="user?.User_Avatar ? user?.User_Avatar : 'assets/img/default_avatar.png'">
+      </a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <a href="#" class="dropdown-item" (click)="logout()">
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </li>
+  </ul>
+</nav>
+<!-- /.navbar -->

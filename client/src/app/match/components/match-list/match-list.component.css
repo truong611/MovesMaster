@@ -1,0 +1,49 @@
+@import url('../../../dashboard/components/reports/reports.component.css');
+
+.page-list-match .list-btn-add .btn-add {
+    width : 180px;
+    height: 120px;
+}
+
+.page-list-match .list-match .filter {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: flex-end;
+    width          : 100%;
+}
+
+.page-list-match .list-btn-add .btn-add.btn-add-match {
+    background: #1A1134 0% 0% no-repeat padding-box;
+    border    : 2px solid #702789;
+    text-align: center;
+    cursor    : pointer;
+}
+
+.page-list-match .list-btn-add .btn-add.btn-count-match {
+    padding   : 30px 15px 0;
+    background: transparent linear-gradient(23deg, #6F2D87 0%, #F0278A 45%, #F88111 100%) 0% 0% no-repeat padding-box;
+    cursor    : pointer;
+}
+
+::ng-deep .page-list-match .filter .p-tabview .p-tabview-panels {
+    padding: 0;
+}
+
+::ng-deep .page-list-match .filter .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: #6F2D87;
+}
+
+::ng-deep .page-list-match .table-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
+::ng-deep .page-list-match .table-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
+    background-color: #6F2D87;
+}
+
+::ng-deep .page-list-match .table-gridview .grid-view .list-box .icon:hover:after {
+    border: 2px solid #6F2D87;
+}
+
+.btn-back {
+    width: 15%;
+    border-radius: 26px;
+    margin-top: 10px;
+}

@@ -1,0 +1,4 @@
+15:20:47 GMT+0700 (Indochina Time) currentUser: undefined  "TypeError: Cannot read property 'User_ID' of null"
+15:20:47 GMT+0700 (Indochina Time) currentUser: undefined  "TypeError: Cannot read property 'User_ID' of null"
+15:20:47 GMT+0700 (Indochina Time) currentUser: undefined  "TypeError: Cannot read property 'User_ID' of null"
+15:20:47 GMT+0700 (Indochina Time) currentUser: undefined  "TypeError: Cannot read property 'User_ID' of null"

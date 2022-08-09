@@ -1,0 +1,16 @@
+<div class="profile-page account mb-3">
+  <div class="title-name d-inline-flex w-100 mb-3">
+    <span class="text-bold w-50">ACCOUNT</span>
+    <span class="text-yellow w-50 text-right" *ngIf="!user?.IsAdmin || objectId">{{Role}}</span>
+  </div>
+  <div class="infor text-center" *ngIf="!user?.IsAdmin || objectId">
+    <p class="text-bold acc-name">{{User_Name}}</p>
+    <p>{{User_Email}}</p>
+  </div>
+  <div class="infor text-center" *ngIf="user?.IsAdmin && !objectId">
+    <img src="assets/img/logo_text_white.png" alt="Moves matter" class="logo-icon img-fluid">
+  </div>
+  <div class="list-button text-center mt-3">
+    <button *ngIf="isMyCharity || isMyCompany || (user?.IsAdmin && !objectId)" pButton type="button" label="View account details" class="btn btn-yellow w-30" (click)="viewDetail()"></button>
+  </div>
+</div>

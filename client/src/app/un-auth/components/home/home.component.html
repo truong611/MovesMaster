@@ -1,0 +1,540 @@
+<!-- <div class="contents-wrapper home">
+    <nav class="main-headers navbar navbar-expand navbar-light navbar-white">
+        <img src="../../assets/img/logo_text_white.png">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ng-container *ngIf="!user">
+                <form class="form-inline my-3 my-lg-1">
+                    <button pButton class="btn btn-green my-2" type="button" label="Signup" (click)="signup()"></button>
+                    <button pButton type="button" label="Log in" class="btn btn-yellow ml-2" (click)="login()"></button>
+                </form>
+            </ng-container>
+            <ng-container *ngIf="user">
+                <ul class="navbar-nav navbar-right ml-auto">
+                    <li class="nav-item nav-home" *ngIf="user?.Is_Web_App_User">
+                        <a [routerLink]="['/dashboard']"><i class="fas fa-home"></i></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link icon-user" data-toggle="dropdown" href="#">
+                            <div class="text-infor text-center mr-2">
+                                <p class="username m-0">{{ (user.Forename ? user.Forename : '') + ' ' + (user.Surname ?
+                                    user.Surname : '')}}</p>
+                            </div>
+                            <img class="img-fluid avatar"
+                                [src]="user?.User_Avatar ? user?.User_Avatar : 'assets/img/default_avatar.png'">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="#" class="dropdown-item" (click)="logout()">
+                                <span>Sign Out</span>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </ng-container>
+        </div>
+    </nav>
+    <p-tabView styleClass="tabview-home" [(activeIndex)]="activeIndex">
+        <p-tabPanel header="Ethos">
+            <div class="tab-body">
+                <div class="row">
+                    <div class="col-md-6 text-white">
+                        <div class="image">
+                            <img
+                                src="../../../../assets/img/group-african-children-playing-football-footage-093155323_iconl.png">
+                        </div>
+                    </div>
+                    <div class="seperate-body">
+                        <div class="seperate" style="margin-top: 15px!important;"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="body-content" style="margin-bottom: 25px">
+                            <div class="title-name text-bold">
+                                <span>Introducing moves matter</span>
+                            </div>
+                            <div class="content-name text-black w-100" style="text-align: justify;">
+                                <span>For many of us, movement is something we take for granted.
+                                    <br>
+                                    Whether we are in the great outdoors, commuting to
+                                    school or work, or simply pottering in the garden we
+                                    might be counting steps with a fitness device, but we
+                                    aren’t thinking about how we can make our steps count..</span>
+                            </div>
+                            <div class="content-name text-black w-100" style="text-align: justify;">
+                                <span>Welcome to a world where moves matter
+                                    At Moves Matter, it is our dream to enable businesses
+                                    and charities to come together to provide charitable
+                                    giving through the simple act of movement.
+                                    And that means ANY kind of movement.
+                                    We believe that if people want to give to charity they
+                                    should not be held back by disability or impairment.
+                                </span>
+                            </div>
+                            <div class="title-name text-bold">
+                                <span>Our values</span>
+                            </div>
+                            <div class="content-name text-black w-100" style="text-align: justify;">
+                                <b>IMPACTFUL </b>We want our work and concept to have an
+                                impact, not only on the problems of the world, but on
+                                those who believe they cannot make a difference. We’d
+                                like to support and be part of a global change of
+                                consciousness.
+                            </div><br>
+                            <div class="content-name text-black w-100" style="text-align: justify;">
+                                <b>POSITIVITY </b>Moves Matter has confidence in giving
+                                cause for hope by bridging the gap between big
+                                companies and individuals, through education,
+                                awareness and global connectivity.
+                            </div><br>
+                            <div class="content-name text-black w-100" style="text-align: justify;">
+                                <b>GENEROSITY </b>Generosity plays a big part within our
+                                brand. We want to encourage companies and people to
+                                be liberal with giving and sharing and knowing that even
+                                a small amount done collectively makes a big difference.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Who we are">
+            <div class="tab-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="title-name text-bold" style="margin-left: 20px;">
+                            <span>Moves Matter</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="margin-left: 20px;">
+                            <span>Is the product of Alisam Moves Ltd UK</span>
+                        </div>
+                    </div>
+                    <div class="seperates-body">
+                        <div class="seperates"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="title-name text-bold">
+                            <span>Our founders</span>
+                        </div>
+                        <div class="content-name text-black w-100">
+                            <span>Ali Gordon-Creed</span>
+                        </div>
+                        <div class="content-name text-black w-100">
+                            <span>Sam Lloyd
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="link-policy">
+                    <a [routerLink]="['/terms-and-conditions']">Privacy statement</a>
+                    <br>
+                    <br>
+                    <a>GDPR compliance</a>
+                    <br>
+                    <br>
+                    <a>Cookie policy</a>
+                    <br>
+                    <br>
+                </div>
+            </div>
+        </p-tabPanel>
+
+        <p-tabPanel header="How it works">
+            <div class="tab-body">
+                <div class="row">
+                    <div class="col-md-6 text-white">
+                        <img src="../../../../assets/img/Annotation 2022-07-01 095311.png">
+                    </div>
+                    <div class="seperate-body">
+                        <div class="seperate"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="title-name text-bold">
+                            <span>Why moves matter for charities</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Charities continually seek publicity and funding for
+                                their causes and to meet their charitable aims.</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Charities will be invited to register on the Moves
+                                Matter platform where their details will be
+                                searchable to companies and the public. The means
+                                to highlight their latest appeals will be available and
+                                a platform-wide News-feed will keep their presence
+                                in the user consciousness.
+                            </span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Charities seek funding from companies who earmark
+                                considerable donation budgets for both practical
+                                and altruistic reasons.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="seperate-horizontal">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 text-white">
+                        <img src="../../../../assets/img/Annotation 2022-07-01 095337.png">
+                    </div>
+                    <div class="seperate-body">
+                        <div class="seperate"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="title-name text-bold">
+                            <span>Why moves matter for companies</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>It’s no secret that companies exist to make money.
+                                However, increasingly in today’s world, to attract
+                                customers, employees and shareholders, they also
+                                need to prove that they are giving back to society at
+                                large.</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>More and more companies are therefore subscribing
+                                to, and leveraging, their social responsibility activity
+                                to help illustrate their credentials and differentiate
+                                themselves from the competition.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="seperate-horizontal">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 text-white">
+                        <img src="../../../../assets/img/Annotation 2022-07-01 095400.png">
+                    </div>
+                    <div class="seperate-body">
+                        <div class="seperate"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="title-name text-bold">
+                            <span>Bringing charities and companies
+                                together</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Moves Matter brings charities and companies
+                                together to generate charitable giving through the
+                                simple act of movement.</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Moves Matter provides the means for charities and
+                                companies to develop fund-raising campaigns, with
+                                an agreed, nominated financial target, and share
+                                them with the public.
+                            </span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>While ‘live’ other companies can choose to ‘match’ the
+                                campaign, committing to pay the equivalent financial
+                                contribution to the charity.
+                            </span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Effectively, the charity’s causes and the company’s
+                                altruism is made public in a social media setting.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="seperate-horizontal">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 text-white">
+                        <img src="../../../../assets/img/Annotation 2022-07-01 095419.png">
+                    </div>
+                    <div class="seperate-body">
+                        <div class="seperate"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="title-name text-bold">
+                            <span>Why moves matter for the public</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>The Moves Matter platform is not another passive, scrolling
+                                social media setting. Instead, Moves Matter App users will
+                                be engaged and motivated, using their movement to
+                                contribute to causes on an ongoing basis, moving with
+                                purpose, giving back to society.</span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>Moves Matter provides the means for charities and
+                                companies to develop fund-raising campaigns, with
+                                an agreed, nominated financial target, and share
+                                them with the public.
+                            </span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>The Moves Matter App will upload the user’s activity and
+                                convert it to ‘Moves’ - a currency - which can be applied
+                                across one or more of the user’s favoured campaigns. Once
+                                the Moves donated reaches the campaign’s target, the
+                                campaign is fully funded and the company pays the agreed
+                                amount to the charity.
+                            </span>
+                        </div>
+                        <div class="content-name text-black w-100" style="text-align: justify;">
+                            <span>The app will also enable users to make financial donations
+                                to charities, share their giving across other social media
+                                platforms and even lodge requests inviting their favourite
+                                charities to join Moves Matter.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+
+
+        <p-tabPanel header="News">
+            <div class="col-md-12" *ngIf="!isViewDetailNew">
+                <div class="page-list-new page-card">
+                    <div class="title-name text-white mb-3">News</div>
+                    <div class="list-new">
+                        <div class="filter">
+                            <span class="p-input-icon-right">
+                                <i class="pi pi-search"></i>
+                                <input type="text" pInputText placeholder="Search" class="input-search"
+                                    [(ngModel)]="globalFilter" (input)="searchNews()">
+                            </span>
+                        </div>
+                        <div class="card-content tables-gridview mt-5">
+                            <div class="grid-view grid-view-appeal">
+                                <ul class="nav list-box">
+                                    <li class="nav-item" *ngFor="let item of listNews">
+                                        <div class="icon">
+                                            <img src="{{item.News_Icon_Image}}">
+                                            <div class="more-info" (click)="goToDetail(item.News_Item_ID)">
+                                            </div>
+                                        </div>
+                                        <div class="titles-name text-white" (click)="goToDetail(item.News_Item_ID)">
+                                            {{item.News_Title}}
+                                        </div>
+                                        <div class="summary-new" [innerHtml]="item.News_Content"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="paginator text-center mt-3 text-white">
+                                <p-paginator *ngIf="listNews.length > 0" [rows]="perPage" [totalRecords]="totalRecords"
+                                    (onPageChange)="onPageChange($event)">
+                                </p-paginator>
+                                <p *ngIf="listNews.length == 0">No data</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 p-0" *ngIf="isViewDetailNew">
+                <div class="back-list">
+                    <button pButton type="button" label="Back" class="btn btn-border-yellow btn-back"
+                        (click)="back()"></button>
+                </div>
+                <app-news-template [id]="newId"></app-news-template>
+            </div>
+
+        </p-tabPanel>
+
+        <p-tabPanel header="Performance / Stats">
+        </p-tabPanel>
+        <p-tabPanel header="Directory">
+            <div class="col-md-12">
+                <div class="page-card directory">
+                    <div class="filter">
+                        <p-button icon="pi pi-replay" class="refresh-button mr-2" [loading]="loading"
+                            (click)="refresh()">
+                        </p-button>
+                        <span class="p-input-icon-right" *ngIf="activeIndexDirectory == 0">
+                            <i class="pi pi-search"></i>
+                            <input type="text" pInputText placeholder="Search" class="input-search"
+                                [(ngModel)]="globalFilterCharity" (input)="applyFilterGlobal()">
+                        </span>
+                        <span class="p-input-icon-right" *ngIf="activeIndexDirectory == 1">
+                            <i class="pi pi-search"></i>
+                            <input type="text" pInputText placeholder="Search" class="input-search"
+                                [(ngModel)]="globalFilterCompany" (input)="applyFilterGlobal()">
+                        </span>
+                        <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="false"
+                            styleClass="custom-overlayPanel custom-form">
+                            <ng-template pTemplate>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row form-group">
+                                            <label class="col-md-5">Income Band</label>
+                                            <div class="col-md-7">
+                                                <p-multiSelect [options]="listIncomeBand"
+                                                    [(ngModel)]="selectedIncomeBand" optionLabel="Category_Name"
+                                                    optionValue="Category_ID" styleClass="w-100" appendTo="body"
+                                                    [filter]="false"></p-multiSelect>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <label class="col-md-5">Geographical Scope</label>
+                                            <div class="col-md-7">
+                                                <p-multiSelect [options]="listGeographicalScope"
+                                                    [(ngModel)]="selectedGeographicScope" optionLabel="Category_Name"
+                                                    optionValue="Category_ID" styleClass="w-100" appendTo="body"
+                                                    [filter]="false"></p-multiSelect>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <label class="col-md-5">Charity Sector</label>
+                                            <div class="col-md-7">
+                                                <p-multiSelect [options]="listCharitySector"
+                                                    [(ngModel)]="selectedCharitySector" optionLabel="Category_Name"
+                                                    optionValue="Category_ID" styleClass="w-100" appendTo="body"
+                                                    [filter]="false"></p-multiSelect>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-md-5"></div>
+                                            <div class="col-md-7 d-inline-flex">
+                                                <button pButton type="button" label="Filter" class="search-button"
+                                                    (click)="search()"></button>
+                                                <button pButton type="button" label="Cancel" class="search-button ml-2"
+                                                    (click)="op.hide()"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-overlayPanel>
+                        <p-button *ngIf="activeIndexDirectory == 0" icon="pi pi-filter" class="refresh-button"
+                            [loading]="loading" (click)="op.toggle($event)">
+                        </p-button>
+                    </div>
+                    <p-tabView [(activeIndex)]="activeIndexDirectory" styleClass="tabview-directory">
+                        <p-tabPanel header="CHARITY DIRECTORY">
+                            <div class="card-content table-gridview">
+                                <p-table #myTable [columns]="colHeaderCharity" [value]="listCharity"
+                                    class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true"
+                                    scrollHeight="80vh">
+                                    <ng-template pTemplate="header" let-columns>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                        let-rowIndex="rowIndex">
+                                        <tr>
+                                            <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                                                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                                                <span class="p-column-title">{{col.header}}</span>
+                                                <span *ngSwitchCase="'Action'" class="link-more"
+                                                    (click)="goToDetailCharity(rowData.Moves_Charity_ID)">
+                                                    more information
+                                                </span>
+                                                <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.colspan]="columns.length">
+                                                No data found
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </p-tabPanel>
+                        <p-tabPanel header="COMPANY DIRECTORY">
+                            <div class="card-content table-gridview">
+                                <p-table #myTable2 [columns]="colHeaderCompany" [value]="listCompany"
+                                    class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true"
+                                    scrollHeight="80vh">
+                                    <ng-template pTemplate="header" let-columns>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-rowData let-columns="columns"
+                                        let-rowIndex="rowIndex">
+                                        <tr>
+                                            <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                                                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                                                <span class="p-column-title">{{col.header}}</span>
+                                                <span *ngSwitchCase="'Action'" class="link-more"
+                                                    (click)="goToDetailCompany(rowData.Moves_Company_ID)">
+                                                    more information
+                                                </span>
+                                                <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage" let-columns>
+                                        <tr>
+                                            <td [attr.colspan]="columns.length">
+                                                No data found
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </p-tabPanel>
+                    </p-tabView>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div> -->
+<div class="home-ethos">
+    <div class="col-md-12 content-body">
+        <div class="row">
+            <div class="col-md-6 text-white">
+                <div class="image">
+                    <img
+                        src="../../../../assets/img/group-african-children-playing-football-footage-093155323_iconl.png">
+                </div>
+            </div>
+            <div class="seperate-body">
+                <div class="seperate" style="margin-top: 15px!important;"></div>
+            </div>
+            <div class="col-md-5">
+                <div class="body-content" style="margin-bottom: 25px">
+                    <div class="title-name text-bold">
+                        <span>Introducing moves matter</span>
+                    </div>
+                    <div class="content-name text-black w-100" style="text-align: justify;">
+                        <span>For many of us, movement is something we take for granted.
+                            <br>
+                            Whether we are in the great outdoors, commuting to
+                            school or work, or simply pottering in the garden we
+                            might be counting steps with a fitness device, but we
+                            aren’t thinking about how we can make our steps count..</span>
+                    </div>
+                    <div class="content-name text-black w-100" style="text-align: justify;">
+                        <span>Welcome to a world where moves matter
+                            At Moves Matter, it is our dream to enable businesses
+                            and charities to come together to provide charitable
+                            giving through the simple act of movement.
+                            And that means ANY kind of movement.
+                            We believe that if people want to give to charity they
+                            should not be held back by disability or impairment.
+                        </span>
+                    </div>
+                    <div class="title-name text-bold">
+                        <span>Our values</span>
+                    </div>
+                    <div class="content-name text-black w-100" style="text-align: justify;">
+                        <b>IMPACTFUL </b>We want our work and concept to have an
+                        impact, not only on the problems of the world, but on
+                        those who believe they cannot make a difference. We’d
+                        like to support and be part of a global change of
+                        consciousness.
+                    </div><br>
+                    <div class="content-name text-black w-100" style="text-align: justify;">
+                        <b>POSITIVITY </b>Moves Matter has confidence in giving
+                        cause for hope by bridging the gap between big
+                        companies and individuals, through education,
+                        awareness and global connectivity.
+                    </div><br>
+                    <div class="content-name text-black w-100" style="text-align: justify;">
+                        <b>GENEROSITY </b>Generosity plays a big part within our
+                        brand. We want to encourage companies and people to
+                        be liberal with giving and sharing and knowing that even
+                        a small amount done collectively makes a big difference.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="row h-100">
+  <div class="col-md-6" *ngIf="!isAdd && !isEdit && userProfile">
+    <div class="profile-page account-user">
+      <div class="title-name text-bold mb-3">ACCOUNT USER</div>
+      <div class="infor text-center">
+        <img class="img-fluid avatar-user" [src]="currentLogoUrl">
+        <p class="text-bold acc-name mt-3">{{userProfile.Forename + ' ' + userProfile.Surname}}</p>
+        <p>{{userProfile.User_Job_Roll}}</p>
+        <p>{{userProfile.User_Email}}</p>
+        <p>{{userProfile.User_Phone_Number}}</p>
+      </div>
+      <div class="list-button btn-add-new text-center pt-3">
+        <button pButton type="button" label="Edit detail" class="btn btn-yellow w-50" (click)="editDetail()"></button>
+      </div>
+    </div>
+    <div class="profile-page icon-app text-center mt-3">
+      <img class="img-fluid" src="assets/img/logo_text_white.png">
+    </div>
+  </div>
+  <div class="col-md-6" *ngIf="isAdd || isEdit">
+    <div class="profile-page account-user h-100">
+      <div class="title-name text-bold mb-3">ACCOUNT USER</div>
+      <div class="infor">
+        <input type="file" id="imageProfile" accept="image/*" (change)="handleFileUpload($event)"
+          class="file-input d-none" />
+        <form class="col-md-12 form-horizontal custom-form" [formGroup]="formGroup" *ngIf="formGroup">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              <div class="text-center custom-image">
+                <div class="image">
+                  <img #currentLogo *ngIf="newLogoUrl" class="d-none" [src]="transform(newLogoUrl)">
+                  <img class="img-fluid avatar-user" [src]="transform(currentLogoUrl)">
+                </div>
+                <div class="custom-button-upload">
+                  <div class="btn-upload">
+                    <button pButton type="button" label="" icon="pi pi-upload" class="btn"
+                      (click)="uploadImage()"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Forename</label><span class="error-message">*</span>
+              <input type="text" pInputText formControlName="Forename" class="w-100"
+                [ngClass]="submitted && formGroup.controls.Forename.errors ? 'ng-invalid ng-dirty' : ''" />
+              <p class="error-message" *ngIf="submitted && formGroup.controls.Forename.errors">{{
+                error['Forename'] }}</p>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Surname</label><span class="error-message">*</span>
+              <input type="text" pInputText formControlName="Surname" class="w-100"
+                [ngClass]="submitted && formGroup.controls.Surname.errors ? 'ng-invalid ng-dirty' : ''" />
+              <p class="error-message" *ngIf="submitted && formGroup.controls.Surname.errors">{{
+                error['Surname'] }}</p>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Job role</label><span class="error-message">*</span>
+              <input type="text" pInputText formControlName="User_Job_Roll" class="w-100"
+                [ngClass]="submitted && formGroup.controls.User_Job_Roll.errors ? 'ng-invalid ng-dirty' : ''" />
+              <p class="error-message" *ngIf="submitted && formGroup.controls.User_Job_Roll.errors">{{
+                error['User_Job_Roll'] }}</p>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Email</label><span *ngIf="isAdd" class="error-message">*</span>
+              <input type="email" pInputText formControlName="User_Email" class="w-100"
+                [ngClass]="submitted && formGroup.controls.User_Email.errors ? 'ng-invalid ng-dirty' : ''" />
+              <p class="error-message" *ngIf="submitted && formGroup.controls.User_Email.errors">{{
+                error['User_Email'] }}</p>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Phone</label><span class="error-message">*</span>
+              <input type="text" pInputText formControlName="User_Phone_Number" class="w-100"
+                [ngClass]="submitted && formGroup.controls.User_Phone_Number.errors ? 'ng-invalid ng-dirty' : ''" />
+              <p class="error-message" *ngIf="submitted && formGroup.controls.User_Phone_Number.errors">{{
+                error['User_Phone_Number'] }}</p>
+            </div>
+            <div class="col-md-12 form-group">
+              <button *ngIf="isEdit && currentUserId == userId" pButton type="button" label="Change password"
+                class="btn btn-noborder-yellow ml-2" (click)="changePass()"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="list-button btn-add-new text-center pt-3">
+        <button *ngIf="isAdd" pButton type="button" label="Create user" class="btn btn-yellow btn-create"
+          (click)="createUser()"></button>
+        <button *ngIf="isEdit" pButton type="button" label="Save" class="btn btn-yellow btn-create"
+          (click)="save()"></button>
+        <button pButton type="button" label="Cancel" class="btn btn-border-yellow btn-cancel ml-2"
+          (click)="cancel()"></button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="profile-page h-100">
+      <div class="title-name d-inline-flex w-100 mb-3">
+        <span class="text-bold w-50">PERMISSIONS</span>
+        <!-- <span class="w-50 text-right" (click)="permission()"><i class="fas fa-cog"></i></span> -->
+      </div>
+      <div class="list-role">
+        <div class="item-role" *ngFor="let role of List_User_Permission, let i = index">
+          <label class="role-name">{{role.Permission_Type_Name}}</label>
+          <p-inputSwitch [(ngModel)]="List_User_Permission[i].Is_Active" [disabled]="disablePermission"></p-inputSwitch>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

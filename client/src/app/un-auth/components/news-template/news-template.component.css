@@ -1,0 +1,60 @@
+.contents-wrapper {
+    background-color: white;
+    padding-bottom  : calc(4.1rem) !important;
+    min-height      : calc(110vh - (4.1rem + 1px)) !important;
+}
+
+.main-headers {
+    background: #2D2252 !important;
+    z-index   : 1039 !important;
+}
+
+.main-headers img {
+    height         : 4%;
+    width          : 6%;
+    object-fit     : cover;
+    object-position: center;
+}
+
+.title-name {
+    font-size: 30px;
+}
+
+.text-url {
+    font-style     : italic;
+    text-decoration: underline;
+    color          : #007bff;
+}
+
+
+::ng-deep .infor img {
+    max-width: 100%;
+}
+
+.news .news-detail-page {
+    background: white;
+    padding   : 2rem 5rem;
+    color     : black
+}
+
+.news-detail-page .appeal-body {
+    min-height: 615px;
+}
+
+::ng-deep .news .image-profile {
+    border-radius  : 10px;
+    object-fit     : cover;
+    object-position: center;
+}
+
+::ng-deep .tabview-home.p-tabview .news img.img-fluid {
+    width: unset;
+    max-width     : 100%;
+    height    : 20rem;
+    box-shadow: 0px 0px 10px #00000080;
+    margin: 0;
+}
+
+.content{
+    text-align: justify;
+}

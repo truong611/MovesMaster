@@ -1,0 +1,34 @@
+<div class="profile-page report">
+  <ng-container>
+    <div *ngIf="type == 4">
+      <div class="title-name text-bold mt-5 mb-3">APPEALS</div>
+      <div class="list-btn-add">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="btn-add btn-count-appeal">
+              <span class="total-number">{{totalAppeal}}</span><br>
+              <span class="name">Appeals</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="title-name text-bold mt-5 mb-3">CAMPAIGNS</div>
+    <div class="list-btn-add">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="btn-add btn-count-campaign">
+            <span class="total-number">{{totalCampaign}}</span><br>
+            <span class="name">Campaigns</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
+  <div class="total-donate">
+    <span>£{{totalDonation | number}}</span>
+  </div>
+</div>

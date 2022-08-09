@@ -1,0 +1,182 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right"></p-toast>
+<div class="appeal-detail">
+  <div class="col-md-12">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="appeal-detail-page">
+          <div class="title-name text-bold mb-3">APPEAL DETAIL</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div [formGroup]="createForm" class="row custom-form">
+              <div class="col-md-5">
+                <div class="row">
+                  <input type="file" id="imageProfile" accept="image/*" (change)="handleFileUpload($event)"
+                    class="file-input d-none" />
+                  <div class="col-md-12 form-group">
+                    <div class="text-center custom-image">
+                      <div [class]="isEdit ? 'image image-edit' : 'image'">
+                        <img #currentLogo *ngIf="newLogoUrl && isEdit" class="d-none" [src]="transform(newLogoUrl)">
+                        <img *ngIf="isEdit" class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                        <img *ngIf="!isEdit" class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                      </div>
+                      <div *ngIf="isEdit" class="custom-button-upload">
+                        <div class="btn-upload">
+                          <button pButton type="button" label="" icon="pi pi-upload" class="btn"
+                            (click)="uploadImage()"></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 text-center form-group">
+                    <p class="text-bold text-transform">{{appeal.Appeal_Status_Name}}</p>
+                  </div>
+                  <div class="col-md-12 mt-8">
+                    <label>CHARITY</label>
+                    <p class="text-bold">{{appeal.Charity_Name}}</p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <div class="image text-center">
+                      <img class="img-fluid image-profile" [src]="charityLogoUrl">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <label>Name</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="nameControl" class="w-100"
+                      [ngClass]="(nameControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <ng-container *ngIf="nameControl?.invalid && submitted">
+                      <p *ngIf="nameControl?.hasError('required') || nameControl?.errors?.forbiddenSpaceText"
+                        class="error-message">This is mandatory field
+                      </p>
+                      <p *ngIf="nameControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Website url</label>
+                    <input type="text" pInputText formControlName="urlControl" class="w-100"
+                      [ngClass]="(urlControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <ng-container *ngIf="urlControl?.invalid && submitted">
+                      <p *ngIf="urlControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
+                      </p>
+                      <p *ngIf="urlControl?.errors?.invalidUrl" class="error-message">The wrong url format
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Description</label>
+                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="desControl" pInputTextarea>
+                    </textarea>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Appeal start date</label><span class="error-message">*</span>
+                    <p-calendar formControlName="startDateControl" [showTime]="false" dateFormat="dd/mm/yy"
+                      [minDate]="minDate" [maxDate]="endDateControl?.value" [style]="{'width':'100%'}"
+                      [baseZIndex]="999" class="p-input-sm" appendTo="body"
+                      [ngClass]="{'ng-invalid ng-dirty': (startDateControl?.invalid && submitted) }">
+                    </p-calendar>
+                    <ng-container *ngIf="startDateControl?.invalid && submitted">
+                      <p *ngIf="startDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Appeal end date</label>
+                    <p-calendar formControlName="endDateControl" [showTime]="false" dateFormat="dd/mm/yy"
+                      [minDate]="startDateControl?.value" [style]="{'width':'100%'}" [baseZIndex]="999"
+                      class="p-input-sm" appendTo="body">
+                    </p-calendar>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Appeal Target</label><span class="error-message">*</span>
+                    <p-inputNumber formControlName="targetAmountControl" mode="currency" currency="GBP" locale="en-US"
+                      [min]="0" [max]="2147483647" [minFractionDigits]="2" [maxFractionDigits]="2" class="text-right"
+                      [ngClass]="{'ng-invalid ng-dirty': (targetAmountControl?.invalid && submitted) }">
+                    </p-inputNumber>
+                    <ng-container *ngIf="targetAmountControl?.invalid && submitted">
+                      <p *ngIf="targetAmountControl?.hasError('required')" class="error-message">This is mandatory field
+                      </p>
+                      <p *ngIf="targetAmountControl?.hasError('min')" class="error-message">Value should be above 0.01
+                      </p>
+                    </ng-container>
+                  </div>
+                  <!-- <div class="col-md-12 form-group">
+                    <label>Current donations</label>
+                    <p-inputNumber [(ngModel)]="appeal.Amount_Raised" [ngModelOptions]="{standalone: true}"
+                      mode="currency" currency="GBP" locale="en-US" [min]="0" [max]="2147483647" [minFractionDigits]="2"
+                      [maxFractionDigits]="2" [disabled]="true">
+                    </p-inputNumber>
+                  </div> -->
+                  <div class="col-md-12 form-group">
+                    <p-progressBar [value]="percent"></p-progressBar>
+                  </div>
+
+                  <div class="btn-add-new text-center pt-3 w-100">
+                    <ng-container *ngIf="!isEdit">
+                      <button *ngIf="isShowButtonEdit" pButton type="button" label="Edit detail"
+                        class="btn btn-yellow btn-create" (click)="switchMode()"></button>
+                      <button *ngIf="isShowButtonPublish" pButton type="button" label="Publish"
+                        class="btn btn-green btn-cancel ml-2" (click)="publish()"></button>
+                      <button *ngIf="isShowButtonAbandon" pButton type="button" label="Abandon"
+                        class="btn btn-white btn-cancel ml-2" (click)="abandon()"></button>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <button pButton type="button" label="Save" class="btn btn-yellow btn-create"
+                        (click)="save()"></button>
+                      <button *ngIf="isShowButtonAbandon" pButton type="button" label="Cancel"
+                        class="btn btn-white btn-cancel ml-2" (click)="switchMode()"></button>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="appeal-detail-page h-100">
+          <div class="mb-3" style="color: #2D2252;">PREVIEW APPEAL</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div class="text-center btn-add-new mt-3">
+              <button pButton type="button" label="Preview" class="btn btn-white w-30" (click)="preview()"></button>
+            </div>
+
+            <div class="title-name text-bold mt-8 mb-3">CAMPAIGNS</div>
+            <div class="list-btn-add">
+              <div class="row">
+                <div *ngIf="isShowButtonCreateCampaign" class="col-md-6">
+                  <div class="btn-add btn-add-campaign" (click)="createCampaign()">
+                    <span class="icon-add">+</span><br>
+                    <span>Add a campaign</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="btn-add btn-count-campaign" (click)="goToListCampaign()">
+                    <span class="total-number">{{appeal.TotalCampaign}}</span><br>
+                    <span class="name">Campaigns</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
+            <div class="total-donate" (click)="goToListDonation()">
+              <span>£{{appeal.Amount_Raised | number}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"
+  [style]="{width: previewWidth, height: previewHeight}" [baseZIndex]="10000" [draggable]="false" [resizable]="false"
+  styleClass="popup-preview preview-appeal">
+  <app-preview-appeal [appeal]="previewForm" *ngIf="previewForm"></app-preview-appeal>
+</p-dialog>

@@ -1,0 +1,65 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="row list-page custom-form">
+  <div class="col-md-4">
+    <div class="page-list-company page-card h-100">
+      <div class="title-name text-bold mb-3">
+        <span>Company information</span>
+      </div>
+      <div class="detail">
+        <div class="infor text-left mt-4">
+          <div class="force-overflow-infor">
+            <p>Company Name: <strong>{{company.Company_Name}}</strong></p>
+            <p>Company number: <strong>{{company.Company_Number}}</strong></p>
+            <p>Contact name: <strong>{{company.Contact_Name}}</strong></p>
+            <p>Contact number: <strong>{{company.Contact_Phone_Number}}</strong></p>
+            <p>Contact Email: <strong>{{company.Contact_Email}}</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="page-list-company page-card h-100">
+      <div class="title-name text-bold mb-3">
+        <span>Requestor information</span>
+      </div>
+      <div class="detail" *ngIf="CharityInfor">
+        <div class="infor text-left mt-4">
+          <div class="force-overflow-infor">
+            <p>Charity: <strong>{{CharityInfor.Charity_Name}}</strong></p>
+            <p>Charity Number: <strong>{{CharityInfor.Charity_Commission_No}}</strong></p>
+            <p>Contact name: <strong>{{CharityInfor.Contact_Name}}</strong></p>
+            <p>Contact number: <strong>{{CharityInfor.Contact_Phone_Number}}</strong></p>
+            <p>Contact Email: <strong>{{CharityInfor.Contact_Email}}</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="page-list-company page-card h-100">
+      <div class="title-name text-bold">
+        <span>Company application due diligence</span>
+      </div>
+      <div class="detail">
+        <div class="infor text-left mt-5">
+          <p>Confirm company at Companies House</p>
+          <p>Contact company to confirm</p>
+          <p>Confirm with requestor</p>
+          <p>Check directory for 'similar' companies</p>
+        </div>
+        <div class="list-buttons text-center mt-5">
+          <button pButton type="button" label="Search Directory" class="btn btn-light"
+            (click)="directoryCompany()"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 list-button text-center mt-5">
+    <button pButton type="button" label="Approve" class="btn btn-success w-20" (click)="approve()"></button>
+    <button pButton type="button" label="Deny" class="btn btn-yellow w-20 ml-2" (click)="deny()"></button>
+  </div>
+</div>

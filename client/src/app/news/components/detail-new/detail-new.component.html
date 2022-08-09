@@ -1,0 +1,142 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right"></p-toast>
+<div class="appeal-create">
+  <div class="col-md-12">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="appeal-create-page">
+          <div class="title-name text-bold mb-3">{{isEdit ? 'EDIT NEWS' : 'NEWS ITEM'}}</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div [formGroup]="formGroup" class="row custom-form">
+              <div class="col-md-5">
+                <div class="row">
+                  <input type="file" id="imageProfile" accept="image/*" (change)="handleFileUpload($event)"
+                    class="file-input d-none" />
+                  <div class="col-md-12 form-group">
+                    <div class="text-center custom-image">
+                      <div [class]="isEdit ? 'image image-edit' : 'image'">
+                        <img #currentLogo *ngIf="newLogoUrl" class="d-none" [src]="transform(newLogoUrl)">
+                        <img class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                      </div>
+                      <div class="custom-button-upload" *ngIf="isEdit">
+                        <div class="btn-upload">
+                          <button pButton type="button" label="" icon="pi pi-upload" class="btn"
+                            (click)="uploadImage()"></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 text-center form-group">
+                    <p class="text-bold text-transform">{{news?.News_Status_Name}}</p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <p>Published: {{news?.News_Publish_Date | date: 'dd/MM/yyyy HH:mm'}}</p>
+                    <p>By: {{news?.CreateBy}}</p>
+                  </div>
+                  <ng-container *ngIf="!news?.CreateByIsAdmin">
+                    <div class="col-md-12 mt-5">
+                      <label>CHARITY</label>
+                      <p class="text-bold">{{news?.Charity_Name}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>COMPANY (option)</label>
+                      <p-dropdown [options]="listCompany" styleClass="w-100" optionLabel="Company_Text" [filter]="true"
+                        [resetFilterOnHide]="true" [showClear]="true" [autoDisplayFirst]="false"
+                        placeholder="Select Company" formControlName="Moves_Company_ID">
+                      </p-dropdown>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>APPEAL (option)</label>
+                      <p-dropdown [options]="listAppeal" styleClass="w-100" optionLabel="Appeal_Name" [filter]="true"
+                        [resetFilterOnHide]="true" [showClear]="true" formControlName="Appeal_ID"
+                        [autoDisplayFirst]="false" placeholder="Select Appeal" (onChange)="changeAppeal($event)">
+                      </p-dropdown>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>CAMPAIGN (option)</label>
+                      <p-dropdown [options]="listCampaign" styleClass="w-100" optionLabel="Campaign_Name"
+                        [filter]="true" [resetFilterOnHide]="true" [showClear]="true" [autoDisplayFirst]="false"
+                        placeholder="Select Campaign" formControlName="Campaign_ID">
+                      </p-dropdown>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 form-group">
+                    <label>Title</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="News_Title" class="w-100"
+                      [ngClass]="(formGroup.controls.News_Title.errors && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Title.errors">{{
+                      error['News_Title'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Website url</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="News_Url" class="w-100"
+                      [ngClass]="(formGroup.controls.News_Url.errors && submitted) ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Url.errors">{{
+                      error['News_Url'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Content</label><span class="error-message">*</span>
+                    <ng-container *ngIf="!isEdit">
+                      <div class="content-new">
+                        <div class="scrollbar" [innerHtml]="formGroup.controls.News_Content.value"></div>
+                      </div>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <p-editor formControlName="News_Content" [style]="{'height':'320px'}" [readonly]="!isEdit"
+                      [ngClass]="(formGroup.controls.News_Content.errors && submitted) ? 'ng-invalid ng-dirty' : ''">
+                    </p-editor>
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.News_Content.errors">{{
+                      error['News_Content'] }}
+                    </p>
+                    </ng-container>
+                  </div>
+                  <div class="btn-add-new text-center pt-3 w-100" *ngIf="user?.Type != 2">
+                    <ng-container *ngIf="!isEdit">
+                      <button pButton type="button" label="Edit" class="btn btn-yellow btn-create mr-2"
+                        (click)="edit()"></button>
+                      <button *ngIf="news?.News_Status_ID == 25 || news?.News_Status_ID == 27" pButton type="button"
+                        label="Publish" class="btn btn-green btn-create mr-2" (click)="updateStatusNews(26)"></button>
+                      <button *ngIf="news?.News_Status_ID == 26" pButton type="button" label="Withdraw"
+                        class="btn btn-green btn-create mr-2" (click)="updateStatusNews(27)"></button>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <button pButton type="button" label="Save" class="btn btn-yellow btn-create"
+                        (click)="save()"></button>
+                      <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
+                        (click)="cancel()"></button>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="appeal-create-page h-100">
+          <div class="mb-3" style="color: #2D2252;">PREVIEW APPEAL</div>
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
+            <div class="text-center btn-add-new mt-3">
+              <button pButton type="button" label="Preview" class="btn btn-white w-30" (click)="preview()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"
+  [style]="{width: previewWidth, height: previewHeight}" [baseZIndex]="10000" [draggable]="false" [resizable]="false"
+  styleClass="popup-preview preview-appeal">
+  <app-preview-new [news]="previewForm" *ngIf="previewForm"></app-preview-new>
+</p-dialog>

@@ -1,0 +1,64 @@
+<div class="preview preview-campaign">
+  <div class="detail">
+    <div class="text-center title-name text-bold mb-3">{{campaign?.Name}}</div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="image text-center" (click)="openLink(1)">
+          <img class="img-fluid" [src]="campaign?.Campaign_Icon">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="image text-center" (click)="openLink(2)">
+          <img class="img-fluid" [src]="campaign?.Charity_Appeal_Icon">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="image text-center" (click)="openLink(3)">
+          <img class="img-fluid" [src]="campaign?.Company_Icon">
+        </div>
+      </div>
+    </div>
+    <div class="infor">
+      <div class="content-detail">
+        {{campaign?.Description}}
+      </div>
+    </div>
+  </div>
+
+  <div class="content-end">
+    <div class="list-number mt-3">
+      <ul class="nav">
+        <li class="nav-item">
+          <label>Launch Date</label>
+          <p><strong>{{campaign?.Launch_Date | date: 'dd/MM/yyyy'}}</strong><br>
+            <!-- D:  H:  M: S<br>
+         {{campaign?.Amount_Date}} -->
+          </p>
+        </li>
+        <li class="nav-item">
+          <label>Contract</label>
+          <p class="text-bold">
+            £{{campaign?.Contract_Target_Amount | number}}<br>
+            @£{{campaign?.Contract_Price_Per_Move | number}} a Move <br>({{campaign?.Contract_Move | number}} Moves)</p>
+        </li>
+        <li class="nav-item">
+          <label>Matches</label>
+          <p class="text-bold">
+            Matched by {{campaign?.Matches | number}} Companies</p>
+        </li>
+        <li class="nav-item">
+          <label>Progress</label>
+          <p class="text-bold">
+            {{campaign?.Progress_Donations | number}} Donations<br>
+            {{campaign?.Progress_Moves | number}} Moves<br>
+            (£{{campaign?.Progress_Amount | number}})<br>
+            {{campaign?.Progress_Line4}}</p>
+        </li>
+      </ul>
+    </div>
+    <div class="list-button text-center mt-4">
+      <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button>
+      <button pButton type="button" label="Donate" class="btn btn-pink w-30 ml-3"></button>
+    </div>
+  </div>
+</div>

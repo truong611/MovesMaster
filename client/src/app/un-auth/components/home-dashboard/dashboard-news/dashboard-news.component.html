@@ -1,0 +1,14 @@
+<div class="profile-page news">
+  <div class="title-name text-bold mb-3">YOUR NEWS</div>
+  <div class="list-news">
+    <div class="row item mb-3" *ngFor="let item of listNew">
+      <div class="col-md-3">
+        <img class="img-fluid img-new" [src]="item.News_Image ? item.News_Image : '/assets/img/Default Image.png'">
+      </div>
+      <div class="col-md-9">
+        <div class="title-new text-green">{{item.News_Title}}</div>
+        <div class="summary-new" [innerHtml]="item.News_Content"></div>
+      </div>
+    </div>
+  </div>
+</div>

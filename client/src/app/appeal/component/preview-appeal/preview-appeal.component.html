@@ -1,0 +1,47 @@
+<div class="preview preview-appeal">
+  <div class="title-name text-bold text-center mb-3">{{appeal?.Name}}</div>
+  <div class="detail">
+    <div class="image text-center" (click)="openLink()">
+      <img class="img-fluid" [src]="appeal?.Icon">
+    </div>
+    <div class="infor">
+      <p class="text-center text-italic">{{appeal?.Status_Name}}</p>
+      <div class="content-detail">
+        {{appeal?.Description}}
+      </div>
+      
+    </div>
+
+    <div class="content-end">
+      <div class="list-number mt-3">
+        <ul class="nav">
+          <li class="nav-item">
+            <label>Launch Date</label>
+            <p><strong>{{appeal?.Launch_Date | date: 'dd/MM/yyyy'}}</strong><br>
+              <!-- D: H: M: S<br>
+            {{appeal?.Amount_Date}} -->
+            </p>
+          </li>
+          <li class="nav-item">
+            <label>Target</label>
+            <p class="text-bold">£{{appeal?.Target | number}}</p>
+          </li>
+          <li class="nav-item">
+            <label>Campaigns</label>
+            <p class="text-bold">{{appeal?.TotalCampaign | number}}</p>
+          </li>
+          <li class="nav-item">
+            <label>Progress</label>
+            <p class="text-bold">
+              £{{appeal?.Amount_Raised | number}}<br>
+              {{appeal?.Progress}}%</p>
+          </li>
+        </ul>
+      </div>
+      <div class="list-button text-center mt-4">
+        <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button>
+        <button pButton type="button" label="Donate" class="btn btn-pink w-30 ml-3"></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="profile-page h-100">
+  <div class="title-name text-bold mb-3">ACCOUNT USERS</div>
+  <div class="list-user custom-scrollbar custom-scrollbar-yellow">
+    <ul class="list-group-user">
+      <li *ngFor="let item of listUser" (click)="detailUser(item.User_ID)">
+        <p class="text-bold">{{item.UserName}}</p>
+        <p>{{item.User_Email}}</p>
+      </li>
+    </ul>
+  </div>
+  <div class="btn-add-new mt-3">
+    <button pButton type="button" label="New Account User" class="btn btn-yellow" (click)="addUser()"></button>
+  </div>
+  
+</div>

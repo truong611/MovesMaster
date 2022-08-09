@@ -1,0 +1,43 @@
+@import url('../../../dashboard/components/reports/reports.component.css');
+
+.page-list-new .list-btn-add .btn-add {
+  width: 180px;
+  height: 120px;
+}
+
+.page-list-new  .list-btn-add .btn-add.btn-add-new{
+  background: #1A1134 0% 0% no-repeat padding-box;
+  border: 2px solid #1BA480;
+  text-align: center;
+  cursor: pointer;
+}
+
+.page-list-new .list-btn-add .btn-add.btn-count-new{
+  padding: 30px 15px 0;
+  background: #25A381 0% 0% no-repeat padding-box;
+  cursor: pointer;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+::ng-deep .filter .p-tabview .p-tabview-panels{
+  padding: 0;
+}
+
+::ng-deep .page-list-new .filter .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: #1BA480;
+}
+
+::ng-deep .page-list-new .table-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
+::ng-deep .page-list-new .table-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
+  background-color: #25A381;
+}
+
+::ng-deep .page-list-new .table-gridview .grid-view .list-box .icon:hover:after {
+  border: 2px solid #25A381;
+}

@@ -1,0 +1,59 @@
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>STT</th>
+      <th *ngFor="let columns of settings['columns']">
+        {{ columns['title'] }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let item of dataTable; let i = index">
+      <td [innerText]="perPage * (page - 1) + i + 1"></td>
+      <td *ngFor="let columns of settings['columns']">
+        <ng-container *ngIf="columns['type']=='string'">
+          {{dataTable[i][columns['key']]}}
+        </ng-container>
+        <ng-container *ngIf="columns['type']=='button'">
+          <button *ngIf="columns['edit']" class="btn-action" (click)="update(item)">
+            <i class="fas fa-pencil-alt "></i>
+          </button>
+          <button *ngIf="columns['delete']" class="btn-action" (click)="delete(item)">
+            <i class="far fa-trash-alt color-red"></i>
+          </button>
+        </ng-container>
+      </td>
+    </tr>
+  </table>
+  <div class="footer d-flex justify-content-between align-items-center">
+    <div class="footer-left">
+      <p class="text-footer">
+        Có tổng cộng
+        <span style="font-weight: bold;color: #066351">{{data.length}}</span>
+        người dùng
+      </p>
+    </div>
+    <div class="footer-right d-flex align-items-center">
+      <select name="select" class="mr-5 select-page" (change)="changePer($event)">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+      </select>
+      <div class="mr-2">
+        <label for="input" class="text-footer">Trang</label>
+        <input class="mx-2 input-page" id="input" type="number"
+               [(ngModel)]="page"
+               (change)="changePage()">
+        <span class="text-footer">của {{Math.ceil(data.length / perPage)}}</span>
+      </div>
+      <div>
+        <i class="fas fa-chevron-left mx-2 cursor-pointer"
+           [ngClass]="page == 1 ? 'cursor-pointer-disable' : 'cursor-pointer-active'"
+           (click)="nextPage(false)"></i>
+        <i class="fas fa-chevron-right mx-2 cursor-pointer"
+           [ngClass]="page == Math.ceil(data.length / perPage) ? 'cursor-pointer-disable' : 'cursor-pointer-active'"
+           (click)="nextPage(true)"></i>
+      </div>
+    </div>
+  </div>
+</div>

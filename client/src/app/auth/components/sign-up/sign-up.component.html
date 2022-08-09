@@ -1,0 +1,106 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="signup">
+  <p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+  <div class="signup-header">
+    <a [routerLink]="['/home']">
+      <img src="assets/img/logo_text_white.png" alt="Moves matter" class="logo-icon img-fluid">
+    </a>
+  </div>
+  <div class="signup-wrapper">
+    <div class="content">
+      <div class="row h-100">
+        <div class="col-md-7 content-left">
+          <div class="row h-100">
+            <div class="col-md-12 content-body">
+              <div class="title text-center">CHARITY SIGN UP</div>
+              <div class="signup-body text-center">
+                <form class="col-md-12 form-horizontal custom-form" [formGroup]="formGroup">
+                  <div class="row">
+                    <div class="col-md-12 form-group">
+                      <label>Charity Name <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Charity_Name" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Charity_Name.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Charity_Name.errors">
+                        {{error['Charity_Name']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>Charity Number <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Charity_Commission_No" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Charity_Commission_No.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Charity_Commission_No.errors">
+                        {{error['Charity_Commission_No']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>Charity Contact Name <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Contact_Name" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">
+                        {{error['Contact_Name']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>Contact email <span class="error-message">*</span></label>
+                      <input type="email" pInputText formControlName="Contact_Email" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Contact_Email.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Email.errors">
+                        {{error['Contact_Email']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>Contact phone number <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Contact_Phone_Number.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Phone_Number.errors">
+                        {{error['Contact_Phone_Number']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <ngx-captcha [config]="captchaConfig" #captcha (keyup.enter)="signup()" #keywordsInput
+                        id="keywordsInput"></ngx-captcha>
+                      <p class="error-message" *ngIf="submitted && !captchaStatus">
+                        {{error['Captcha']}}</p>
+                    </div>
+                    <div class="col-md-12 d-inline-flex justify-content-center mt-3">
+                      <button pButton type="button" label="Sign up" class="btn-primary" (click)="signup()"></button>
+                      <button pButton type="button" label="Cancel" class="btn-primary ml-2" (click)="cancel()"></button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="row h-100">
+            <div class="col-md-12 content-rights">
+              <div class="title">COMPANY SIGN UP</div>
+              <div class="content-text">
+                <p>Please ask a Charity to enable your signup to Moves Matter.</p>
+                <p>You can find Charities already registered on Moves Matter directory</p>
+              </div>
+
+              <button pButton type="button" label="Directory" class="btn-primary" (click)="goToDirectory()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-dialog header="" [(visible)]="displaySuccess" [modal]="true" [style]="{width: '500px', 'min-height': '250px'}"
+  [baseZIndex]="10000" [draggable]="false" [resizable]="false" styleClass="popup-preview register">
+  <div class="col-md-12">
+    <p class="title">
+      CHARITY REGISTRATION
+    </p>
+    <div [innerHtml]="message"></div>
+  </div>
+  <div class="col-md-12 mt-5 text-center">
+    <button pButton type="button" label="OK" class="btn btn-yellow w-30" (click)="close()"></button>
+  </div>
+</p-dialog>

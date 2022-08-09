@@ -1,0 +1,5 @@
+@import url('../../../directory/directory.component.css');
+
+.home-ethos .page-card {
+  border-radius: 0;
+}

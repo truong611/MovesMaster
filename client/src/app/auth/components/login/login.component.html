@@ -1,0 +1,57 @@
+<div class="login">
+  <p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+  <div class="login-header">
+    <a [routerLink]="['/home']">
+      <img src="assets/img/logo_text_white.png" alt="Moves matter" class="logo-icon img-fluid">
+    </a>
+    
+  </div>
+  <div class="login-wrapper">
+    <div class="content h-100 text-center">
+      <div class="row h-100">
+        <div class="col-md-12 content-left">
+          <div class="row h-100">
+            <div class="col-md-12 content-body">
+              <div class="title">LOG IN</div>
+              <p>Please log in with your details</p>
+              <div class="login-body">
+                <form class="col-md-11 mx-auto" [formGroup]="formGroup">
+                  <div class="form-group mb-3">
+                    <input type="email" pInputText formControlName="email" class="w-100" placeholder="Username"
+                      (keyup.enter)="goToPassword()"
+                      [ngClass]="submitted && formGroup.controls.email.errors ? 'status-danger' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.email.errors">
+                      {{error['email']}}</p>
+                  </div>
+                  <div class="form-group mb-4">
+                    <input type="password" pInputText formControlName="password" class="w-100" placeholder="Password"
+                      (keyup.enter)="login()" #keywordsInput id="keywordsInput"
+                      [ngClass]="submitted && formGroup.controls.password.errors ? 'status-danger' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.password.errors">
+                      {{error['password']}}</p>
+                  </div>
+                  <div class="form-group mb-3">
+                    <a href="reset-password" class="text-pink">Forgot your password?</a>
+                  </div>
+                  <!-- <p *ngFor="let error of errors" class="error-message">{{ error }}</p> -->
+                  <div class="d-flex justify-content-center mt-4">
+                    <button pButton type="button" label="Login" class="btn-primary" (click)="login()"></button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="col-md-6 content-right">
+          <div class="row h-100">
+            <div class="col-md-12 content-body">
+              <div class="title">Hello!</div>
+              <p>Enter you details to start your journey</p>
+              <button pButton type="button" label="Sign up" class="btn-primary" (click)="signup()"></button>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+</div>

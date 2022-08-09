@@ -1,0 +1,15 @@
+<div class="detail-notification">
+  <div class="title d-inline-flex w-100">
+    <div class="sender">
+      <p>From: <strong>{{notification?.Name}}</strong> <{{'Contact: ' + notification?.Email + '>'}}</p>
+    </div>
+    <div class="time ml-5">
+      {{notification?.Created_Date_Text}}
+    </div>
+  </div>
+  <div class="content" [innerHtml]="notification?.Content">
+  </div>
+  <!-- <div class="text-right mt-3">
+    <button type="button" class="btn btn-white w-20" (click)="cancel()">Close</button>
+  </div> -->
+</div>

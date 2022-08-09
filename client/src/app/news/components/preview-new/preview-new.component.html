@@ -1,0 +1,39 @@
+<div class="preview preview-new">
+  <div class="title-name text-bold mb-3">{{news?.News_Title}}</div>
+  <div class="detail">
+    <!-- <p class="text-url">{{news?.News_Url}}</p> -->
+    <div class="image text-center">
+      <ul class="nav list-image list-image-{{countImage}}">
+        <li (click)="openLink(1)" *ngIf="news?.News_Image">
+          <img class="img-fluid" [src]="news?.News_Image">
+        </li>
+        <li (click)="openLink(2)" *ngIf="news?.Moves_Company_ID">
+          <img class="img-fluid" [src]="news?.Company_Icon">
+        </li>
+        <li (click)="openLink(3)" *ngIf="news?.Appeal_ID">
+          <img class="img-fluid" [src]="news?.Appeal_Icon">
+        </li>
+        <li (click)="openLink(4)" *ngIf="news?.Campaign_ID">
+          <img class="img-fluid" [src]="news?.Campaign_Icon">
+        </li>
+      </ul>
+    </div>
+    <div class="infor">
+      <div class="content-detail">
+        <div class="content-new" [innerHtml]="news?.News_Content"></div>
+        <p class="text-right text-bold">{{(news?.News_Publish_Date ? (news?.News_Publish_Date  | date: 'dd/MM/yyyy HH:mm' ) : '' ) + ' - ' + (news?.CreateBy ? news?.CreateBy : '')}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="content-end">
+    <div class="list-btn-share">
+      <p class="text-center">share this</p>
+      <div class="list-btn text-center">
+        <button pButton type="button" iconPos="left" class="btn btn-share"><i class="fab fa-facebook-f"></i></button>
+        <button pButton type="button" iconPos="left" class="btn btn-share ml-3"><i class="fab fa-twitter"></i></button>
+        <button pButton type="button" iconPos="left" class="btn btn-share ml-3"><i
+            class="fab fa-linkedin-in"></i></button>
+      </div>
+    </div>
+  </div>
+</div>

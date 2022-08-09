@@ -1,0 +1,30 @@
+@import url('../../../dashboard/components/reports/reports.component.css');
+
+.page-list-campaign .list-btn-add .btn-add {
+  width: 180px;
+  height: 120px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+::ng-deep .filter .p-tabview .p-tabview-panels{
+  padding: 0;
+}
+
+::ng-deep .page-list-campaign .filter .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: #6F2D87;
+}
+
+::ng-deep .page-list-campaign .table-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
+::ng-deep .page-list-campaign .table-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
+  background-color: #6F2D87;
+}
+
+::ng-deep .page-list-campaign .table-gridview .grid-view .list-box .icon:hover:after {
+  border: 2px solid #6F2D87;
+}

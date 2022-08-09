@@ -1,0 +1,14 @@
+::ng-deep .dashboard .profile-page {
+  background: #2D2252 0% 0% no-repeat padding-box;
+  border-radius: 25px;
+  padding: 20px;
+}
+
+::ng-deep .btn-add-new {
+  text-align: center;
+}
+
+::ng-deep .btn-add-new button{
+  border-radius: 27px;
+  width: 70%;
+}

@@ -1,0 +1,102 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right"></p-toast>
+<p-confirmDialog #cd header="Xác nhận" icon="pi pi-exclamation-triangle">
+  <ng-template pTemplate="footer">
+    <button type="button" class="go-to-list" pButton label="Không" (click)="cd.reject()"></button>
+    <button type="button" class="create-button" pButton label="Chấp nhận" (click)="cd.accept()"></button>
+  </ng-template>
+</p-confirmDialog>
+
+<div class="tin-nhan-den">
+  <div class="row no-margin">
+    <div class="col-md-12 header-content">
+      <div class="row">
+        <div class="col-md-6 header-left">
+          <span class="header-title">Danh sách tin nhắn đến</span>
+        </div>
+        <div class="col-md-6 header-right" style="text-align: right;">
+          <input type="text" pInputText placeholder="Nhập từ khóa tìm kiếm" style="width: 250px;" [(ngModel)]="keyword">
+          <button pButton type="button" label="Tìm kiếm" class="search-button" [style]="{'margin-left': '5px'}"
+            (click)="search()"></button>
+          <p-button icon="pi pi-replay" [loading]="loading" [style]="{'margin-left': '5px'}" (click)="refresh()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 mt-10">
+      <ng-container *ngFor="let item of listMessage">
+        <div class="row pd-10">
+          <div class="col-md-12 message-border">
+            <div class="row" (click)="showDetail(item)">
+              <div class="col-md-12">
+                <p [ngClass]="cssTieuDe(item.DaXem)">{{item.TieuDe}}</p>
+                <p [ngClass]="cssNoiDung(item.DaXem)">
+                  {{ item.NoiDung?.trim().length > 150 ? item.NoiDung?.trim().slice(0,150)+'...' : item.NoiDung?.trim() }}
+                </p>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 file-dinh-kem">
+                <div class="row">
+                  <ng-container *ngFor="let file of item.ListFile">
+                    <div class="col-md-6">
+                      <span (click)="downloadFile(file.Id, file.TenTaiLieu)" style="cursor: pointer;">
+                        <i class="pi pi-file"></i> {{file.TenTaiLieu}}
+                      </span>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-md-6 nguoi-gui">
+                <strong>{{item.CreatedName}}</strong> <span> - {{item.SendDate | date:'dd/MM/yyyy HH:mm'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <p-dialog [(visible)]="display" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+    [style]="{width: '50vw'}" [draggable]="false" [resizable]="false" [closable]="false">
+    <ng-template pTemplate="header">
+      Nội dung tin nhắn đến
+    </ng-template>
+
+    <div class="row">
+      <div class="col-md-12">
+        <strong>{{message?.CreatedName}}</strong> <span> - {{message?.SendDate | date:'dd/MM/yyyy HH:mm'}}</span>
+      </div>
+      <div class="col-md-12" style="margin-top: 10px;">
+        <p class="tieu-de-chua-xem">{{message?.TieuDe}}</p>
+      </div>
+      <div class="col-md-12" style="margin-top: 10px;">
+        <textarea rows="5" cols="30" pInputTextarea class="w100">{{message?.NoiDung}}</textarea>
+      </div>
+      <div class="col-md-12" style="margin-top: 10px;">
+        <div class="row">
+          <div class="col-md-3">
+            <strong>File đính kèm: </strong>
+          </div>
+          <div class="col-md-9 file-dinh-kem">
+            <ul>
+              <li class="mt-10" *ngFor="let file of message?.ListFile" style="cursor: pointer;"
+                (click)="downloadFile(file.Id, file.TenTaiLieu)">
+                <i class="pi pi-file"></i> {{file?.TenTaiLieu}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton type="button" label="Thoát" class="go-to-list" [style]="{'float': 'right'}"
+        (click)="cancel()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

@@ -1,0 +1,45 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="col-md-12">
+  <div class="page-card notification">
+    <div class="w-100 d-inline-flex mb-5">
+      <div class="title-name text-bold w-50">
+        NOTIFICATIONS
+      </div>
+      <div class="filter w-50 text-right">
+        <span [class]="type == 1 ? 'sort active' : 'sort'" (click)="sortNotification(1)">All</span> | <span
+          [class]="type == 2 ? 'sort active' : 'sort'" (click)="sortNotification(2)">Unread</span>
+        <span class="p-input-icon-right ml-2">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilter"
+            (input)="applyFilterGlobal()">
+        </span>
+      </div>
+    </div>
+    <div class="list-notification">
+      <ul class="nav">
+        <li [class]="item.Is_Seen ? 'nav-item read' : 'nav-item unread'" *ngFor="let item of listPageNotification"
+          (click)="detailNotification(item)">
+          <div class="d-inline-flex w-100">
+            <div class="icon"></div>
+            <div class="infor-noti">
+              <div class="title-noti d-inline-flex w-100">
+                <p class="sender w-50">{{item.Name}}</p>
+                <p class="time text-right w-50">{{item.Created_Date | date: 'MMMM d, y, hh:mm'}}</p>
+              </div>
+              <div class="content" [innerHtml]="item.Content">
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="paginator text-center mt-3">
+      <p *ngIf="listNotification.length == 0">No data notification</p>
+      <p-paginator *ngIf="listNotification.length > 0" [rows]="rows" [totalRecords]="totalRecords"
+        [rowsPerPageOptions]="[10,20,30,50]" (onPageChange)="onPageChange($event)"></p-paginator>
+    </div>
+  </div>
+</div>

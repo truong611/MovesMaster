@@ -1,0 +1,132 @@
+<div class="wrapper">
+  <app-header></app-header>
+
+  <app-menu></app-menu>
+
+  <div class="content-wrapper dashboard">
+    <p-toast [baseZIndex]="9999" position="bottom-right"></p-toast>
+    <div class="col-md-12">
+      <div class="page-card directory">
+        <p-tabView [(activeIndex)]="activeIndex" styleClass="tabview-directory">
+          <p-tabPanel header="CHARITY DIRECTORY">
+            <div class="card-content table-gridview">
+              <p-table #myTable [columns]="colHeaderCharity" [value]="listCharity"
+                class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true" scrollHeight="80vh">
+                <ng-template pTemplate="header" let-columns>
+
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                  <tr>
+                    <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                      [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                      <span class="p-column-title">{{col.header}}</span>
+                      <span *ngSwitchCase="'Action'" class="link-more" (click)="goToDetailCharity(rowData.Moves_Charity_ID)">
+                        More information
+                      </span>
+                      <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td [attr.colspan]="columns.length">
+                      No data found
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabPanel>
+          <p-tabPanel header="COMPANY DIRECTORY">
+            <div class="card-content table-gridview">
+              <p-table #myTable2 [columns]="colHeaderCompany" [value]="listCompany"
+                class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true" scrollHeight="80vh">
+                <ng-template pTemplate="header" let-columns>
+
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                  <tr>
+                    <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                      [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                      <span class="p-column-title">{{col.header}}</span>
+                      <span *ngSwitchCase="'Action'" class="link-more" (click)="goToDetailCompany(rowData.Moves_Company_ID)">
+                        More information
+                      </span>
+                      <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage" let-columns>
+                  <tr>
+                    <td [attr.colspan]="columns.length">
+                      No data found
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+        <div class="filter">
+          <p-button icon="pi pi-replay" class="refresh-button mr-2" [loading]="loading" (click)="refresh()"></p-button>
+          <span class="p-input-icon-right" *ngIf="activeIndex == 0">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilterCharity"
+              (input)="applyFilterGlobal()">
+          </span>
+
+          <span class="p-input-icon-right" *ngIf="activeIndex == 1">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText placeholder="Search" class="input-search" [(ngModel)]="globalFilterCompany"
+              (input)="applyFilterGlobal()">
+          </span>
+
+          <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="false" styleClass="custom-overlayPanel custom-form" appendTo="body">
+            <ng-template pTemplate>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="row form-group">
+                    <label class="col-md-5">Income Band</label>
+                    <div class="col-md-7">
+                      <p-multiSelect [options]="listIncomeBand" [(ngModel)]="selectedIncomeBand" 
+                      optionLabel="Category_Name" optionValue="Category_ID"
+                      styleClass="w-100" appendTo="body" [filter]="false"></p-multiSelect>
+                    </div>
+                  </div>
+                  <div class="row form-group">
+                    <label class="col-md-5">Geographical Scope</label>
+                    <div class="col-md-7">
+                      <p-multiSelect [options]="listGeographicalScope" [(ngModel)]="selectedGeographicScope" 
+                      optionLabel="Category_Name" optionValue="Category_ID"
+                      styleClass="w-100" appendTo="body" [filter]="false"></p-multiSelect>
+                    </div>
+                  </div>
+                  <div class="row form-group">
+                    <label class="col-md-5">Charity Sector</label>
+                    <div class="col-md-7">
+                      <p-multiSelect [options]="listCharitySector" [(ngModel)]="selectedCharitySector" 
+                      optionLabel="Category_Name" optionValue="Category_ID"
+                      styleClass="w-100" appendTo="body" [filter]="false"></p-multiSelect>
+                    </div>
+                  </div>
+                  <div class="row form-group">
+                    <div class="col-md-5"></div>
+                    <div class="col-md-7 d-inline-flex">
+                      <button pButton type="button" label="Filter" class="search-button" (click)="search()"></button>
+                      <button pButton type="button" label="Cancel" class="search-button ml-2" (click)="op.hide()"></button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+              
+            </ng-template>
+          </p-overlayPanel>
+          <p-button *ngIf="activeIndex == 0" icon="pi pi-filter" class="refresh-button" [loading]="loading" (click)="op.toggle($event)">
+          </p-button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

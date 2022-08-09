@@ -1,0 +1,54 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<form class="form-horizontal custom-form text-center form-center" [formGroup]="formGroup">
+  <p class="title-popup">COMPANY INFORMATION</p>
+  <div class="row" *ngIf="!message">
+    <div class="col-md-12 form-group">
+      <label>Company Name</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Company_Name" class="w-100"
+        [ngClass]="submitted && formGroup.controls.Company_Name.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Company_Name.errors">{{ error['Company_Name'] }}
+      </p>
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Company Number</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Company_Number" class="w-100 text-right"
+        [ngClass]="submitted && formGroup.controls.Company_Number.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Company_Number.errors">{{ error['Company_Number'] }}
+      </p>
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Company Contact Name</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Contact_Name" class="w-100" 
+        [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">{{ error['Contact_Name'] }}
+      </p>
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Company Contact Email</label><span class="error-message">*</span>
+      <input type="email" pInputText formControlName="Contact_Email" class="w-100"
+        [ngClass]="submitted && formGroup.controls.Contact_Email.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Email.errors">{{ error['Contact_Email'] }}
+      </p>
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Company Contact Phone Number</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"
+        [ngClass]="submitted && formGroup.controls.Contact_Phone_Number.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Phone_Number.errors">{{ error['Contact_Phone_Number'] }}
+      </p>
+    </div>
+    <div class="col-md-12 d-inline-flex justify-content-center mt-3">
+      <button pButton type="button" label="Send request" class="btn btn-yellow w-30" (click)="save()"></button><br>
+      <button pButton type="button" label="Cancel" class="btn btn-border-yellow w-30 ml-2" (click)="cancel()"></button>
+    </div>
+  </div>
+  <div class="row" *ngIf="message">
+    <p>{{message}}</p>
+    <div class="col-md-12 mt-3">
+      <button pButton type="button" label="OK" class="btn btn-yellow w-40" (click)="cancel()"></button>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,335 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="row list-page">
+  <div class="col-md-3">
+    <div class="profile-page profile">
+      <div class="title-name text-bold mb-3">{{(type == 4) ? 'CHARITY PROFILE' : 'COMPANY PROFILE'}}</div>
+
+      <!-- hiển thị khi (đây là màn dashboard + tài khoản là charity) hoặc đây là màn charity dashboard-->
+      <div class="detail" *ngIf="type == 4 && charity">
+        <div class="image text-center">
+          <img class="img-fluid" [src]="currentLogoUrl">
+        </div>
+        <div class="infor scrollbar-infor custom-scrollbar">
+          <div class="force-overflow-infor">
+            <p>Name: <strong>{{charity.Charity_Name}}</strong></p>
+            <p><label class="label-left">Charity No:</label><label class="label-right"><strong>{{charity.Charity_Commission_No}}</strong></label></p>
+            <p><label class="label-left">Moves Number:</label><label class="label-right"><strong>{{charity.Moves_Charity_ID}}</strong></label></p>
+            <p><strong>{{charity.Charity_URL}}</strong></p>
+            <p>Contact Name: <strong>{{charity.Contact_Name}}</strong></p>
+            <p>Contact Phone Number: <strong>{{charity.Contact_Phone_Number}}</strong></p>
+            <p>Contact Email: <strong>{{charity.Contact_Email}}</strong></p>
+          </div>
+        </div>
+        <div class="list-button text-center mt-3" *ngIf="!charity.Is_Remove_Privileges && !charity.Is_Remove_Access">
+            <button pButton type="button" label="View detail" class="btn btn-yellow w-40" (click)="viewProfile()"></button>
+        </div>
+      </div>
+
+      <!-- hiển thị khi (đây là màn dashboard + tài khoản là company) hoặc đây là màn company dashboard-->
+      <div class="detail" *ngIf="type == 5 && company">
+        <div class="image text-center">
+          <img class="img-fluid" [src]="currentLogoUrl">
+        </div>
+        <div class="infor scrollbar-infor custom-scrollbar">
+          <div class="force-overflow-infor">
+            <p>Company Name: <strong>{{company.Company_Name}}</strong></p>
+            <p><label class="label-company-left">Company Number:</label><label class="label-right"><strong>{{company.Company_Number}}</strong></label></p>
+            <p><label class="label-company-left">Moves Number:</label><label class="label-right"><strong>{{company.Moves_Company_ID}}</strong></label></p>
+            <p><strong>{{company.Company_URL}}</strong></p>
+            <p>Contact Name: <strong>{{company.Contact_Name}}</strong></p>
+            <p>Contact Phone Number: <strong>{{company.Contact_Phone_Number}}</strong></p>
+            <p>Contact Email: <strong>{{company.Contact_Email}}</strong></p>
+          </div>
+        </div>
+        <div class="list-button text-center mt-3" *ngIf="!company.Is_Remove_Privileges && !company.Is_Remove_Access" >
+          <button pButton type="button" label="View detail" class="btn btn-yellow" (click)="viewProfile()"></button>
+        </div>
+      </div>
+    </div>
+    <app-dashboard-directory></app-dashboard-directory>
+  </div>
+  <div class="col-md-6" *ngIf="!isView">
+    <app-dashboard-account [type]="type" [objectId]="objectId">
+    </app-dashboard-account>
+    <app-dashboard-news [type]="type" [objectId]="objectId"></app-dashboard-news>
+  </div>
+  <div class="col-md-6" *ngIf="isView">
+    <div class="page-card edit-charity">
+      <div class="ng-container" *ngIf="type == 4">
+        <form class="col-md-12 form-horizontal custom-form" [formGroup]="formGroup" *ngIf="formGroup">
+          <p-tabView [(activeIndex)]="activeIndex" styleClass="tabview-directory">
+            <p-tabPanel header="Charity Data">
+              <div class="card-content table-gridview">
+                <div [class]="'row'">
+                  <div class="col-md-4 form-group">
+                    <div class="text-center custom-image">
+                      <div class="image">
+                        <img class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label>Name</label>
+                        <input type="text" pInputText formControlName="Charity_Name" class="w-100" />
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>Charity No</label>
+                        <input type="text" pInputText formControlName="Charity_Commission_No" class="w-100" />
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>Moves Number</label>
+                        <input type="text" pInputText formControlName="Moves_Charity_ID" class="w-100" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-8 form-group">
+                    <label>Url</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Charity_URL" class="w-100"/>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Date founded</label><span class="error-message">*</span>
+                    <p-calendar formControlName="Charity_Date_Founded" [showTime]="false" dateFormat="dd/mm/yy"
+                      [style]="{'width':'100%'}" [baseZIndex]="999" class="p-input-sm" appendTo="body">
+                    </p-calendar>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Contact Name</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Contact_Name" class="w-100"/>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Contact email</label><span class="error-message">*</span>
+                    <input type="email" pInputText formControlName="Contact_Email" class="w-100"/>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Contact phone number</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"/>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Geographical Scope</label><span class="error-message">*</span>
+                    <p-dropdown [options]="listGeographicalScope" styleClass="w-100" optionLabel="Category_Name"
+                      [filter]="true" [resetFilterOnHide]="true" [showClear]="true" [autoDisplayFirst]="false"
+                      placeholder="Select Geographical Scope" formControlName="Charity_Geographical_Scope">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Income Band</label><span class="error-message">*</span>
+                    <p-dropdown [options]="listIncomeBand" styleClass="w-100" optionLabel="Category_Name"
+                      [filter]="true" [resetFilterOnHide]="true" [showClear]="true" [autoDisplayFirst]="false"
+                      placeholder="Select Income Band" formControlName="Charity_Income_Band_ID">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label>Charity Sector</label><span class="error-message">*</span>
+                    <p-multiSelect [options]="listCharitySector" [resetFilterOnHide]="true"
+                      placeholder="Select Charity Sector" formControlName="Charity_Sector" optionLabel="Category_Name"
+                      styleClass="w-100" appendTo="body"></p-multiSelect>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Aims</label><span class="error-message">*</span>
+                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="Charity_Aims" pInputTextarea></textarea>
+                  </div>
+                </div>
+              </div>
+            </p-tabPanel>
+            <p-tabPanel header="Payment Details">
+              <div class="card-content table-gridview">
+                <div [class]="'row'">
+                  <div class="col-md-12 form-group mt-3">
+                    <label>Address for invoice:</label>
+                    <textarea rows="3" [style]="{'width': '100%'}" formControlName="Address_For_Invoice"
+                      pInputTextarea></textarea>
+                  </div>
+                  <div class="col-md-6 mt-5">
+                    <label class="mb-3">Company Payment</label>
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label>Payment site URL</label><span class="error-message">*</span>
+                        <input type="text" pInputText formControlName="Payment_Site_Url" class="w-100"/>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Account Name</label><span class="error-message">*</span>
+                        <input type="text" pInputText formControlName="Account_Name" class="w-100" />
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Account No</label><span class="error-message">*</span>
+                        <input type="email" pInputText formControlName="Account_No" class="w-100"/>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Sort Code</label><span class="error-message">*</span>
+                        <input type="text" pInputText formControlName="Sort_Code" class="w-100"/>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="col-md-6 mt-5">
+                    <label class="mb-3">Member of public Payment (if different)</label>
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label>Payment site URL</label>
+                        <input type="text" pInputText formControlName="Member_Payment_Site_Url" class="w-100"/>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Account Name</label>
+                        <input type="text" pInputText formControlName="Member_Account_Name" class="w-100"/>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Account No</label>
+                        <input type="email" pInputText formControlName="Member_Account_No" class="w-100"/>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>Sort Code</label>
+                        <input type="text" pInputText formControlName="Member_Sort_Code" class="w-100"/>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </p-tabPanel>
+            <p-tabPanel header="Moves History">
+              <div class="card-content table-gridview">
+                <p-table #myTable [columns]="colHeader" [value]="List_Action_History">
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
+                        [ngStyle]="{'text-align': col.textAlign, 'min-width': col.colWith}">
+                        <span>{{col.header}}</span>
+                      </th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                    <tr>
+                      <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                        [ngStyle]="{'text-align': col.textAlign, 'min-width': col.colWith}">
+                        <span class="p-column-title">{{col.header}}</span>
+
+                        <span *ngSwitchCase="'Action_Date'">{{rowData[col.field] | date: 'dd/MM/yyyy'}}</span>
+
+                        <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                      <td [attr.colspan]="columns.length">
+                        No data found
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </p-tabPanel>
+          </p-tabView>
+        </form>
+        <div class="ng-container">
+          <div class="list-button text-center mt-3">
+            <button pButton type="button" label="Back" class="btn btn-border-yellow w-20 ml-2"
+              (click)="back()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="ng-container" *ngIf="type == 5">
+        <form class="col-md-12 form-horizontal custom-form" [formGroup]="formGroup" *ngIf="formGroup">
+          <p-tabView [(activeIndex)]="activeIndex" styleClass="tabview-directory">
+            <p-tabPanel header="Company Data">
+              <div class="card-content table-gridview">
+                <div [class]="'row'">
+                  <div class="col-md-4 form-group">
+                    <div class="text-center custom-image">
+                      <div class="image">
+                        <img class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label>Name</label>
+                        <input type="text" pInputText formControlName="Company_Name" class="w-100"/>
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>Company Number</label>
+                        <input type="text" pInputText formControlName="Company_Number" class="w-100" />
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>Moves Number</label>
+                        <input type="text" pInputText formControlName="Moves_Company_ID" class="w-100" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Url</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Company_URL" class="w-100"/>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label>Contact Name</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Contact_Name" class="w-100"/>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label>Contact email</label><span class="error-message">*</span>
+                    <input type="email" pInputText formControlName="Contact_Email" class="w-100"/>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label>Contact phone number</label><span class="error-message">*</span>
+                    <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"/>
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label>Corporate Social Responsibility Statement</label><span class="error-message">*</span>
+                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="Company_CSR_Statement"
+                      pInputTextarea></textarea>
+                  </div>
+                </div>
+                <div class="list-button text-center mt-3">
+                  <button pButton type="button" label="Back" class="btn btn-border-yellow w-20 ml-2"
+                    (click)="back()"></button>
+                </div>
+              </div>
+            </p-tabPanel>
+            <p-tabPanel header="Moves History">
+              <div class="card-content table-gridview">
+                <p-table #myTable [columns]="colHeader" [value]="List_Action_History">
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
+                        [ngStyle]="{'text-align': col.textAlign, 'min-width': col.colWith}">
+                        <span>{{col.header}}</span>
+                      </th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                    <tr>
+                      <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                        [ngStyle]="{'text-align': col.textAlign, 'min-width': col.colWith}">
+                        <span class="p-column-title">{{col.header}}</span>
+
+                        <span *ngSwitchCase="'Action_Date'">{{rowData[col.field] | date: 'dd/MM/yyyy'}}</span>
+
+                        <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage" let-columns>
+                    <tr>
+                      <td [attr.colspan]="columns.length">
+                        No data found
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </p-tabPanel>
+          </p-tabView>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <app-dashboard-reports [type]="type" [objectId]="objectId">
+    </app-dashboard-reports>
+  </div>
+</div>

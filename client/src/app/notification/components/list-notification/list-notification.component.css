@@ -1,0 +1,58 @@
+.notification .sort {
+  cursor: pointer;
+}
+.notification .sort.active {
+  color: #F0278A;
+  text-decoration: underline;
+}
+
+.list-notification .nav {
+  display: inline-block;
+  width: 100%;
+}
+
+.list-notification .nav-item {
+  border-top: 1px solid #ffffff !important;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.list-notification .nav-item .infor-noti {
+  width: calc(100% - 16px);
+}
+
+.list-notification .nav-item .icon {
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.list-notification .nav-item .content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.list-notification .nav-item.unread .icon {
+  background: #F0278A;
+}
+
+.list-notification .nav-item .time {
+  color: #F0278A;
+}
+
+.list-notification .nav-item.read .infor-noti {
+  opacity: 0.5;
+}
+
+::ng-deep .notification .p-paginator {
+  background: unset;
+}
+
+::ng-deep .notification .p-paginator .p-paginator-pages .p-paginator-page {
+  border-radius: 50%;
+}

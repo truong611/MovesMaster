@@ -1,0 +1,250 @@
+::ng-deep .contents-wrapper {
+    background-color: #1a1334;
+    padding-bottom: calc(4.1rem)!important;
+    min-height: calc(110vh - (4.1rem + 1px))!important;
+}
+
+.home-ethos {
+    background: #2D2252;
+}
+
+.home-ethos .content-body {
+    font-size: 18px;
+    color: #161615;
+    background-color: #fff;
+}
+
+.home-ethos img {
+    margin-top: 8%;
+    margin-left: 6%;
+    height: 80%;
+    width: 90%;
+    object-fit: contain;
+    object-position: center;
+}
+
+.home-ethos .seperate-body {
+    width: 2%;
+}
+
+.home-ethos .seperate-body .seperate {
+    margin-top: 25%;
+    height: 96%;
+    width: 15%;
+    background-color: #000;
+}
+
+.home-ethos .seperate-horizontal {
+    margin-top: 15px;
+    height: 7px;
+    background-color: #000;
+    margin-bottom: 15px;
+    width: 96%;
+    margin-left: 2%;
+}
+
+.home-ethos .titles-name {
+    font-size: 15px;
+    padding: 0 0 25px;
+    display: flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.home-ethos .title-name span {
+    font-size: 25px;
+    padding: 0 0 25px;
+    display: flex;
+    margin-top: 10px;
+}
+
+.home-ethos .content-name span {
+    display: flex;
+    padding: 0 0 25px;
+}
+
+.home-ethos .summary-new {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 22px;
+    -webkit-line-clamp: 3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    color: white;
+    font-size: 13px;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box li {
+    width: calc(100%/5);
+    padding: 0 0.75rem;
+    margin-bottom: 2rem;
+
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon {
+    position: relative;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon img {
+    box-shadow: 0px 0px 10px #00000080;
+    border-radius: 10px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+    margin-left: 0% !important;
+    margin-top: 0% !important;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .title-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-top: .5rem;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .more-info {
+    padding: 10px;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    color: #fff;
+    opacity: 0;
+    z-index: 1;
+    height: 100%;
+    cursor: pointer;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .more-info .text-more {
+    text-align: center;
+    margin: 0 auto;
+    display: inline-flex;
+    width: 100%;
+    height: calc(100% - 30px);
+    align-items: center;
+    justify-content: center;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon:hover .more-info {
+    opacity: 1;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon:hover:after {
+    opacity: 0.5;
+    border: 2px solid #009FC8;
+    border-radius: 10px;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.home-ethos .tables-gridview .grid-view .list-box .icon::after {
+    background: rgba(26, 17, 52, 1);
+}
+
+
+.home-ethos .tables-gridview .scrollbar-table table img {
+    box-shadow: 0px 0px 10px #00000080;
+    border-radius: 10px;
+    object-fit: cover;
+    object-position: center;
+    width: 90px;
+    height: 60px;
+}
+
+.home-ethos .tables-gridview .grid-view {
+    height: 70vh;
+    overflow-y: auto;
+}
+
+.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar-track,
+.home-ethos .tables-gridview .grid-view::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #1A1334;
+}
+
+.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar,
+.home-ethos .tables-gridview .grid-view::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 10px;
+    background-color: #1A1334;
+}
+
+.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar-thumb,
+.home-ethos .tables-gridview .grid-view::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+}
+
+.home-ethos .tables-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
+.home-ethos .tables-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
+    background-color: #009FC8;
+}
+
+::ng-deep .home-ethos .tables-gridview .p-paginator .p-paginator-pages .p-paginator-page {
+    border-radius: 50%;
+}
+
+::ng-deep .home-ethos .tables-gridview .p-paginator {
+    background: unset;
+}
+
+.home-ethos .filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 98%;
+    position: absolute;
+    right: calc(20px + 1rem);
+    top: 20px;
+}
+
+.home-ethos .filter .no-data {
+    text-align: center;
+    margin-right: 100vw;
+}
+
+.home-ethos .tab-body .seperate-horizontal {
+    margin-top: 15px;
+    height: 7px;
+    background-color: black;
+    margin-bottom: 15px;
+    width: 96%;
+    margin-left: 2%;
+}
+
+.home-ethos .link-policy {
+    padding-top: 30px;
+    padding-left: 20px;
+    font-size: 14px;
+    color: #161615;
+}
+
+.home-ethos .link-policy a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.home-ethos .page-card {
+    border-radius: 0;
+}

@@ -1,0 +1,17 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<div class="custom-form">
+  <div class="row">
+    <p>Notification for <strong>{{data.data.objectName}}</strong>:</p>
+    <div class="col-md-12 p-0 form-group">
+      <textarea rows="5" [style]="{'width': '100%'}" [(ngModel)]="Content" pInputTextarea></textarea>
+    </div>
+    <p><strong>{{(type == 4) ? user.Charity_Name : user.Company_Name}}</strong> Contact: <strong>{{user.User_Email}}</strong></p>
+    <div class="col-md-12 d-inline-flex justify-content-center mt-3">
+      <button pButton type="button" label="Send" class="btn btn-yellow w-30" (click)="save()"></button><br>
+      <button pButton type="button" label="Cancel" class="btn btn-border-yellow w-30 ml-2" (click)="cancel()"></button>
+    </div>
+  </div>
+</div>

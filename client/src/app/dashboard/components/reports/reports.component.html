@@ -1,0 +1,98 @@
+<div class="profile-page report" id="dashboardReport">
+  <ng-container *ngIf="!user?.IsAdmin || objectId">
+    <div class="preview text-center mt-3" *ngIf="isMyCharity || isMyCompany">
+      <button pButton type="button" label="Preview" class="btn btn-white w-30" (click)="preview()"></button>
+    </div>
+    <div *ngIf="type == 1 || type == 4">
+      <div class="title-name text-bold mt-5 mb-3">APPEALS</div>
+      <div class="list-btn-add">
+        <div class="row">
+          <div class="col-md-6" *ngIf="isMyCharity">
+            <div class="btn-add btn-add-appeal" (click)="appeals()">
+              <span class="icon-add">+</span><br>
+              <span>Add an appeal</span>
+            </div>
+          </div>
+          <div [class]="isMyCharity ? 'col-md-6' : 'col-md-12'">
+            <div class="btn-add btn-count-appeal" (click)="goToListAppeal()">
+              <span class="total-number">{{totalAppeal}}</span><br>
+              <span class="name">Appeals</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="title-name text-bold mt-5 mb-3">CAMPAIGNS</div>
+    <div class="list-btn-add">
+      <div class="row">
+        <div class="col-md-6" *ngIf="isMyCharity">
+          <div class="btn-add btn-add-campaign" (click)="createCampaign()">
+            <span class="icon-add">+</span><br>
+            <span>Add a campaign</span>
+          </div>
+        </div>
+        <div [class]="isMyCharity ? 'col-md-6' : 'col-md-12'">
+          <div class="btn-add btn-count-campaign" (click)="goToListCampaign()">
+            <span class="total-number">{{totalCampaign}}</span><br>
+            <span class="name">Campaigns</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="type == 2 || type == 5">
+      <div class="title-name text-bold mt-5 mb-3">MATCHES</div>
+      <div class="list-btn-add">
+        <div class="row">
+          <div [class]="'col-md-12'">
+            <div class="btn-add btn-count-campaign" (click)="goToListMatches()">
+              <span class="total-number">{{totalMatchOfCompany}}</span><br>
+              <span class="name">Matches</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="user?.IsAdmin && !objectId">
+    <div class="list-report mb-3">
+      <div class="title-name text-bold mb-3">REPORTS</div>
+      <ul class="nav pb-5">
+        <li>
+          <div class="number">{{totalCharityActive}}</div>
+          <div>Charities Registered</div>
+        </li>
+        <li>
+          <div class="number">{{totalAppeal}}</div>
+          <div>Live Appeal</div>
+        </li>
+        <li>
+          <div class="number">{{totalCompanyActive}}</div>
+          <div>Companies Registered</div>
+        </li>
+        <li>
+          <div class="number">{{totalCampaign}}</div>
+          <div>Live Campaigns</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="title-name text-bold mt-5 mb-3">MOVES</div>
+    <div class="total-donate">
+      <span>{{totalMove | number}}</span>
+    </div>
+  </ng-container>
+
+  <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
+  <div class="total-donate" (click)="goToListDonation()">
+    <span>£{{totalDonation | number}}</span>
+  </div>
+</div>
+<p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"
+  [style]="{width: previewWidth, height: previewHeight}" [baseZIndex]="10000" [draggable]="false" [resizable]="false"
+  styleClass="popup-preview">
+  <app-popup-preview [type]="type" [formData]="formData" [icon]="icon" [totalAppeal]="totalAppeal"
+    [totalCampaign]="totalCampaign" [totalDonation]="totalDonation"></app-popup-preview>
+</p-dialog>

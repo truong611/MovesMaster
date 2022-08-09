@@ -1,0 +1,43 @@
+.profile-page.news {
+  height: 75%;
+  position: relative;
+} 
+
+.news {
+  height: calc(100% - 162px - 1rem);
+}
+
+.news .img-new {
+  border-radius: 10px;
+  height: 98px;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.news .list-news .item {
+  cursor: pointer;
+}
+
+.news .title-new {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.news .summary-new {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 22px;
+  -webkit-line-clamp: 3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.profile-page.news .list-button{
+  position: absolute;
+  width: calc(100% - 40px);
+  bottom: 20px;
+}

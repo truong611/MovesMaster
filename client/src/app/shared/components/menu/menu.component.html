@@ -1,0 +1,27 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar" *ngIf="!checkHome">
+  <!-- Brand Logo -->
+  <a href="javascript:;" class="brand-link logo" (click)="goToHome()">
+    <img src="assets/img/logo_text_white.png" alt="Moves matter" class="logo-icon img-fluid">
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <li class="nav-item">
+          <a [routerLink]="['/dashboard']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            class="nav-link">
+            <i class="nav-icon fas fa-home"></i>
+          </a>
+          <a [class]="activeDirectory ? 'nav-link active' : 'nav-link'" (click)="checkRemove()">
+            <i class="nav-icon fas fa-th-list"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

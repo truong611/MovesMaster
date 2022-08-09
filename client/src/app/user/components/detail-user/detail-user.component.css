@@ -1,0 +1,88 @@
+.profile-page.account-user {
+  height: calc(100% - 183px - 1rem);
+}
+
+.profile-page.icon-app {
+  padding: 30px 0;
+}
+
+.avatar-user {
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  box-shadow: 0px 3px 10px #0000004d;
+  object-fit: cover;
+  object-position: center;
+}
+
+.account-user .acc-name {
+  font-size: 18px;
+}
+
+.list-role .item-role {
+  display: inline-flex;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.list-role .role-name {
+  width: calc(100% - 50px);
+}
+
+.account-user .custom-image {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.account-user .custom-image .image {
+  width: 100px;
+  background: #1a1334;
+  border-radius: 50%;
+}
+
+.account-user .custom-button-upload {
+  text-align: center;
+  z-index: 1;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  left: 0;
+}
+
+.account-user .custom-button-upload .btn-upload {
+  width: 100px;
+  height: 100px;
+  box-shadow: 0px 3px 10px #0000004d;
+  border-radius: 50%;
+  background-image: linear-gradient(180deg, transparent 70%, #4c4c4c 50%);
+  opacity: 0.7;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.account-user .custom-button-upload .btn-upload button {
+  color: #ffffff;
+}
+
+.account-user .custom-button-upload .btn-upload button:hover {
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+.btn-add-new button.btn-create,
+.btn-add-new button.btn-cancel {
+  width: 30%;
+}
+
+.btn.btn-noborder-yellow,
+.btn.btn-noborder-yellow:hover {
+  color: #F88111;
+  background: none;
+  border: 0;
+}

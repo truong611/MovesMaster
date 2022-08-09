@@ -1,0 +1,91 @@
+<div class="loading-indicator" *ngIf="loading">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+    </p-progressSpinner>
+</div>
+<div class="row list-page custom-form">
+    <div [class]="charity.Charity_Type == 1 ? 'col-md-4' : 'col-md-6'">
+        <div class="page-list-company page-card h-100">
+            <div class="title-name text-bold mb-3">
+                <span>Charity information</span>
+            </div>
+            <div class="detail">
+                <div class="infor text-left mt-4" *ngIf="charity.Charity_Type == 1">
+                    <div class="force-overflow-infor">
+                        <p>Charity Name: <strong>{{charity.Charity_Name}}</strong></p>
+                        <p>Charity number: <strong>{{charity.Charity_Commission_No}}</strong></p>
+                        <p>Contact name: <strong>{{charity.Contact_Name}}</strong></p>
+                        <p>Contact number: <strong>{{charity.Contact_Phone_Number}}</strong></p>
+                        <p>Contact Email: <strong>{{charity.Contact_Email}}</strong></p>
+                    </div>
+                </div>
+                <ng-container *ngIf="charity.Charity_Type == 0">
+                    <div class="infor text-left mt-4">
+                        <div class="force-overflow-infor">
+                            <p>Charity Name: <strong>{{charity.Charity_Name}}</strong></p>
+                            <p>Contact Email: <strong>{{charity.Contact_Email}}</strong></p>
+                            <p>User id: <strong>{{charity.Created_By}}</strong></p>
+                            <p>Date requested: <strong>{{charity.Created_Date | date: 'dd/MM/yyyy'}}</strong></p>
+                        </div>
+                    </div>
+                    <div class="infor text-left mt-5">
+                        <span>Invited to join Moves?</span>
+                        <button pButton type="button" label="Yes" class="btn btn-success w-20 ml-3"
+                            (click)="invite()"></button>
+                        <button pButton type="button" label="No" class="btn btn-yellow w-20 ml-2"
+                            (click)="cancel()"></button>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4" *ngIf="charity.Charity_Type == 1">
+        <div class="page-list-company page-card h-100">
+            <div class="title-name text-bold mb-3">
+                <span>Requestor Information</span>
+            </div>
+            <div class="title-name text-bold mb-3" *ngIf="!checkExistsEmail">
+                <span>Requestor is new user</span>
+            </div>
+            <div class="detail" *ngIf="checkExistsEmail">
+                <div class="infor text-left mt-4">
+                    <div class="force-overflow-infor">
+                        <p>Contact name: <strong>{{contact_Name}}</strong></p>
+                        <p>Contact number: <strong>{{contact_Phone_Number}}</strong></p>
+                        <p>Contact Email: <strong>{{contact_Email}}</strong></p>
+                    </div>
+                </div>
+            </div>
+            <p>If requestor contact information does not match Charity Information, contact Requestor to confirm</p>
+        </div>
+    </div>
+    <div [class]="charity.Charity_Type == 1 ? 'col-md-4' : 'col-md-6'">
+        <div class="page-list-company page-card h-100">
+            <div class="title-name text-bold">
+                <span>Charity application due diligence</span>
+            </div>
+            <div class="detail">
+                <div [class]="checkInfor ? 'infor text-left mt-3' : 'infor text-left mt-3 pb-5'">
+                    <p>Reviews against Charity Commission <span class="link" (click)="checkCharityInfor()">Here</span>
+                    </p>
+                    <p class="text-infor" *ngIf="checkInfor">{{checkInfor}}</p>
+                </div>
+                <div class="infor text-left mt-3 pt-3">
+                    <p>Check with Charity by phone / email</p>
+                    <p>Check if Charity already on Moves</p>
+                </div>
+                <div class="list-buttons text-center mt-5">
+                    <button pButton type="button" label="Search Directory" class="btn btn-light"
+                        (click)="directoryCompany()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 list-button text-center mt-5">
+        <button *ngIf="charity.Charity_Type == 1" pButton type="button" label="Approve" class="btn btn-success w-20"
+            (click)="approve()"></button>
+        <button *ngIf="charity.Charity_Type == 1" pButton type="button" label="Deny" class="btn btn-yellow w-20 ml-2"
+            (click)="deny()"></button>
+        <button *ngIf="charity.Charity_Type == 0" pButton type="button" label="OK" class="btn btn-success w-20"
+            (click)="cancel()"></button>
+    </div>
+</div>

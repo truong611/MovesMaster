@@ -1,0 +1,13 @@
+.tin-nhan-dialog .mt-10 {
+  margin-top: 10px;
+}
+
+.tin-nhan-dialog .mt-20 {
+  margin-top: 10px;
+}
+
+.tin-nhan-dialog .checkbox-leabel {
+  margin-left: 5px !important;
+  position: relative;
+  top: 3px;
+}
