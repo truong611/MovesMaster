@@ -3,11 +3,11 @@
   </p-progressSpinner>
 </div>
 <p-toast position="bottom-right"></p-toast>
-<div class="appeal-detail">
+<div class="appeal-create appeal-detail">
   <div class="col-md-12">
     <div class="row">
       <div class="col-md-9">
-        <div class="appeal-detail-page">
+        <div class="appeal-create-page">
           <div class="title-name text-bold mb-3">APPEAL DETAIL</div>
           <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
             <div [formGroup]="createForm" class="row custom-form">
@@ -47,12 +47,12 @@
               <div class="col-md-7">
                 <div class="row">
                   <div class="col-md-12 form-group">
-                    <label>Name</label><span class="error-message">*</span>
+                    <label>Name</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="text" pInputText formControlName="nameControl" class="w-100"
                       [ngClass]="(nameControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
                     <ng-container *ngIf="nameControl?.invalid && submitted">
                       <p *ngIf="nameControl?.hasError('required') || nameControl?.errors?.forbiddenSpaceText"
-                        class="error-message">This is mandatory field
+                        class="error-message">This field is mandatory
                       </p>
                       <p *ngIf="nameControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
                       </p>
@@ -71,36 +71,43 @@
                   </div>
                   <div class="col-md-12 form-group">
                     <label>Description</label>
-                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="desControl" pInputTextarea>
-                    </textarea>
+                    <ng-container *ngIf="!isEdit">
+                      <div class="content-new">
+                        <div class="scrollbar" [innerHtml]="desControl.value"></div>
+                      </div>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <p-editor formControlName="desControl" [style]="{'height':'220px'}" [readonly]="!isEdit">
+                      </p-editor>
+                    </ng-container>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Appeal start date</label><span class="error-message">*</span>
+                    <label>Appeal Launch Date</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-calendar formControlName="startDateControl" [showTime]="false" dateFormat="dd/mm/yy"
                       [minDate]="minDate" [maxDate]="endDateControl?.value" [style]="{'width':'100%'}"
                       [baseZIndex]="999" class="p-input-sm" appendTo="body"
                       [ngClass]="{'ng-invalid ng-dirty': (startDateControl?.invalid && submitted) }">
                     </p-calendar>
                     <ng-container *ngIf="startDateControl?.invalid && submitted">
-                      <p *ngIf="startDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="startDateControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                     </ng-container>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Appeal end date</label>
+                    <label>Appeal End Date</label>
                     <p-calendar formControlName="endDateControl" [showTime]="false" dateFormat="dd/mm/yy"
                       [minDate]="startDateControl?.value" [style]="{'width':'100%'}" [baseZIndex]="999"
                       class="p-input-sm" appendTo="body">
                     </p-calendar>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Appeal Target</label><span class="error-message">*</span>
+                    <label>Appeal Target</label>
                     <p-inputNumber formControlName="targetAmountControl" mode="currency" currency="GBP" locale="en-US"
                       [min]="0" [max]="2147483647" [minFractionDigits]="2" [maxFractionDigits]="2" class="text-right"
                       [ngClass]="{'ng-invalid ng-dirty': (targetAmountControl?.invalid && submitted) }">
                     </p-inputNumber>
                     <ng-container *ngIf="targetAmountControl?.invalid && submitted">
-                      <p *ngIf="targetAmountControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="targetAmountControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                       <p *ngIf="targetAmountControl?.hasError('min')" class="error-message">Value should be above 0.01
                       </p>
@@ -113,7 +120,7 @@
                       [maxFractionDigits]="2" [disabled]="true">
                     </p-inputNumber>
                   </div> -->
-                  <div class="col-md-12 form-group">
+                  <div class="col-md-12 form-group" *ngIf="targetAmountControl.value">
                     <p-progressBar [value]="percent"></p-progressBar>
                   </div>
 
@@ -140,7 +147,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="appeal-detail-page h-100">
+        <div class="appeal-create-page h-100">
           <div class="mb-3" style="color: #2D2252;">PREVIEW APPEAL</div>
           <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
             <div class="text-center btn-add-new mt-3">
@@ -166,7 +173,11 @@
             </div>
             <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
             <div class="total-donate" (click)="goToListDonation()">
-              <span>£{{appeal.Amount_Raised | number}}</span>
+              <span>£{{appeal.Amount_Raised | number: '0.2-2'}}</span>
+            </div>
+            <div class="total-donate mt-2" *ngIf="appeal.TotalMove > 0">
+              <span>{{appeal.TotalMove | number: '1.0-0'}}</span>
+              <p class="text">Moves donated directly</p>
             </div>
           </div>
         </div>

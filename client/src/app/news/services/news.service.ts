@@ -42,22 +42,26 @@ const _getMasterDataCreateNews = gql`
       Charity {
         Charity_Name
         Charity_URL
+        Charity_icon
       }
       ListCompany {
         Moves_Company_ID
         Company_Name
         Company_Number
+        Company_Icon
         Company_URL
       }
       ListAppeal {
         Appeal_ID
         Appeal_Name
+        Appeal_Icon
         Appeal_URL
       }
       ListCampaign {
         Campaign_ID
         Appeal_ID
         Campaign_Name
+        Campaign_Icon
         Campaign_URL
       }
       messageCode
@@ -87,6 +91,7 @@ const _getDetailNews = gql`
         Is_Manual
         Charity_Name
         Charity_URL
+        Charity_icon
         Appeal_Name
         Company_Name
         Campaign_Name

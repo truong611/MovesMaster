@@ -3,13 +3,13 @@
   </p-progressSpinner>
 </div>
 <p-toast position="bottom-right" [baseZIndex]="2147483647"></p-toast>
-<div class="campaign-detail">
+<div class="appeal-create appeal-detail campaign-create">
   <div class="col-md-12">
     <div class="row">
       <div class="col-md-9">
-        <div class="campaign-detail-page">
+        <div class="appeal-create-page">
           <div class="title-name text-bold mb-3">CAMPAIGN DETAIL</div>
-          <div class="campaign-body custom-scrollbar custom-scrollbar-yellow">
+          <div class="appeal-body custom-scrollbar custom-scrollbar-yellow">
             <div [formGroup]="createForm" class="row custom-form">
               <div class="col-md-5">
                 <div class="row">
@@ -50,14 +50,14 @@
                       [src]="appealControl.value?.Appeal_Icon" (click)="selectImage(appealControl.value?.Appeal_Icon)">
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>COMPANY</label><span class="error-message">*</span>
+                    <label>COMPANY</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-dropdown [options]="listCompany" styleClass="w-100" optionLabel="Company_Name" [filter]="true"
                       [resetFilterOnHide]="true" [showClear]="true" formControlName="companyControl"
                       [autoDisplayFirst]="false" placeholder="choice a company"
                       [ngClass]="{'ng-invalid ng-dirty': (companyControl?.invalid && submitted) }">
                     </p-dropdown>
                     <ng-container *ngIf="companyControl?.invalid && submitted">
-                      <p *ngIf="companyControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="companyControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                     </ng-container>
                     <img *ngIf="companyControl.value?.Company_Icon" class="img-fluid select-image"
@@ -81,12 +81,12 @@
               <div class="col-md-7">
                 <div class="row">
                   <div class="col-md-12 form-group">
-                    <label>Name</label><span class="error-message">*</span>
+                    <label>Name</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="text" pInputText formControlName="nameControl" class="w-100"
                       [ngClass]="(nameControl?.invalid && submitted) ? 'ng-invalid ng-dirty' : ''" />
                     <ng-container *ngIf="nameControl?.invalid && submitted">
                       <p *ngIf="nameControl?.hasError('required') || nameControl?.errors?.forbiddenSpaceText"
-                        class="error-message">This is mandatory field
+                        class="error-message">This field is mandatory
                       </p>
                       <p *ngIf="nameControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
                       </p>
@@ -105,18 +105,25 @@
                   </div>
                   <div class="col-md-12 form-group">
                     <label>Description</label>
-                    <textarea rows="4" [style]="{'width': '100%'}" formControlName="desControl" pInputTextarea>
-                    </textarea>
+                    <ng-container *ngIf="!isEdit">
+                      <div class="content-new">
+                        <div class="scrollbar" [innerHtml]="desControl.value"></div>
+                      </div>
+                    </ng-container>
+                    <ng-container *ngIf="isEdit">
+                      <p-editor formControlName="desControl" [style]="{'height':'220px'}" [readonly]="!isEdit">
+                      </p-editor>
+                    </ng-container>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Campaign Launch Date</label><span class="error-message">*</span>
+                    <label>Campaign Launch Date</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-calendar formControlName="launchDateControl" dateFormat="dd/mm/yy" [showTime]="true"
                       [minDate]="minDate" [maxDate]="endDateControl?.value" [style]="{'width':'100%'}"
                       [baseZIndex]="999" class="p-input-sm" appendTo="body"
                       [ngClass]="{'ng-invalid ng-dirty': (launchDateControl?.invalid && submitted) }">
                     </p-calendar>
                     <ng-container *ngIf="launchDateControl?.invalid && submitted">
-                      <p *ngIf="launchDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="launchDateControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                     </ng-container>
                   </div>
@@ -134,7 +141,7 @@
                       [ngClass]="{'ng-invalid ng-dirty': (endDateControl?.invalid && submitted) }">
                     </p-calendar>
                     <ng-container *ngIf="endDateControl?.invalid && submitted">
-                      <p *ngIf="endDateControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="endDateControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                     </ng-container>
                   </div> -->
@@ -158,9 +165,9 @@
                     <div class="row">
                       <div class="col-md-6">
                         <ng-container *ngIf="choiceControl?.value == 'false'">
-                          <p-inputNumber formControlName="targetValueControl" mode="currency" [currency]="currencySelected"
-                            class="text-right" locale="en-US" [min]="0" [max]="2147483647" [minFractionDigits]="2"
-                            [maxFractionDigits]="2"
+                          <p-inputNumber formControlName="targetValueControl" mode="currency"
+                            [currency]="currencySelected" class="text-right" locale="en-US" [min]="0" [max]="2147483647"
+                            [minFractionDigits]="2" [maxFractionDigits]="2"
                             [ngClass]="{'ng-invalid ng-dirty': (targetValueControl?.invalid && submitted) }">
                           </p-inputNumber>
                         </ng-container>
@@ -181,18 +188,24 @@
                             class="p-input-sm" appendTo="body"
                             [ngClass]="{'ng-invalid ng-dirty': (endDateControl?.invalid && submitted) }">
                           </p-calendar>
+                          <ng-container *ngIf="endDateControl?.invalid && submitted">
+                            <p *ngIf="endDateControl?.hasError('required')" class="error-message">
+                              This field is mandatory
+                            </p>
+                          </ng-container>
                         </ng-container>
                       </div>
                     </div>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Price per move</label><span class="error-message">*</span>
-                    <p-inputNumber formControlName="pricePerMoveControl" mode="currency" [currency]="currencySelected" locale="en-US"
-                      [min]="0" [max]="2147483647" [minFractionDigits]="2" [maxFractionDigits]="2" class="text-right"
+                    <label>Price per move</label><span class="error-message" *ngIf="isEdit">*</span>
+                    <p-inputNumber formControlName="pricePerMoveControl" mode="currency" [currency]="currencySelected"
+                      locale="en-US" [min]="0" [max]="2147483647" [minFractionDigits]="2" [maxFractionDigits]="2"
+                      class="text-right"
                       [ngClass]="{'ng-invalid ng-dirty': (pricePerMoveControl?.invalid && submitted) }">
                     </p-inputNumber>
                     <ng-container *ngIf="pricePerMoveControl?.invalid && submitted">
-                      <p *ngIf="pricePerMoveControl?.hasError('required')" class="error-message">This is mandatory field
+                      <p *ngIf="pricePerMoveControl?.hasError('required')" class="error-message">This field is mandatory
                       </p>
                       <p *ngIf="pricePerMoveControl?.hasError('min')" class="error-message">Value should be above 0.01
                       </p>
@@ -232,7 +245,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="campaign-detail-page h-100">
+        <div class="appeal-create-page h-100">
           <div class="mb-3" style="color: #2D2252;">PREVIEW CAMPAIGN</div>
           <div class="campaign-body custom-scrollbar custom-scrollbar-yellow">
             <div class="text-center btn-add-new mt-3">
@@ -257,7 +270,7 @@
             </div>
             <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
             <div class="total-donate" (click)="goToListDonation()">
-              <span>£{{campaign?.Amount_Raised | number}}</span>
+              <span>£{{campaign?.Amount_Raised | number: '0.2-2'}}</span>
             </div>
           </div>
         </div>
@@ -276,15 +289,14 @@
           (keyup.enter)="save()" [ngClass]="(submittedConfirm && passControl.invalid) ? 'ng-invalid ng-dirty' : ''" />
         <ng-container *ngIf="passControl?.invalid && submittedConfirm">
           <p *ngIf="passControl?.hasError('required') || passControl?.errors?.forbiddenSpaceText" class="error-message">
-            This is mandatory field
+            This field is mandatory
           </p>
           <p *ngIf="passControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
           </p>
         </ng-container>
       </div>
       <div class="btn-add-new text-center pt-4 w-100">
-        <button pButton type="button" label="Save" class="btn btn-yellow btn-create"
-          (click)="save()"></button>
+        <button pButton type="button" label="Save" class="btn btn-yellow btn-create" (click)="save()"></button>
         <button pButton type="button" label="Cancel" class="btn btn-white btn-cancel ml-2"
           style="border-color: #0d89ec;" (click)="cancelDialog()"></button>
       </div>
@@ -329,7 +341,7 @@
               [ngClass]="(submittedConfirm && passControl.invalid) ? 'ng-invalid ng-dirty' : ''" />
             <ng-container *ngIf="passControl?.invalid && submittedConfirm">
               <p *ngIf="passControl?.hasError('required') || passControl?.errors?.forbiddenSpaceText"
-                class="error-message">This is mandatory field
+                class="error-message">This field is mandatory
               </p>
               <p *ngIf="passControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
               </p>

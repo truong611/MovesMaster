@@ -16,6 +16,7 @@ const _refreshToken = gql`
         Moves_Company_ID
         Moves_Charity_ID
         Company_Name
+        Company_Icon
         Charity_Name
         Charity_icon
         Charity_URL
@@ -46,6 +47,7 @@ const _login = gql`
         Moves_Company_ID
         Moves_Charity_ID
         Company_Name
+        Company_Icon
         Charity_Name
         Charity_icon
         Charity_URL
@@ -93,6 +95,7 @@ const _checkCodeResetPassword = gql`
 const _changeResetPassword = gql`
   mutation Mutation($hashCode:String, $Password:String!) {
     changeResetPassword(hashCode: $hashCode, Password:$Password) {
+      Is_Reset_Pass_From_Mobile
       messageCode
       message
     }
@@ -142,7 +145,8 @@ export class AuthenticationService {
           "bodyData": {
             "Charity_Name": bodyData?.Charity_Name,
             "Charity_Commission_No": bodyData?.Charity_Commission_No,
-            "Contact_Name": bodyData?.Contact_Name,
+            "Contact_Forename": bodyData?.Contact_Forename,
+            "Contact_Surname": bodyData?.Contact_Surname,
             "Contact_Email": bodyData?.Contact_Email,
             "Contact_Phone_Number": bodyData?.Contact_Phone_Number,
           }
@@ -192,7 +196,7 @@ export class AuthenticationService {
     this.removeWebStorage();
     /* End */
 
-    this.router.navigate(['/login']);
+    this.router.navigate(['/home']);
   }
 
   removeWebStorage() {

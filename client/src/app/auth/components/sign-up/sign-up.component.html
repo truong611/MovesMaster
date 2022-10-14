@@ -36,12 +36,20 @@
                         {{error['Charity_Commission_No']}}</p>
                     </div>
                     <div class="col-md-12 form-group">
-                      <label>Charity Contact Name <span class="error-message">*</span></label>
-                      <input type="text" pInputText formControlName="Contact_Name" class="w-100"
+                      <label>Charity Contact Forename <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Contact_Forename" class="w-100"
                         (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
-                        [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'status-danger' : ''" />
-                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">
-                        {{error['Contact_Name']}}</p>
+                        [ngClass]="submitted && formGroup.controls.Contact_Forename.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Forename.errors">
+                        {{error['Contact_Forename']}}</p>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label>Charity Contact Surname <span class="error-message">*</span></label>
+                      <input type="text" pInputText formControlName="Contact_Surname" class="w-100"
+                        (keyup.enter)="signup()" #keywordsInput id="keywordsInput"
+                        [ngClass]="submitted && formGroup.controls.Contact_Surname.errors ? 'status-danger' : ''" />
+                      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Surname.errors">
+                        {{error['Contact_Surname']}}</p>
                     </div>
                     <div class="col-md-12 form-group">
                       <label>Contact email <span class="error-message">*</span></label>

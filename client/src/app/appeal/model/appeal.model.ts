@@ -16,7 +16,9 @@ export class Appeal {
   Live_Campaign: string;
   Charity_Name: string;
   Charity_icon: string;
+  Charity_URL: string;
   TotalCampaign: number;
+  TotalMove?: number;
 
   constructor() {
     this.Amount_Raised = 0;

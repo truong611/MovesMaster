@@ -48,13 +48,13 @@ export class ChangePasswordComponent implements OnInit {
     this.submitted = true;
     if (this.formGroup.invalid) {
       if (this.formGroup.get('Current_Password').errors?.required) {
-        this.error['Current_Password'] = 'This is mandatory field';
+        this.error['Current_Password'] = 'This field is mandatory';
       } else if (this.formGroup.get('Current_Password').errors?.minLength|| this.formGroup.get('Current_Password').errors?.maxlength) {
         this.error['Current_Password'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
       }
 
       if (this.formGroup.get('New_Password').errors?.required) {
-        this.error['New_Password'] = 'This is mandatory field';
+        this.error['New_Password'] = 'This field is mandatory';
       } else if (this.formGroup.get('New_Password').errors?.minlength || this.formGroup.get('New_Password').errors?.maxlength) {
         this.error['New_Password'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
       } else if (this.formGroup.get('New_Password').errors?.pattern) {
@@ -62,7 +62,7 @@ export class ChangePasswordComponent implements OnInit {
       }
 
       if (this.formGroup.get('Renew_Password').errors?.required) {
-        this.error['Renew_Password'] = 'This is mandatory field';
+        this.error['Renew_Password'] = 'This field is mandatory';
       }
       
       return;

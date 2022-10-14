@@ -13,7 +13,7 @@ const PERCENTAGE_DISCOUNT = process.env.PERCENTAGE_DISCOUNT;
 
 const resolvers = {
   Query: {
-    getListMatchByObjectId: authenticated(async (parent, args, context) => {
+    getListMatchByObjectId: (async (parent, args, context) => {
       try {
         let Type = args.Type;
 
@@ -62,7 +62,8 @@ const resolvers = {
               'Match.Moves_Company_ID',
               'Match.Match_Date_Created',
               'Company.Company_Icon',
-              'Company.Company_Name'
+              'Company.Company_Name',
+              'Company.Company_URL'
             )
             .orderBy('Match.Match_Date_Created', 'desc')
             .from('Match')

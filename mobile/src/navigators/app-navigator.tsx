@@ -5,7 +5,7 @@
  * and a "main" flow which the user will use once logged in.
  */
 import React, {useEffect, useState} from 'react';
-import {useColorScheme} from 'react-native';
+import {Linking, useColorScheme} from 'react-native';
 import {NavigationContainer, DefaultTheme, DarkTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {
@@ -71,8 +71,8 @@ export const AppNavigator = (props: NavigationProps) => {
         initialRouteName="loading"
       >
         <Stack.Screen name="primaryStack" component={PrimaryNavigator}/>
-        <Stack.Screen name="loading" component={AuthLoadingScreen}/>
-        <Stack.Screen name="LoginScreen" component={LoginScreen}/>
+        <Stack.Screen name="loading" options={{gestureEnabled: false, headerLeft: () => null}} component={AuthLoadingScreen}/>
+        <Stack.Screen name="LoginScreen" options={{gestureEnabled: false, headerLeft: () => null}} component={LoginScreen}/>
         <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen}/>
         <Stack.Screen name="VerifyTokenScreen" component={VerifyTokenScreen}/>
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen}/>

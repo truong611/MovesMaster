@@ -8,6 +8,7 @@ const typeDefs = gql`
         Conversation_To_Moves_Rate: Float,
         Date_Introduced: Timestamp,
         Date_Retired: Timestamp,
+        Limit_Minute: Int
     }
 
     type Fitness_App_Activities {
@@ -35,6 +36,7 @@ const typeDefs = gql`
         Number_Units: Float,
         Include_YN: Boolean,
         Activity_Upload_ID: Int,
+        Upload_Count: Int,
 
         ActivityType: ActivityType,
         ActivityUnit: ActivityUnit,
@@ -58,7 +60,10 @@ const typeDefs = gql`
     type ResponseActivityType {
         ActivityType: [ActivityType],
         LastUpload: Timestamp,
-        Activity_Type_Entry: [Activity_Type_Entry]
+        Activity_Type_Entry: [Activity_Type_Entry],
+        Upload_Count: Int,
+        Upload_End_Date: Timestamp,
+        JOINING_BONUS: Float,
     }
 
     input ActivityUploadInput {
@@ -66,6 +71,21 @@ const typeDefs = gql`
         Activity_End_Time: Timestamp!,
         Activity_Type_Unit_ID: Int,
         Number_Units: Float,
+    }
+
+    input AppleHealthActivityInput {
+        Type_Name: String!,
+        StartTime: Timestamp!,
+        EndTime: Timestamp!,
+        Quantity: Float!,
+        Unit_Minute: Int!
+    }
+
+    type activityOfDay {
+        day: Int,
+        month: Int,
+        year: Int,
+        activity: Boolean
     }
 
     type ResponseGetMasterUploadActivity {
@@ -85,6 +105,12 @@ const typeDefs = gql`
         messageCode: Int!,
         message: String!,
     }
+
+    type ResponseGetOverviewActivityMobile {
+        data: [activityOfDay],
+        messageCode: Int!,
+        message: String!,
+    }
     
     type ResponseUploadActivity {
         messageCode: Int!,
@@ -96,11 +122,14 @@ const typeDefs = gql`
         getMasterDataUploadActivity: ResponseGetMasterUploadActivity,
         getViewActivity(date: Timestamp!): ResponseGetViewActivity,
         getOverviewActivity(date: Timestamp!, type: String!): ResponseGetOverviewActivity,
+        getOverviewActivityMobile(date: Timestamp!, type: String!, lechGio:Int!): ResponseGetOverviewActivityMobile,
     }
 
-     type Mutation{
-        uploadActivity(bodyData: [ActivityUploadInput]): ResponseUploadActivity
-     }
+    type Mutation {
+        uploadActivity(bodyData: [ActivityUploadInput]): ResponseUploadActivity,
+        updateGarminActivity: BaseResponse,
+        updateAppleHealthActivity(bodyData: [AppleHealthActivityInput]): BaseResponse,
+    }
 `;
 
 module.exports = typeDefs;

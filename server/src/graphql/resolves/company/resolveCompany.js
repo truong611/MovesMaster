@@ -46,9 +46,14 @@ const resolvers = {
           ListCompany.forEach(item => {
             let user = listUser.find(x => x.User_ID == item.Created_By);
             let charity = listCharity.find(x => x.Moves_Charity_ID == user.Moves_Charity_ID);
+            if(charity) {
+              charity.Contact_Name = (charity.Contact_Forename ?? "" ) + " " + (charity.Contact_Surname ?? "");
+            }
             item.CharityInfor = charity;
           });
         }
+
+        ListCompany.map(item => item.Contact_Name = (item.Contact_Forename ?? "" ) + " " + (item.Contact_Surname ?? ""));
 
         return {
           ListCompany: ListCompany,
@@ -108,7 +113,8 @@ const resolvers = {
             .insert({
               Company_Name: CompanyInfor.Company_Name.trim(),
               Company_Number: CompanyInfor.Company_Number,
-              Contact_Name: CompanyInfor.Contact_Name.trim(),
+              Contact_Forename: CompanyInfor.Contact_Forename.trim(),
+              Contact_Surname: CompanyInfor.Contact_Surname.trim(),
               Contact_Email: CompanyInfor.Contact_Email.trim(),
               Contact_Phone_Number: CompanyInfor.Contact_Phone_Number.trim(),
               Is_Active: null,
@@ -201,8 +207,8 @@ const resolvers = {
           let UserResult = await trx.table('User')
             .returning(['User_ID'])
             .insert({
-              Surname: company.Company_Name.trim(),
-              Forename: '',
+              Surname: company.Contact_Surname,
+              Forename: company.Contact_Forename,
               User_Email: company.Contact_Email.trim(),
               User_Phone_Number: company.Contact_Phone_Number.trim(),
               Is_Web_App_User: true,
@@ -252,13 +258,14 @@ const resolvers = {
             News_Publish_Date: new Date()
           });
 
-          const url = `${CLIENT}/reset-password;id=${tokenReset}`;
+          const url = `${CLIENT}/reset-password;Company_Name=${company.Company_Name};id=${tokenReset}`;
           const urlTerm = `${CLIENT}/terms-and-conditions`;
           const urlPolicy = `${CLIENT}/policy`;
 
+          let contact_Name = (company.Contact_Forename ?? "" ) + " " + (company.Contact_Surname ?? "");
           await sendEmail.sendEmail(company.Contact_Email.trim(),
             company.Company_Name + ' - Request to join Moves Matter ' + company.Company_Number,
-            emailTemp.templateAcceptRequestCompany(url, urlTerm, urlPolicy, company.Contact_Name),
+            emailTemp.templateAcceptRequestCompany(url, urlTerm, urlPolicy, contact_Name),
             [],
             'stream'
           ).catch(err => {
@@ -322,9 +329,10 @@ const resolvers = {
 
           const url = `${CLIENT}/home`;
 
+          let contact_Name = (company.Contact_Forename ?? "" ) + " " + (company.Contact_Surname ?? "");
           await sendEmail.sendEmail(company.Contact_Email.trim(),
             company.Company_Name + ' - Request to join Moves Matter ' + company.Company_Number,
-            emailTemp.templateDenyCompany(company.Contact_Name, url),
+            emailTemp.templateDenyCompany(contact_Name, url),
             [], 'stream'
           ).catch(err => {
             throw new Error(err);

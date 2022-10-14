@@ -81,13 +81,17 @@
 
     <div class="title-name text-bold mt-5 mb-3">MOVES</div>
     <div class="total-donate">
-      <span>{{totalMove | number}}</span>
+      <span>{{totalMove | number: '0.0-0'}}</span>
     </div>
   </ng-container>
 
   <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
   <div class="total-donate" (click)="goToListDonation()">
-    <span>£{{totalDonation | number}}</span>
+    <span>£{{totalDonation | number: '0.2-2'}}</span>
+  </div>
+  <div class="total-donate mt-2" *ngIf="totalMove > 0 && (type == 1 || type == 4)">
+    <span>{{totalMove | number: '1.0-0'}}</span>
+    <p class="text">Moves donated directly</p>
   </div>
 </div>
 <p-dialog header="" [(visible)]="displayPreview" position="right" [modal]="true"

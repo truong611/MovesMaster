@@ -10,12 +10,14 @@
               (input)="searchNews()">
           </span>
         </div>
-        <div class="card-content tables-gridview mt-5">
+        <div class="card-content table-gridview mt-5">
           <div class="grid-view grid-view-appeal">
             <ul class="nav list-box">
               <li class="nav-item" *ngFor="let item of listNews">
                 <div class="icon">
-                  <img src="{{item.News_Icon_Image}}">
+                  <div class="icon-image">
+                    <img src="{{item.News_Icon_Image}}">
+                  </div>
                   <div class="more-info" (click)="goToDetail(item.News_Item_ID)">
                   </div>
                 </div>

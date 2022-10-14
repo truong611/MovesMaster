@@ -12,7 +12,7 @@ import {Header, MButton, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from "../../components/center-spinner/center-spinner";
-import {calculateDate, formatDate, formatNumber, showToast, StatusBarHeight, timestampToDate} from "../../services";
+import {calculateDate, formatDate, formatNumber, numberFormat, showToast, StatusBarHeight, timestampToDate} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getDashboardMobile} from "./dashboard-service";
 import {useStores} from "../../models";
@@ -40,9 +40,9 @@ export const DashboardScreen = observer(function DashboardScreen() {
     const fetchData = async () => {
         setRefresh(false);
         if (isFocused && !isRefresh && refetch) {
-            try {
-                let {data: {getDashboardMobile}} = await refetch();
-                if (getDashboardMobile?.messageCode == 200) {
+            try {           
+                let {data: {getDashboardMobile}} = await refetch(); 
+                if (getDashboardMobile?.messageCode == 200) {   
                     setDashboard(getDashboardMobile?.data);
                     await movesModel.setDonateInfo({
                         donatedMoves: getDashboardMobile?.data?.Donated_Moves,
@@ -82,12 +82,10 @@ export const DashboardScreen = observer(function DashboardScreen() {
                         <TouchableOpacity style={styles.activityDetailWrapper}>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
                                 <Text style={{fontSize: 18, color: color.danger}}
-                                      fonts={'DemiBold'}>{formatNumber(dashboard?.Donated_Moves + dashboard?.Moves_Avaiable)}</Text>
+                                      fonts={'DemiBold'}>{formatNumber(Math.round(dashboard?.Donated_Moves + dashboard?.Moves_Avaiable))}</Text>
                                 <Text fonts={'DemiBold'}> total moves</Text>
                             </View>
-                            <Text style={{marginBottom: 8}}>last uploaded</Text>
-                            <Text style={{marginBottom: 8}}
-                                  fonts={'DemiBold'}>{timestampToDate(dashboard?.LastUpload, 'dd/MM/YYYY hh:mm')}</Text>
+                            <Text style={{marginBottom: 8}}>last uploaded: {timestampToDate(dashboard?.LastUpload, 'dd/MM/YYYY hh:mm')}</Text>
                             <Text fonts={'DemiBold'}>({calculateDate(dashboard?.LastUpload, date)} ago)</Text>
                         </TouchableOpacity>
                         <View style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -97,7 +95,13 @@ export const DashboardScreen = observer(function DashboardScreen() {
                                 styleText={styles.textWhite}
                                 text='upload activity'/>
                             <MButton
-                                onPress={() => goToPage('ViewActivityScreen')}
+                                onPress={() => {
+                                    navigation.navigate('MainScreen', {
+                                        screen: 'ViewActivityScreen',
+                                        params: {
+                                           reset: true
+                                    }})
+                                } }
                                 style={styles.btnBlue}
                                 styleText={styles.textWhite}
                                 text='view activity'/>
@@ -109,15 +113,15 @@ export const DashboardScreen = observer(function DashboardScreen() {
                         </View>
                         <View style={styles.donationsWrapper}>
                             <TouchableOpacity style={styles.donationsItem}>
-                                <Text style={styles.donationsValue} fonts={'DemiBold'}>{formatNumber(dashboard?.Donated_Moves)}</Text>
+                                <Text style={styles.donationsValue} fonts={'DemiBold'} numberOfLines={1} adjustsFontSizeToFit={true}>{formatNumber(Math.round(dashboard?.Donated_Moves))}</Text>
                                 <Text style={styles.donationsText}>donated moves</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.donationsItem}>
-                                <Text style={styles.donationsValue} fonts={'DemiBold'}>£{formatNumber(dashboard?.Amount_Donated)}</Text>
+                                <Text style={styles.donationsValue} fonts={'DemiBold'} numberOfLines={1} adjustsFontSizeToFit={true}>£{numberFormat(dashboard?.Amount_Donated)}</Text>
                                 <Text style={styles.donationsText}>amount donated</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.donationsItem}>
-                                <Text style={styles.donationsValue} fonts={'DemiBold'}>{formatNumber(dashboard?.Moves_Avaiable)}</Text>
+                                <Text style={styles.donationsValue} fonts={'DemiBold'} numberOfLines={1} adjustsFontSizeToFit={true}>{formatNumber(Math.round(dashboard?.Moves_Avaiable))}</Text>
                                 <Text style={styles.donationsText}>moves available</Text>
                             </TouchableOpacity>
                         </View>
@@ -224,8 +228,7 @@ const styles = StyleSheet.create({
     },
     donationsValue: {
         textAlign: 'center',
-        fontSize: 16,
         marginBottom: 8,
-        color: color.danger
+        color: color.danger,
     },
 });

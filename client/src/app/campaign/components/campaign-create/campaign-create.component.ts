@@ -206,6 +206,7 @@ export class CampaignCreateComponent implements OnInit {
     }
     else {
       this.currentLogoUrl = '/assets/img/Default Image.png';
+      this.newLogoUrl = null;
     }
   }
 
@@ -218,18 +219,21 @@ export class CampaignCreateComponent implements OnInit {
   }
 
   selectImage(url) {
-    this.isIcon = true;
-    this.currentLogoUrl = url;
+    // this.isIcon = true;
+    // this.currentLogoUrl = url;
+    // this.newLogoUrl = url;
   }
 
   changeChoice() {
     if (this.choiceControl.value != 'true') {
       this.targetValueControl.setValidators([Validators.required, Validators.min(0.01)]);
       this.endDateControl.setValidators([]);
+      this.endDateControl.setValue(null);
     }
     else {
       this.endDateControl.setValidators([Validators.required]);
       this.targetValueControl.setValidators([]);
+      this.targetValueControl.setValue(null);
     }
 
     this.targetValueControl.updateValueAndValidity();
@@ -273,13 +277,20 @@ export class CampaignCreateComponent implements OnInit {
       let endTimeAppeal = appeal.Appeal_End_Date;
 
       if (startTimeCampaign < startTimeAppeal) {
-        this.showMessage('error', 'The Campaign Start Date / Time cannot then be before the Appeal Start Date / Time');
+        this.showMessage('error', 'The Campaign Launch Date / Time cannot then be before the Appeal Start Date / Time');
         return;
       }
 
-      if (endTimeCampaign && endTimeCampaign > endTimeAppeal) {
-        this.showMessage('error', 'The Campaign End Date / Time cannot be after the Appeal End Date / Time');
-        return;
+      if (this.choiceControl.value != 'true') {
+        if (endTimeAppeal && startTimeCampaign > endTimeAppeal) {
+          this.showMessage('error', 'The Campaign Launch Date / Time cannot be after the Appeal End Date / Time');
+          return;
+        }
+      } else {
+        if (endTimeAppeal && endTimeCampaign && endTimeCampaign > endTimeAppeal) {
+          this.showMessage('error', 'The Campaign End Date / Time cannot be after the Appeal End Date / Time');
+          return;
+        }
       }
     }
 
@@ -340,8 +351,11 @@ export class CampaignCreateComponent implements OnInit {
       this.showMessage('error', data.createCampaign.message);
       return;
     }
-
-    this.router.navigate(['/campaign/campaign-detail', { id: this.encrDecrService.set(data.createCampaign.Campaign_ID) }]);
+    this.showMessage('success', data.createCampaign.message)
+    setTimeout(() => {
+      this.loading = loading;
+      this.router.navigate(['/campaign/campaign-detail', { id: this.encrDecrService.set(data.createCampaign.Campaign_ID) }])
+    }, 2000);
   }
 
   cancelDialog() {
@@ -358,11 +372,15 @@ export class CampaignCreateComponent implements OnInit {
     let inforCharityAppeal = this.getCharityAppealIcon();
     let inforCompany = this.getCompanyIcon();
 
+    let appeal = this.appealControl.value;
+
     this.previewForm = {
-      Campaign_Icon: this.currentLogoUrl,
+      Campaign_Icon: this.newLogoUrl,
       Campaign_URL: this.urlControl.value,
-      Charity_Appeal_Icon: inforCharityAppeal.icon,
-      Charity_Appeal_Url: inforCharityAppeal.url,
+      Charity_icon: this.user.Charity_icon,
+      Charity_URL: this.user.Charity_URL,
+      Appeal_Icon: appeal?.Appeal_Icon,
+      Appeal_URL: appeal?.Appeal_URL,
       Company_Icon: inforCompany.icon,
       Company_URL: inforCompany.url,
       Name: this.nameControl.value?.trim(),
@@ -377,6 +395,7 @@ export class CampaignCreateComponent implements OnInit {
       Progress_Moves: 0, //Progress line 2
       Progress_Amount: 0, //Progress line 3
       Progress_Line4: this.getProgressLine4(), //Progress line 4
+      Campaign_Value: 0
     }
 
     let preview = JSON.parse(localStorage.getItem('preview'));
@@ -394,12 +413,12 @@ export class CampaignCreateComponent implements OnInit {
     let appeal = this.appealControl.value;
 
     if (appeal) {
-      inforCharityAppeal.icon = appeal.Appeal_Icon ? appeal.Appeal_Icon : '/assets/img/Default Image.png';
+      inforCharityAppeal.icon = appeal.Appeal_Icon;
       inforCharityAppeal.url = appeal?.Appeal_URL;
       return inforCharityAppeal;
     }
 
-    inforCharityAppeal.icon = this.user.Charity_icon ? this.user.Charity_icon : '/assets/img/Default Image.png';
+    inforCharityAppeal.icon = this.user.Charity_icon;
     inforCharityAppeal.url = this.user.Charity_URL;
     return inforCharityAppeal;
   }
@@ -411,7 +430,7 @@ export class CampaignCreateComponent implements OnInit {
     }
     let company = this.companyControl.value;
 
-    inforCompany.icon = company?.Company_Icon ? company?.Company_Icon : '/assets/img/Default Image.png';
+    inforCompany.icon = company?.Company_Icon;
     inforCompany.url = company?.Company_URL;
 
     return inforCompany;

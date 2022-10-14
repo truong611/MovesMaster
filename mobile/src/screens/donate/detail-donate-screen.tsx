@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Header, Screen, Text, MButton, BtnBack} from '../../components';
 import {useNavigation, useRoute, useIsFocused} from '@react-navigation/native';
-import {formatNumber, formatDate, showToast} from '../../services';
+import {formatNumber, formatDate, showToast, numberFormat} from '../../services';
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 import {FETCH_getDetailDonationMobile} from './donate-service';
@@ -59,7 +59,13 @@ export const DetailDonateScreen = observer(function DetailDonateScreen() {
     };
 
     const goToPage = page => {
-        navigation.navigate('MainScreen', {screen: page});
+        navigation.navigate('MainScreen',
+         {screen: page,
+            params: {
+                type : params?.type,
+                value: params?.value
+            },
+        });
     };
 
     const onRefresh = () => {
@@ -73,44 +79,44 @@ export const DetailDonateScreen = observer(function DetailDonateScreen() {
                 <Donate title={'DONATIONS HISTORY'}/>
                 <View style={{backgroundColor: color.tabbar, marginHorizontal: 16, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8, borderRadius: 16, marginBottom: 16}}>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>charity</Text>
-                        <Text>{detailDonate?.Charity_Name ? detailDonate?.Charity_Name : 'n/a'}</Text>
+                        <Text style={styles.child_item}>charity</Text>
+                        <Text style={{width: '65%', textAlign: 'right'}} numberOfLines={2} adjustsFontSizeToFit={true}>{detailDonate?.Charity_Name ? detailDonate?.Charity_Name : 'n/a'}</Text>
                     </View>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>appeal</Text>
-                        <Text>{detailDonate?.Appeal_Name ? detailDonate?.Appeal_Name : 'n/a'}</Text>
+                        <Text style={styles.child_item}>appeal</Text>
+                        <Text style={{width: '65%', textAlign: 'right'}}>{detailDonate?.Appeal_Name ? detailDonate?.Appeal_Name : 'n/a'}</Text>
                     </View>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>campaign</Text>
-                        <Text style={{width: (layout.width - 32) * 2 / 3, textAlign: 'right'}}>
+                        <Text style={styles.child_item}>campaign</Text>
+                        <Text style={{width: '65%', textAlign: 'right'}}>
                             {detailDonate?.Campaign_Name ? detailDonate?.Campaign_Name : 'n/a'}
                         </Text>
                     </View>
                     <View style={{height: 1, width: layout.width - 64, backgroundColor: color.white, marginBottom: 16, marginTop: 4}}/>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>date</Text>
+                        <Text style={styles.child_item}>date</Text>
                         <Text>{formatDate(detailDonate?.Created_Date)}</Text>
                     </View>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>time</Text>
+                        <Text style={styles.child_item}>time</Text>
                         <Text>{formatDate(detailDonate?.Created_Date, 'hh:mm')}</Text>
                     </View>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>amount</Text>
-                        <Text>{formatNumber(detailDonate?.Sterling_Amount)}</Text>
+                        <Text style={styles.child_item}>amount</Text>
+                        <Text>£ {numberFormat(detailDonate?.Sterling_Amount)}</Text>
                     </View>
                     <View style={styles.rowInfo}>
-                        <Text style={{color: color.danger}}>moves</Text>
+                        <Text style={styles.child_item}>moves</Text>
                         <Text>{formatNumber(detailDonate?.Moves_Donated)}</Text>
                     </View>
                 </View>
-                <View style={{alignItems: 'center'}}>
+                {/* <View style={{alignItems: 'center'}}>
                     <MButton
                         onPress={() => goToPage('ListDonateScreen')}
                         style={styles.btn}
                         styleText={{color: color.white}}
                         text="view older transactions"/>
-                </View>
+                </View> */}
             </View>
         );
     };
@@ -205,5 +211,9 @@ const styles = StyleSheet.create({
     rowInfo: {
         marginBottom: 8, flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between'
+    },
+    child_item: {
+        color: color.danger,
+        width: '30%'
     }
 });

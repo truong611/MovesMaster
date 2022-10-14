@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../../../data/knex-db');
 const messages = require('../../../messages/auth');
 const Timestamp = require('../../scalarType/Timestamp');
-const JWTSECRET = process.env.JWTSECRET;
+const JWTSECRET = process.env.JWTSECRET || '';
 const sendEmail = require('../../../common/sendEmail');
 const authenticated = require('../../../middleware/authenticated-guard');
 const { saveFileBase64, deleteFile } = require('../../../common/handleFile');
@@ -27,7 +27,7 @@ const generate = (user, refresh = false) => {
       Moves_Company_ID: user.Moves_Company_ID,
       Moves_Charity_ID: user.Moves_Charity_ID,
     },
-    process.env.JWTSECRET,
+    JWTSECRET,
     {
       expiresIn
     }
@@ -87,6 +87,12 @@ const resolvers = {
                 message: messages.login.error,
               };
             }
+
+            let isEqualPass = await bcrypt.compare(args.password, existsUser.User_Password);
+            if(!isEqualPass) return {
+              messageCode: 404,
+              message: messages.login.error,
+            };
             
             //Nếu có tài khoản trên web nhưng chưa có trên mobile
             return {
@@ -172,6 +178,7 @@ const resolvers = {
         else if (user.Moves_Company_ID) {
           let company = await db.table('Company').where('Moves_Company_ID', user.Moves_Company_ID).first();
           user.Company_Name = company?.Company_Name;
+          user.Company_Icon = company?.Company_Icon;
           user.Is_Remove_Privileges = company.Is_Remove_Privileges;
           user.Is_Remove_Access = company.Is_Remove_Access;
 
@@ -197,7 +204,7 @@ const resolvers = {
             Is_Mobile_App_User: user.Is_Mobile_App_User,
             Is_Web_App_User: user.Is_Web_App_User
           },
-          process.env.JWTSECRET,
+          JWTSECRET,
           {
             expiresIn: 60 * (60 * 24) // 1 day
           }
@@ -217,7 +224,7 @@ const resolvers = {
             Is_Mobile_App_User: user.Is_Mobile_App_User,
             Is_Web_App_User: user.Is_Web_App_User
           },
-          process.env.JWTSECRET,
+          JWTSECRET,
           {
             expiresIn: 60 * (60 * 24) * 3 // 3 day
           }
@@ -287,6 +294,7 @@ const resolvers = {
         else if (user.Moves_Company_ID) {
           let company = await db.table('Company').where('Moves_Company_ID', user.Moves_Company_ID).first();
           user.Company_Name = company?.Company_Name;
+          user.Company_Icon = company?.Company_Icon;
           user.Is_Remove_Privileges = company.Is_Remove_Privileges;
           user.Is_Remove_Access = company.Is_Remove_Access;
         }
@@ -305,7 +313,7 @@ const resolvers = {
             Is_Mobile_App_User: user.Is_Mobile_App_User,
             Is_Web_App_User: user.Is_Web_App_User
           },
-          process.env.JWTSECRET,
+          JWTSECRET,
           {
             expiresIn: 60 * (60 * 24) // 1 day
           }
@@ -325,7 +333,7 @@ const resolvers = {
             Is_Mobile_App_User: user.Is_Mobile_App_User,
             Is_Web_App_User: user.Is_Web_App_User
           },
-          process.env.JWTSECRET,
+          JWTSECRET,
           {
             expiresIn: 60 * (60 * 24) * 3 // 3 day
           }
@@ -418,12 +426,54 @@ const resolvers = {
           Token_Forgot_Password: tokenReset,
         });
 
+        let password = "";
+
+        if(args?.type == "mobile") {
+          let characters_1="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+          let characters_2="abcdefghijklmnopqrstuvwxyz"
+          let characters_3="0123456789"
+          for (let i = 0; i < 6; i++) {
+            if(i < 2){
+                password += characters_1.charAt(
+                Math.floor(Math.random() * characters_1.length)
+              );
+            }
+            else if(i < 4){
+              password += characters_2.charAt(
+                Math.floor(Math.random() * characters_2.length)
+              );
+            }
+            else {
+              password += characters_3.charAt(
+                Math.floor(Math.random() * characters_3.length)
+              );
+        }
+            
+          }
+
+          const hashedPassword = await bcrypt.hash(password, 12);
+
+          // update password
+          await db.table('User').where({ User_Email: args.Email }).update({
+            User_Password: hashedPassword,
+          });
+        }
+
         const url = `${args.url};id=${tokenReset}`;
 
-        await sendEmail.sendEmail(args.Email, 'Reset your password on Moves Matter', emailTemp.templateForgotPassword(url), [], 'stream')
+        await sendEmail.sendEmail(args.Email, 'Reset your password on Moves Matter', emailTemp.templateForgotPassword(url, args?.type, password), [], 'stream')
           .catch(err => {
             throw new Error(err);
           })
+
+        //Nếu là reset pass từ mobile thì đánh dấu lại
+        if (args?.type == 'mobile') {
+          await db.table('User')
+            .where({ User_Email: args.Email })
+            .update({
+              Is_Reset_Pass_From_Mobile: true
+            });
+        }
 
         return {
           messageCode: 200,
@@ -475,7 +525,20 @@ const resolvers = {
           Token_Forgot_Password: null,
         });
 
+        // @ts-ignore
+        let user = await db.table('User').where({ User_Email: tokenEmail.User_Email }).first();
+        let Is_Reset_Pass_From_Mobile = user.Is_Reset_Pass_From_Mobile;
+
+        //Nếu là reset pass từ mobile thì xóa đánh dấu
+        if (Is_Reset_Pass_From_Mobile) {
+          // @ts-ignore
+          await db.table('User').where({ User_Email: tokenEmail.User_Email }).update({
+            Is_Reset_Pass_From_Mobile: null
+          });
+        }
+
         return {
+          Is_Reset_Pass_From_Mobile: Is_Reset_Pass_From_Mobile,
           messageCode: 200,
           message: 'Change password success',
         };

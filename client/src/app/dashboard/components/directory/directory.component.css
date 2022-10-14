@@ -1,3 +1,7 @@
 .profile-page.directory {
   height: calc(30% - 1rem);
 } 
+
+.my-profile.profile-page.directory {
+  height: calc(33% - 1rem);
+} 

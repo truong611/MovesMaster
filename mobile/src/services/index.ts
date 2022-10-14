@@ -2,6 +2,7 @@ import Toast from 'react-native-toast-message';
 import {Dimensions, Platform} from "react-native";
 import "intl"
 import "intl/locale-data/jsonp/en"
+import { HTTPS_URL, HTTP_URL } from '../config';
 
 const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -65,7 +66,8 @@ export const regexEmail = (string: string) => {
 
 export const regexPassword = (string: string) => {
     // let reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    let reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    // let reg = /^(?=.*[a-z])^(?=.*[0-9])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    let reg = /^(?=.*[a-z])^(?=.*[0-9])(?=.*[A-Z])[A-Za-z\d@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]{6,}$/;
     if (!reg.test(string)) {
         return true
     }
@@ -156,6 +158,9 @@ export const timestampToDate = (timestamp, type = null) => {
     } else if (type == "YYYY-MM-dd") {
         return `${year}-${month}-${day}`
     }
+    else if (type == "dd/MM/YYYY hh:mm:ss") {
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+    }
     return [
         day,
         month,
@@ -186,6 +191,9 @@ export const formatDate = (date, type = null) => {
     }else if (type == "hh:mm:ss") {
         return `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
     }
+    else if (type == "dd/MM/YYYY hh:mm:ss") {
+        return `${padTo2Digits(date.getDate())}/${padTo2Digits(date.getMonth() + 1)}/${date.getFullYear()} ${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
+    }
     
     return [
         padTo2Digits(date.getDate()),
@@ -212,6 +220,16 @@ export const formatNumber = (value, lamTron = false) => {
     }
     return 0
 };
+
+export const numberFormat = (value) => {
+    if (isNaN(value)) {
+        return 0
+    }
+    var re = '\\d(?=(\\d{' + 3 + '})+' + '\\D' + ')';
+    var num = value.toFixed(Math.max(0, ~~2));
+    var str = num.replace(new RegExp(re, 'g'), '$&' + ',');
+    return str;
+}
 
 export const displayMultiSelect = (list, value, type) => {
     let label = "";
@@ -371,3 +389,11 @@ export const getRandomColor = () => {
     }
     return color;
   }
+
+export const replaceHTTP = (url) => {
+    let _url = ''
+    if(url){   
+        _url = url.replace(HTTPS_URL,HTTP_URL)  
+    }
+    return _url
+}

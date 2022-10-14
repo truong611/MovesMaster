@@ -25,6 +25,7 @@ export class ListDonationComponent implements OnInit {
   listSelectedAppeal: Array<any> = [];
   listCampaign: Array<any> = [];
   listSelectedCampaign: Array<any> = [];
+  type: number = null;
 
   constructor(
     private messageService: MessageService,
@@ -42,6 +43,7 @@ export class ListDonationComponent implements OnInit {
     this.route.params.subscribe(async params => {
       this.objectId = Number(this.encrDecrService.get(params['objectId']));
       this.objectType = this.encrDecrService.get(params['objectType']);
+      this.type = (params['type']) ? Number(this.encrDecrService.get(params['type'])) : null;
       await this.getMasterData();
     });
   }
@@ -54,7 +56,7 @@ export class ListDonationComponent implements OnInit {
       { field: 'Company_Name', header: 'Company', textAlign: 'left', colWith: '15vw' },
       { field: 'Created_Date', header: 'Donation Date', textAlign: 'left', colWith: '12vw' },
       { field: 'Moves_Donated', header: 'Number of Moves', textAlign: 'right', colWith: '12vw' },
-      { field: 'Sterling_Amount', header: 'Sterling Value', textAlign: 'right', colWith: '12vw' },
+      { field: 'Sterling_Amount_Text', header: 'Value', textAlign: 'right', colWith: '12vw' },
       { field: 'User_ID', header: 'Donor', textAlign: 'right', colWith: '7vw' },
     ]
   }
@@ -94,7 +96,8 @@ export class ListDonationComponent implements OnInit {
         startDate: this.startDate,
         endDate: this.endDate,
         listAppealId: this.listSelectedAppeal.map(x => x.Appeal_ID),
-        listCampaignId: this.listSelectedCampaign.map(x => x.Campaign_ID)
+        listCampaignId: this.listSelectedCampaign.map(x => x.Campaign_ID),
+        type: this.type
       };
 
       this.loading = true;
@@ -109,7 +112,9 @@ export class ListDonationComponent implements OnInit {
       this.totalDonation = data.getListDonation.TotalDonation;
 
       this.listAllDonation = data.getListDonation.ListDonation.map((item) =>
-        Object.assign({}, item)
+        Object.assign({
+          Sterling_Amount_Text: (item.Sterling_Amount > 0) ? '£' + item.Sterling_Amount.toFixed(2) : null
+        }, item)
       );
 
       this.listDonation = this.listAllDonation.map((item) =>

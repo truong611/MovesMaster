@@ -9,6 +9,8 @@ const typeDefs = gql`
     Company_Icon: String,
     Company_CSR_Statement: String,
     Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
     Is_Active: Boolean,
@@ -32,7 +34,8 @@ const typeDefs = gql`
   input CreateCompanyInput {
     Company_Name: String,
     Company_Number: String,
-    Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
   }

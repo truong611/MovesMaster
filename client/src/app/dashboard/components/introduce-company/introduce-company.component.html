@@ -14,16 +14,23 @@
     </div>
     <div class="col-md-12 form-group">
       <label>Company Number</label><span class="error-message">*</span>
-      <input type="text" pInputText formControlName="Company_Number" class="w-100 text-right"
+      <input type="text" pInputText formControlName="Company_Number" class="w-100"
         [ngClass]="submitted && formGroup.controls.Company_Number.errors ? 'ng-invalid ng-dirty' : ''" />
       <p class="error-message" *ngIf="submitted && formGroup.controls.Company_Number.errors">{{ error['Company_Number'] }}
       </p>
     </div>
     <div class="col-md-12 form-group">
-      <label>Company Contact Name</label><span class="error-message">*</span>
-      <input type="text" pInputText formControlName="Contact_Name" class="w-100" 
-        [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'ng-invalid ng-dirty' : ''" />
-      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">{{ error['Contact_Name'] }}
+      <label>Company Contact Forename</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Contact_Forename" class="w-100" 
+        [ngClass]="submitted && formGroup.controls.Contact_Forename.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Forename.errors">{{ error['Contact_Forename'] }}
+      </p>
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Company Contact Surname</label><span class="error-message">*</span>
+      <input type="text" pInputText formControlName="Contact_Surname" class="w-100" 
+        [ngClass]="submitted && formGroup.controls.Contact_Surname.errors ? 'ng-invalid ng-dirty' : ''" />
+      <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Surname.errors">{{ error['Contact_Surname'] }}
       </p>
     </div>
     <div class="col-md-12 form-group">

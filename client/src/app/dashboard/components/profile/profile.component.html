@@ -4,7 +4,7 @@
 </div>
 <div class="row list-page">
   <div class="col-md-3">
-    <div class="profile-page profile" *ngIf="!user?.IsAdmin || objectId">
+    <div [class]="isMyCharity ? 'profile-page profile my-profile' : 'profile-page profile'" *ngIf="!user?.IsAdmin || objectId">
       <div class="title-name text-bold mb-3">{{(type == 1 || type == 4) ? 'CHARITY PROFILE' : 'COMPANY PROFILE'}}</div>
 
       <!-- hiển thị khi (đây là màn dashboard + tài khoản là charity) hoặc đây là màn charity dashboard-->
@@ -16,7 +16,7 @@
           <div class="force-overflow-infor">
             <p>Name: <strong>{{charity.Charity_Name}}</strong></p>
             <p><label class="label-left">Charity No: </label><label class="label-right"><strong>{{charity.Charity_Commission_No}}</strong></label></p>
-            <p><label class="label-left">Moves Number: </label><label class="label-right"><strong>{{charity.Moves_Charity_ID}}</strong></label></p>
+            <p><label class="label-left">Moves Number: </label><label class="label-right"><strong>{{charity.Moves_Charity_ID}}</strong></label><label class="label-charity-right" *ngIf="charity.Date_Active"><strong>({{charity.Date_Active | date: 'dd/MM/yyyy'}})</strong></label></p>
             <p><strong><a [href]="charity.Charity_URL" target="_blank">{{charity.Charity_URL}}</a></strong></p>
             <p>Contact Name: <strong>{{charity.Contact_Name}}</strong></p>
             <p>Contact Phone Number: <strong>{{charity.Contact_Phone_Number}}</strong></p>
@@ -59,7 +59,7 @@
           <div class="force-overflow-infor">
             <p>Company Name: <strong>{{company.Company_Name}}</strong></p>
             <p><label class="label-company-left">Company Number:</label><label class="label-right"><strong>{{company.Company_Number}}</strong></label></p>
-            <p><label class="label-company-left">Moves Number:</label><label class="label-right"><strong>{{company.Moves_Company_ID}}</strong></label></p>
+            <p><label class="label-company-left">Moves Number:</label><label class="label-right"><strong>{{company.Moves_Company_ID}}</strong></label><label class="label-company-right" *ngIf="company.Date_Active"><strong>({{company.Date_Active | date: 'dd/MM/yyyy'}})</strong></label></p>
             <p><strong><a [href]="company.Company_URL" target="_blank">{{company.Company_URL}}</a></strong></p>
             <p>Contact Name: <strong>{{company.Contact_Name}}</strong></p>
             <p>Contact Phone Number: <strong>{{company.Contact_Phone_Number}}</strong></p>
@@ -159,7 +159,7 @@
                         <input type="text" pInputText formControlName="Moves_Charity_ID" class="w-100 text-right" />
                       </div>
                       <div class="col-md-6 form-group">
-                        <label>Date founded</label><span class="error-message">*</span>
+                        <label>Date founded</label><span class="error-message" *ngIf="isEdit">*</span>
                         <p-calendar formControlName="Charity_Date_Founded" [showTime]="false" dateFormat="dd/mm/yy"
                           [style]="{'width':'100%'}" [baseZIndex]="999" class="p-input-sm" appendTo="body"
                           [ngClass]="{'ng-invalid ng-dirty': submitted && formGroup.controls.Charity_Date_Founded.errors }">
@@ -177,31 +177,39 @@
                     </div>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label class="col-md-1">Url<span class="error-message">*</span></label>
+                    <label class="col-md-1">Url<span class="error-message" *ngIf="isEdit">*</span></label>
                     <input type="text" pInputText formControlName="Charity_URL" class="col-md-11 w-100"
                       [ngClass]="submitted && formGroup.controls.Charity_URL.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Charity_URL.errors">{{
                       error_charity['Charity_URL'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact Name</label><span class="error-message">*</span>
-                    <input type="text" pInputText formControlName="Contact_Name" class="w-100"
-                      [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'ng-invalid ng-dirty' : ''" />
-                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">{{
-                      error_charity['Contact_Name'] }}
+                  <div class="col-md-6 form-group">
+                    <label>Contact Forename</label><span class="error-message" *ngIf="isEdit">*</span>
+                    <input type="text" pInputText formControlName="Contact_Forename" class="w-100"
+                      [ngClass]="submitted && formGroup.controls.Contact_Forename.errors ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Forename.errors">{{
+                      error_charity['Contact_Forename'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact email</label><span class="error-message">*</span>
+                  <div class="col-md-6 form-group">
+                    <label>Contact Surname</label><span class="error-message" *ngIf="isEdit">*</span>
+                    <input type="text" pInputText formControlName="Contact_Surname" class="w-100"
+                      [ngClass]="submitted && formGroup.controls.Contact_Surname.errors ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Surname.errors">{{
+                      error_charity['Contact_Surname'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label>Contact email</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="email" pInputText formControlName="Contact_Email" class="w-100"
                       [ngClass]="submitted && formGroup.controls.Contact_Email.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Email.errors">{{
                       error_charity['Contact_Email'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact phone number</label><span class="error-message">*</span>
+                  <div class="col-md-6 form-group">
+                    <label>Contact phone number</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"
                       [ngClass]="submitted && formGroup.controls.Contact_Phone_Number.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Phone_Number.errors">{{
@@ -209,7 +217,7 @@
                     </p>
                   </div>
                   <div class="col-md-4 form-group">
-                    <label>Geographical Scope</label><span class="error-message">*</span>
+                    <label>Geographical Scope</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-dropdown [options]="listGeographicalScope" styleClass="w-100" optionLabel="Category_Name"
                       placeholder="Select Geographical Scope" formControlName="Charity_Geographical_Scope"
                       [ngClass]="{'ng-invalid ng-dirty': submitted && formGroup?.controls?.Charity_Geographical_Scope?.errors}">
@@ -221,7 +229,7 @@
                     </p>
                   </div>
                   <div class="col-md-4 form-group">
-                    <label>Income Band</label><span class="error-message">*</span>
+                    <label>Income Band</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-dropdown [options]="listIncomeBand" styleClass="w-100" optionLabel="Category_Name"
                       placeholder="Select Income Band" formControlName="Charity_Income_Band_ID"
                       [ngClass]="{'ng-invalid ng-dirty': submitted && formGroup.controls.Charity_Income_Band_ID.errors }">
@@ -231,7 +239,7 @@
                     </p>
                   </div>
                   <div class="col-md-4 form-group">
-                    <label>Charity Sector</label><span class="error-message">*</span>
+                    <label>Charity Sector</label><span class="error-message" *ngIf="isEdit">*</span>
                     <p-multiSelect [options]="listCharitySector" [resetFilterOnHide]="true"
                       placeholder="Select Charity Sector" formControlName="Charity_Sector" optionLabel="Category_Name"
                       [ngClass]="{'ng-invalid ng-dirty': submitted && formGroup.controls.Charity_Sector.errors }"
@@ -241,7 +249,7 @@
                     </p>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Aims</label><span class="error-message">*</span>
+                    <label>Aims</label><span class="error-message" *ngIf="isEdit">*</span>
                     <textarea rows="4" [style]="{'width': '100%'}" formControlName="Charity_Aims" pInputTextarea
                       [ngClass]="{'ng-invalid ng-dirty': submitted && formGroup.controls.Charity_Aims.errors }"></textarea>
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Charity_Aims.errors">{{
@@ -436,31 +444,39 @@
                     </div>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label class="col-md-1">Url <span class="error-message">*</span></label>
+                    <label class="col-md-1">Url <span class="error-message" *ngIf="isEdit">*</span></label>
                     <input type="text" pInputText formControlName="Company_URL" class="col-md-11 w-100"
                       [ngClass]="submitted && formGroup.controls.Company_URL.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Company_URL.errors">{{
                       error_company['Company_URL'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact Name</label><span class="error-message">*</span>
-                    <input type="text" pInputText formControlName="Contact_Name" class="w-100"
-                      [ngClass]="submitted && formGroup.controls.Contact_Name.errors ? 'ng-invalid ng-dirty' : ''" />
-                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Name.errors">{{
-                      error_company['Contact_Name'] }}
+                  <div class="col-md-6 form-group">
+                    <label>Contact Forename</label><span class="error-message" *ngIf="isEdit">*</span>
+                    <input type="text" pInputText formControlName="Contact_Forename" class="w-100"
+                      [ngClass]="submitted && formGroup.controls.Contact_Forename.errors ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Forename.errors">{{
+                      error_charity['Contact_Forename'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact email</label><span class="error-message">*</span>
+                  <div class="col-md-6 form-group">
+                    <label>Contact Surname</label><span class="error-message" *ngIf="isEdit">*</span>
+                    <input type="text" pInputText formControlName="Contact_Surname" class="w-100"
+                      [ngClass]="submitted && formGroup.controls.Contact_Surname.errors ? 'ng-invalid ng-dirty' : ''" />
+                    <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Surname.errors">{{
+                      error_charity['Contact_Surname'] }}
+                    </p>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label>Contact email</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="email" pInputText formControlName="Contact_Email" class="w-100"
                       [ngClass]="submitted && formGroup.controls.Contact_Email.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Email.errors">{{
                       error_company['Contact_Email'] }}
                     </p>
                   </div>
-                  <div class="col-md-4 form-group">
-                    <label>Contact phone number</label><span class="error-message">*</span>
+                  <div class="col-md-6 form-group">
+                    <label>Contact phone number</label><span class="error-message" *ngIf="isEdit">*</span>
                     <input type="text" pInputText formControlName="Contact_Phone_Number" class="w-100"
                       [ngClass]="submitted && formGroup.controls.Contact_Phone_Number.errors ? 'ng-invalid ng-dirty' : ''" />
                     <p class="error-message" *ngIf="submitted && formGroup.controls.Contact_Phone_Number.errors">{{
@@ -468,7 +484,7 @@
                     </p>
                   </div>
                   <div class="col-md-12 form-group">
-                    <label>Corporate Social Responsibility Statement</label><span class="error-message">*</span>
+                    <label>Corporate Social Responsibility Statement</label><span class="error-message" *ngIf="isEdit">*</span>
                     <textarea rows="4" [style]="{'width': '100%'}" formControlName="Company_CSR_Statement"
                       pInputTextarea
                       [ngClass]="submitted && formGroup.controls.Company_CSR_Statement.errors ? 'ng-invalid ng-dirty' : ''"></textarea>
@@ -531,6 +547,6 @@
   </div>
   <div class="col-md-3">
     <app-reports [type]="type" [objectId]="objectId" [isMyCharity]="isMyCharity" [isMyCompany]="isMyCompany"
-      [formData]="formGroup?.getRawValue()" [icon]="currentLogoUrl" *ngIf="(isMyCharity && charity) || !isMyCharity">
+      [formData]="formGroup?.getRawValue()" [icon]="newLogoUrl" *ngIf="(isMyCharity && charity) || !isMyCharity">
     </app-reports>
   </div>

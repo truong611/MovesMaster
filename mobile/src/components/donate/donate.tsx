@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Text} from '../text/text';
 import {color} from '../../theme';
-import {formatNumber} from "../../services";
+import {formatNumber, numberFormat} from "../../services";
 import {useState} from "react";
 import {useEffect} from "react";
 import {useIsFocused} from "@react-navigation/native";
@@ -33,7 +33,7 @@ export function Donate(props: any) {
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
         if (isFocused) {
-            let _donation = await movesModel.getDonateInfo();
+            let _donation = await movesModel.getDonateInfo();    
             setDonateInfo({
                 donatedMoves: _donation?.donatedMoves,
                 amountDonated: _donation?.amountDonated,
@@ -50,17 +50,23 @@ export function Donate(props: any) {
             <View style={styles.donationsWrapper}>
                 <TouchableOpacity style={styles.donationsItem}>
                     <Text style={styles.donationsValue}
-                          fonts={'DemiBold'}>{formatNumber(donateInfo?.donatedMoves)}</Text>
+                          fonts={'DemiBold'}
+                          adjustsFontSizeToFit={true}
+                          numberOfLines={1}>{formatNumber(Math.round(donateInfo?.donatedMoves))}</Text>
                     <Text style={styles.donationsText}>donated moves</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.donationsItem}>
                     <Text style={styles.donationsValue}
-                          fonts={'DemiBold'}>£{formatNumber(donateInfo?.amountDonated)}</Text>
+                          fonts={'DemiBold'}
+                          adjustsFontSizeToFit={true}
+                          numberOfLines={1}>£{numberFormat(donateInfo?.amountDonated)}</Text>
                     <Text style={styles.donationsText}>amount donated</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.donationsItem}>
                     <Text style={styles.donationsValue}
-                          fonts={'DemiBold'}>{formatNumber(donateInfo?.movesAvailable)}</Text>
+                          fonts={'DemiBold'}
+                          adjustsFontSizeToFit={true}
+                          numberOfLines={1}>{formatNumber(Math.round(donateInfo?.movesAvailable))}</Text>
                     <Text style={styles.donationsText}>moves available</Text>
                 </TouchableOpacity>
             </View>

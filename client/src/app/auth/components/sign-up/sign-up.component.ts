@@ -27,7 +27,7 @@ export class SignUpComponent implements OnInit {
     Contact_Name: '',
     Contact_Email: '',
     Contact_Phone_Number: '',
-    Captcha: 'Invalid Captcha'
+    Captcha: ''
   }
 
   captchaStatus: any = null;
@@ -83,7 +83,8 @@ export class SignUpComponent implements OnInit {
     this.formGroup = this.formBuilder.group({
       Charity_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Charity_Commission_No: [null, [Validators.required, Validators.pattern("^[0-9]*$")]],
-      Contact_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+      Contact_Forename: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+      Contact_Surname: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Contact_Email: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.email), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Contact_Phone_Number: [null, [Validators.required, Validators.maxLength(255), Validators.pattern(this.validaytorsService.regex.phone_number), this.validaytorsService.forbiddenSpaceText]],
     });
@@ -92,40 +93,54 @@ export class SignUpComponent implements OnInit {
   async signup() {
     // debugger;
     this.submitted = true;
-    if (this.formGroup.invalid) {
-      if (this.formGroup.get('Charity_Name').errors?.required || this.formGroup.get('Company_Name').errors?.forbiddenSpaceText) {
-        this.error['Charity_Name'] = 'Enter a Charity Name';
+    
+    this.captcha?.checkCaptcha();
+
+    if (this.formGroup.invalid || !this.captchaStatus) {
+      if (this.formGroup.get('Charity_Name').errors?.required || this.formGroup.get('Charity_Name').errors?.forbiddenSpaceText) {
+        this.error['Charity_Name'] = 'This field is mandatory';
       } else if (this.formGroup.get('Charity_Name').errors?.maxLength) {
         this.error['Charity_Name'] = 'Please enter no more than 255 characters ';
       }
 
       if (this.formGroup.get('Charity_Commission_No').errors?.required) {
-        this.error['Charity_Commission_No'] = 'Enter a Charity Number';
+        this.error['Charity_Commission_No'] = 'This field is mandatory';
       } else if (this.formGroup.get('Charity_Commission_No').errors?.pattern) {
         this.error['Charity_Commission_No'] = 'Only allow input number';
       }
 
-      if (this.formGroup.get('Contact_Name').errors?.required || this.formGroup.get('Contact_Name').errors?.forbiddenSpaceText) {
-        this.error['Contact_Name'] = 'Enter a Charity Contact Name';
-      } else if (this.formGroup.get('Contact_Name').errors?.maxLength) {
-        this.error['Charity_Name'] = 'Please enter no more than 255 characters ';
+      if (this.formGroup.get('Contact_Forename').errors?.required || this.formGroup.get('Contact_Forename').errors?.forbiddenSpaceText) {
+        this.error['Contact_Forename'] = 'This field is mandatory';
+      } else if (this.formGroup.get('Contact_Forename').errors?.maxLength) {
+        this.error['Contact_Forename'] = 'Please enter no more than 255 characters ';
+      }
+
+      if (this.formGroup.get('Contact_Surname').errors?.required || this.formGroup.get('Contact_Surname').errors?.forbiddenSpaceText) {
+        this.error['Contact_Surname'] = 'This field is mandatory';
+      } else if (this.formGroup.get('Contact_Surname').errors?.maxLength) {
+        this.error['Contact_Surname'] = 'Please enter no more than 255 characters ';
       }
 
       if (this.formGroup.get('Contact_Email').errors?.required || this.formGroup.get('Contact_Email').errors?.forbiddenSpaceText) {
-        this.error['Contact_Email'] = 'Enter a Contact Email';
-      } else if (this.formGroup.get('email').errors?.pattern) {
+        this.error['Contact_Email'] = 'This field is mandatory';
+      } else if (this.formGroup.get('Contact_Email').errors?.pattern) {
         this.error['Contact_Email'] = 'Invalid email address format';
       } else if (this.formGroup.get('Contact_Email').errors?.maxLength) {
         this.error['Contact_Email'] = 'Please enter no more than 255 characters ';
       }
 
       if (this.formGroup.get('Contact_Phone_Number').errors?.required) {
-        this.error['Contact_Phone_Number'] = 'Enter a Contact Phone Number';
+        this.error['Contact_Phone_Number'] = 'This field is mandatory';
       } else if (this.formGroup.get('Contact_Phone_Number').errors?.pattern) {
         this.error['Contact_Phone_Number'] = 'Invalid phone number format';
       } else if (this.formGroup.get('Contact_Phone_Number').errors?.maxLength) {
         this.error['Contact_Phone_Number'] = 'Please enter no more than 255 characters ';
       }
+
+      if(!this.captchaStatus) {
+        this.error['Captcha'] = 'Invalid Captcha';
+      }
+      
       return;
     }
 
@@ -133,14 +148,10 @@ export class SignUpComponent implements OnInit {
     let dataSaveCharity = {
       Charity_Name: rs.Charity_Name.trim(),
       Charity_Commission_No: rs.Charity_Commission_No.trim(),
-      Contact_Name: rs.Contact_Name.trim(),
-      Contact_Email: rs.Contact_Email.trim(),
+      Contact_Forename: rs.Contact_Forename.trim(),
+      Contact_Surname: rs.Contact_Surname.trim(),
+      Contact_Email: rs.Contact_Email.trim().toLowerCase(),
       Contact_Phone_Number: rs.Contact_Phone_Number.trim(),
-    }
-
-    this.captcha?.checkCaptcha();
-    if (!this.captchaStatus) {
-      return;
     }
 
     this.loading = true;

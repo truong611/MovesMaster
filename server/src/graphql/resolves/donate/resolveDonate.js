@@ -62,11 +62,16 @@ const createNewsByType = async (type, Campaign, trx = db) => {
             .insert({
                 News_Image: icon,
                 News_Title: `HALF WAY THERE! The ${Campaign.Campaign_Name} campaign is 50% funded.`,
-                News_Content: `<p>${Campaign.Campaign_Description}</p>
+                News_Content: `<p>${Campaign.Campaign_Description ?? ''}</p>
                 <p>Launch date: ${commonSystem.convertDateToString(Campaign.Campaign_Launch_Date)}</p>
-                <p>End date: ${commonSystem.convertDateToString(Campaign.Campaign_End_Date)}</p>
-                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: ' + Campaign.Campaign_Target_Value + '</p>' : ''}
-                <p>Price per move: ${Campaign.Campaign_Price_Per_Move}</p>`,
+                ${Campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(Campaign.Campaign_End_Date) + '</p>'}
+                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: ' + new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(Campaign.Campaign_Target_Value) + '</p>' : ''}
+                <p>Price per move: £${Campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
                 Moves_Charity_ID: Campaign.Moves_Charity_ID,
                 Moves_Company_ID: Campaign.Moves_Company_ID,
                 Appeal_ID: Campaign.Appeal_ID,
@@ -83,11 +88,16 @@ const createNewsByType = async (type, Campaign, trx = db) => {
             .insert({
                 News_Image: icon,
                 News_Title: `NEARLY THERE! The ${Campaign.Campaign_Name} campaign has become 90% funded.`,
-                News_Content: `<p>${Campaign.Campaign_Description}</p>
+                News_Content: `<p>${Campaign.Campaign_Description?? ''}</p>
                 <p>Launch date: ${commonSystem.convertDateToString(Campaign.Campaign_Launch_Date)}</p>
-                <p>End date: ${commonSystem.convertDateToString(Campaign.Campaign_End_Date)}</p>
-                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: ' + Campaign.Campaign_Target_Value + '</p>' : ''}
-                <p>Price per move: ${Campaign.Campaign_Price_Per_Move}</p>`,
+                ${Campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(Campaign.Campaign_End_Date) + '</p>'}
+                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: £' + new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(Campaign.Campaign_Target_Value) + '</p>' : ''}
+                <p>Price per move: £${Campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
                 Moves_Charity_ID: Campaign.Moves_Charity_ID,
                 Moves_Company_ID: Campaign.Moves_Company_ID,
                 Appeal_ID: Campaign.Appeal_ID,
@@ -104,11 +114,16 @@ const createNewsByType = async (type, Campaign, trx = db) => {
             .insert({
                 News_Image: icon,
                 News_Title: `OVER THE LINE! The ${Campaign.Campaign_Name} campaign is fully funded!`,
-                News_Content: `<p>${Campaign.Campaign_Description}</p>
+                News_Content: `<p>${Campaign.Campaign_Description ?? ''}</p>
                 <p>Launch date: ${commonSystem.convertDateToString(Campaign.Campaign_Launch_Date)}</p>
-                <p>End date: ${commonSystem.convertDateToString(Campaign.Campaign_End_Date)}</p>
-                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: ' + Campaign.Campaign_Target_Value + '</p>' : ''}
-                <p>Price per move: ${Campaign.Campaign_Price_Per_Move}</p>`,
+                ${Campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(Campaign.Campaign_End_Date) + '</p>'}
+                ${Campaign.End_Date_Target == false ? '<p>Target donation amount: £' + new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(Campaign.Campaign_Target_Value) + '</p>' : ''}
+                <p>Price per move: £${Campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
                 Moves_Charity_ID: Campaign.Moves_Charity_ID,
                 Moves_Company_ID: Campaign.Moves_Company_ID,
                 Appeal_ID: Campaign.Appeal_ID,
@@ -123,9 +138,10 @@ const createNewsByType = async (type, Campaign, trx = db) => {
     return;
 };
 
-const createNewsWhenDonationCampaign = async (Campaign, trx = db) => {
+const createNewsWhenDonationCampaign = async (bodyData, Campaign, trx = db) => {
     let { TotalDonation } = await dashboardHelper.getDonationCampaign(Campaign.Campaign_ID);
 
+    TotalDonation += bodyData?.Moves_Conversion_Rate * bodyData?.Moves_Donated;
     let percent = (TotalDonation / Campaign.Campaign_Target_Value) * 100;
     let typeOfCreateNews = Campaign.Type_Of_Create_News;
 
@@ -191,7 +207,7 @@ const createNewsWhenDonationCampaign = async (Campaign, trx = db) => {
         await createNewsByType(2, Campaign, trx);
 
         //Tạo news 100%
-        await createNewsByType(3, Campaign, trx);
+        // await createNewsByType(3, Campaign, trx);
 
         //Update trường Type_Of_Create_News => 3
         await trx.table('Campaign')
@@ -208,7 +224,7 @@ const createNewsWhenDonationCampaign = async (Campaign, trx = db) => {
         await createNewsByType(2, Campaign, trx);
 
         //Tạo news 100%
-        await createNewsByType(3, Campaign, trx);
+        // await createNewsByType(3, Campaign, trx);
 
         //Update trường Type_Of_Create_News => 3
         await trx.table('Campaign')
@@ -222,7 +238,7 @@ const createNewsWhenDonationCampaign = async (Campaign, trx = db) => {
     //phần trăm trong khoảng >= 100 và đã tạo news 50% và news 90%
     else if (percent >= 100 && typeOfCreateNews == 2) {
         //Tạo news 100%
-        await createNewsByType(3, Campaign, trx);
+        // await createNewsByType(3, Campaign, trx);
 
         //Update trường Type_Of_Create_News => 3
         await trx.table('Campaign')
@@ -338,6 +354,23 @@ const resolvers = {
 
                 let statusLiveAppeal = await getCategoryByTypeAndName(4, 'Live');
                 let _Appeal = await db.table('Appeal')
+                .select(
+                    "Appeal.Appeal_ID",
+                    "Appeal.Moves_Charity_ID",
+                    "Appeal.Appeal_Name",
+                    "Appeal.Appeal_URL",
+                    "Appeal.Appeal_Icon",
+                    "Appeal.Appeal_Description",
+                    "Appeal.Appeal_Start_Date",
+                    "Appeal.Appeal_End_Date",
+                    "Appeal.Appeal_Target_Amount",
+                    "Appeal.Created_Date",
+                    "Appeal.Created_By",
+                    "Appeal.Last_Modify_Date",
+                    "Appeal.Last_Modify_By",
+                    "Appeal.Appeal_Status_ID",
+                    "Charity.Charity_icon"
+                )
                 .innerJoin('Charity', 'Appeal.Moves_Charity_ID', '=', 'Charity.Moves_Charity_ID')
                 .where((queryBuilder) => {
                     queryBuilder.where('Charity.Is_Remove_Access', false);
@@ -348,10 +381,12 @@ const resolvers = {
                     queryBuilder.orderBy('Appeal.Appeal_Start_Date', 'desc');
                 });
 
-                let listAppealId = _Appeal.map(x => x.Appeal_ID);
-                let Appeal = await db.table('Appeal')
-                    .whereIn('Appeal_ID', listAppealId)
-                    .orderBy('Appeal_Start_Date', 'desc');
+                // let listAppealId = _Appeal.map(x => x.Appeal_ID);
+                // let Appeal = await db.table('Appeal')
+                //     .whereIn('Appeal_ID', listAppealId)
+                //     .orderBy('Appeal_Start_Date', 'desc');
+
+                let Appeal = [..._Appeal]
 
                 let statusLiveCampaign = await getCategoryByTypeAndName(5, 'Live');
                 let CampaignPublic = await db.table('Campaign').modify((queryBuilder) => {
@@ -376,6 +411,7 @@ const resolvers = {
 
                 let listCompanyId = Campaign.map(x => x.Moves_Company_ID);
                 let listCharityId = Campaign.map(x => x.Moves_Charity_ID);
+                let listAppealId = Campaign.map(x => x.Appeal_ID)
 
                 let listCompany = await db.table('Company')
                     .whereIn('Moves_Company_ID', listCompanyId)
@@ -383,13 +419,18 @@ const resolvers = {
                 let listCharity = await db.table('Charity')
                     .whereIn('Moves_Charity_ID', listCharityId)
                     .andWhere('Is_Remove_Access', false);
+                let listApeal = await db.table('Appeal')
+                    .whereIn('Appeal_ID', listAppealId)
 
                 let resultCampaign = [];
                 Campaign.forEach(item => {
                     let existsCompany = listCompany.find(x => x.Moves_Company_ID == item.Moves_Company_ID);
                     let existsCharity = listCharity.find(x => x.Moves_Charity_ID == item.Moves_Charity_ID);
+                    let existsAppeal = listApeal.find(x => x.Appeal_ID == item.Appeal_ID)
 
                     if (item.Moves_Company_ID && item.Moves_Charity_ID && existsCompany && existsCharity) {
+                        item.Charity_icon = existsCharity?.Charity_icon
+                        item.Appeal_Icon = existsAppeal?.Appeal_Icon
                         resultCampaign.push(item);
                     }
                 });
@@ -399,9 +440,12 @@ const resolvers = {
                 });
                 Appeal?.length && Appeal.map(item => {
                     item.Appeal_Icon = item.Appeal_Icon ? URL_FOLDER + item.Appeal_Icon : null;
+                    item.Charity_icon = item.Charity_icon ? URL_FOLDER + item.Charity_icon : null;
                 });
                 resultCampaign?.length && resultCampaign.map(item => {
                     item.Campaign_Icon = item.Campaign_Icon ? URL_FOLDER + item.Campaign_Icon : null;
+                    item.Appeal_Icon = item.Appeal_Icon ? URL_FOLDER + item.Appeal_Icon : null;
+                    item.Charity_icon = item.Charity_icon ? URL_FOLDER + item.Charity_icon : null;
                 });
 
                 return {
@@ -419,9 +463,9 @@ const resolvers = {
                 }
             }
         }),
-        getMasterDataListDonation: authenticated(async (parent, args, context) => {
+        getMasterDataListDonation: (async (parent, args, context) => {
             try {
-                let User_ID = context?.currentUser?.User_ID;
+                let User_ID = context?.currentUser?.User_ID ?? null;
                 let User = await db.table('User').where('User_ID', User_ID).first();
                 let objectId = args.objectId;
                 let objectType = args.objectType;
@@ -542,9 +586,9 @@ const resolvers = {
                 }
             }
         }),
-        getListDonation: authenticated(async (parent, args, context) => {
+        getListDonation: (async (parent, args, context) => {
             try {
-                let User_ID = context?.currentUser?.User_ID;
+                let User_ID = context?.currentUser?.User_ID ?? null;
                 let User = await db.table('User').where('User_ID', User_ID).first();
 
                 let objectId = args.bodyData.objectId;
@@ -553,12 +597,13 @@ const resolvers = {
                 let endDate = args.bodyData.endDate ? new Date(args.bodyData.endDate) : null;
                 let listAppealId = args.bodyData.listAppealId;
                 let listCampaignId = args.bodyData.listCampaignId;
+                let type = args.bodyData.type;
 
                 let totalDonation = 0;
                 let listDonation = [];
 
                 if (objectType == 'charity') {
-                    let result = await dashboardHelper.getTotal(User, 1);
+                    let result = await dashboardHelper.getTotal(User, type, objectId);
                     totalDonation = result?.totalDonation;
                     let Moves_Charity_ID = objectId;
                     let charity = await db.table('Charity')
@@ -619,7 +664,7 @@ const resolvers = {
                         }
                     });
                 } else if (objectType == 'company') {
-                    let result = await dashboardHelper.getTotal(User, 2);
+                    let result = await dashboardHelper.getTotal(User, type, objectId);
                     totalDonation = result?.totalDonation;
 
                     let Moves_Company_ID = objectId;
@@ -1025,7 +1070,8 @@ const resolvers = {
                                     User_ID,
                                     Moves_Charity_ID: bodyData?.Moves_Charity_ID,
                                     Moves_Donated: bodyData?.Moves_Donated,
-                                    Sterling_Amount: 0
+                                    Sterling_Amount: bodyData?.Sterling_Amount,
+                                    Amount_Donated:  bodyData?.Amount_Donated         
                                 });
                             } 
                             else {
@@ -1043,7 +1089,8 @@ const resolvers = {
                                     User_ID,
                                     Appeal_ID: bodyData?.Appeal_ID,
                                     Moves_Donated: bodyData?.Moves_Donated,
-                                    Sterling_Amount: 0
+                                    Sterling_Amount: bodyData?.Sterling_Amount,
+                                    Amount_Donated:  bodyData?.Amount_Donated 
                                 });
                             } 
                             else {
@@ -1067,7 +1114,7 @@ const resolvers = {
 
                                 //Nếu Campaign tính theo số tiền
                                 if (!find.End_Date_Target) {
-                                    await createNewsWhenDonationCampaign(find, trx);
+                                    await createNewsWhenDonationCampaign(bodyData, find, trx);
                                 }
                             } 
                             else {

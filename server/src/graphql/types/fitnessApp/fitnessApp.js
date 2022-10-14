@@ -17,7 +17,7 @@ const typeDefs = gql`
         Fitness_App_Access_User_ID: Int,
         Fitness_App_Access_Password: String,
         Fitness_App_Access_other_info: String,
-        Fitness_App_Usage_ID: Int,
+        Fitness_App_Usage_ID: String,
         Fitness_App_Usage_Access_Token: String,
         Fitness_App_Usage_Refresh_Token: String,
         Fitness_App_Usage_Expires_At: Timestamp,
@@ -43,7 +43,7 @@ const typeDefs = gql`
     input RemoveFitnessAppUsageInput {
         Fitness_App_ID: Int!,
         isRemove: Boolean!,
-        Fitness_App_Usage_ID: Int,
+        Fitness_App_Usage_ID: String,
         Fitness_App_Usage_Access_Token: String,
         Fitness_App_Usage_Refresh_Token: String,
         Fitness_App_Usage_Expires_At: Timestamp,

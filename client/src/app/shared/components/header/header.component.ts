@@ -21,6 +21,7 @@ export class HeaderComponent implements OnInit {
 
   user: any;
   textHeader: any;
+  iconHeader: any = null;
 
   constructor(
     private authService: AuthenticationService,
@@ -43,6 +44,11 @@ export class HeaderComponent implements OnInit {
 
     this.user = JSON.parse(localStorage.getItem('user'));
     this.textHeader = this.user.Charity_Name ?? this.user.Company_Name;
+    if(this.user?.IsAdmin) {
+      this.iconHeader = '/assets/img/logo_text_white.png';
+    } else {
+      this.iconHeader = this.user?.Charity_icon ? this.user?.Charity_icon : (this.user?.Company_Icon ? this.user?.Company_Icon : '/assets/img/Default Image.png');
+    }
   }
 
   getTotalNotification() {

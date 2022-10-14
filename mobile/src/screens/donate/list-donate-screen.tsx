@@ -9,14 +9,15 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import {BtnBack, Header, Screen, Text} from '../../components';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
+import {useNavigation, useIsFocused, useRoute} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
-import {formatNumber, formatDate, showToast} from '../../services';
+import {formatNumber, formatDate, showToast, numberFormat} from '../../services';
 import {FETCH_getListDonationMobile} from './donate-service';
 import {useQuery} from '@apollo/react-hooks';
 import {Donate} from "../../components/donate/donate";
 import {useStores} from "../../models";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const layout = Dimensions.get('window');
 
@@ -32,6 +33,11 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
     const [listDonate, setListDonate] = useState([]);
     const isFocused = useIsFocused();
     const {movesModel} = useStores();
+    const [sortDay , setSortDay] = useState(false)
+    const [sortPrice , setSortPrice] = useState(false)
+    const [sortName , setSortName] = useState(false)
+    const [typeName , setTypeName] = useState('')
+    const {params}: any = useRoute();
 
     const {refetch} = useQuery(FETCH_getListDonationMobile);
 
@@ -46,8 +52,19 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
             try {
                 let {data: {getListDonationMobile: {ListDonation, messageCode, message}}} = await refetch();
                 setLoading(false);
-                if (messageCode == 200) {
+                if (messageCode == 200) {        
                     setListDonate(ListDonation);
+                    console.log(params);
+                    
+                    if(params?.type == 'Date'){
+                        sortHistoryByDate(params?.value, ListDonation)
+                    }
+                    if(params?.type == 'Name'){
+                        sortHistoryByName(params?.value, ListDonation)
+                    }
+                    if(params?.type == 'Price'){
+                        sortHistoryByPrice(params?.value, ListDonation)
+                    }
                 } else {
                     showToast('error', message)
                 }
@@ -57,6 +74,74 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
             }
         }
     };
+
+    const sortHistoryByDate = (type : boolean, ListDonation = null) => {
+        setTypeName('Date')
+        setSortDay(type)
+        let _listDonate = ListDonation == null ? [...listDonate] : [...ListDonation]
+
+        if(type){
+            _listDonate.sort((a,b) => {
+                return a?.Created_Date - b?.Created_Date
+            })
+        }else{
+            _listDonate.sort((a,b) => {
+                return b?.Created_Date - a?.Created_Date
+            })
+        }
+        
+        setListDonate(_listDonate)  
+    }
+
+    const sortHistoryByPrice = (type : boolean, ListDonation = null) => {
+        setTypeName('Price')
+        setSortPrice(type)
+        let _listDonate = ListDonation == null ? [...listDonate] : [...ListDonation]
+        if(type){
+            _listDonate.sort((a,b) => {
+                return a?.Sterling_Amount - b?.Sterling_Amount
+            })
+        }else{
+            _listDonate.sort((a,b) => {
+                return b?.Sterling_Amount - a?.Sterling_Amount
+            })
+        }
+        setListDonate(_listDonate)  
+    }
+
+    const sortHistoryByName = (type : boolean, ListDonation = null) => {
+        setTypeName('Name')
+        setSortName(type)
+        let _listDonate = ListDonation == null ? [...listDonate] : [...ListDonation]
+        if(type){     
+            _listDonate.sort((a,b) => {
+                let name_a = ''
+                let name_b = ''     
+                if (a?.Campaign_ID != null) name_a = a?.Campaign_Name;
+                else if (a?.Appeal_ID != null) name_a = a?.Appeal_Name;
+                else if (a.Moves_Charity_ID != null) name_a = a?.Charity_Name;
+
+                if (b?.Campaign_ID != null) name_b = b?.Campaign_Name;
+                else if (b?.Appeal_ID != null) name_b = b?.Appeal_Name;
+                else if (b.Moves_Charity_ID != null) name_b = b?.Charity_Name;
+            return name_a.localeCompare(name_b)
+            })
+        }else{
+            _listDonate.sort((a,b) => {
+                let name_a = ''
+                let name_b = ''     
+                if (a?.Campaign_ID != null) name_a = a?.Campaign_Name;
+                else if (a?.Appeal_ID != null) name_a = a?.Appeal_Name;
+                else if (a.Moves_Charity_ID != null) name_a = a?.Charity_Name;
+
+                if (b?.Campaign_ID != null) name_b = b?.Campaign_Name;
+                else if (b?.Appeal_ID != null) name_b = b?.Appeal_Name;
+                else if (b.Moves_Charity_ID != null) name_b = b?.Charity_Name;
+            return name_b.localeCompare(name_a)
+            })
+        }
+        setListDonate(_listDonate)  
+    }
 
     const goToPage = page => {
         navigation.navigate('MainScreen', {screen: page});
@@ -76,7 +161,18 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
                 <Donate title={'DONATIONS'}/>
                 {listDonate?.length ?
                     <View style={styles.list_item}>
-                        <Text style={{marginBottom: 12}} fonts={'DemiBold'}>DONATIONS HISTORY</Text>
+                        <Text style={{marginBottom: 12}} fonts={'DemiBold'}>DONATION HISTORY</Text>
+                        <View style={{flexDirection:'row'}}>
+                            <TouchableOpacity style={{width: '44%',}} onPress={() => sortHistoryByName(!sortName)}>
+                               <Ionicons name={'swap-vertical-outline'} color={color.white} size={30}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{width: '25%', alignItems: 'flex-end'}} onPress={() => sortHistoryByPrice(!sortPrice)}>
+                               <Ionicons name={'swap-vertical-outline'} color={color.white} size={30}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{width: '30%', alignItems: 'flex-end'}} onPress={() => sortHistoryByDate(!sortDay)}>
+                               <Ionicons name={'swap-vertical-outline'} color={color.white} size={30}/>
+                            </TouchableOpacity>
+                        </View>
                         <FlatList
                             showsVerticalScrollIndicator={false}
                             showsHorizontalScrollIndicator={false}
@@ -101,16 +197,20 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
             onPress={() =>
                 navigation.navigate('MainScreen', {
                     screen: 'DetailDonateScreen',
-                    params: {id: item.Donation_ID},
+                    params: {
+                        id: item.Donation_ID,
+                        type : typeName,
+                        value: typeName == '' ? null : typeName == 'Date' ? sortDay : typeName == 'Price' ? sortPrice : sortName
+                    },
                 })
             }>
-            <Text style={{width: '33%', textAlign: 'left',}} numberOfLines={2}>
+            <Text style={{width: '44%', textAlign: 'left',}} numberOfLines={3} adjustsFontSizeToFit={true}>
                 {getNameDonate(item)}
             </Text>
-            <Text style={{width: '33%', textAlign: 'center', color: color.danger}}>
-                £{formatNumber(item.Sterling_Amount)}
+            <Text style={{width: '25%', textAlign: 'right', color: color.danger}} numberOfLines={1} adjustsFontSizeToFit={true}>
+                £{numberFormat(item.Sterling_Amount)}
             </Text>
-            <Text style={{width: '33%', textAlign: 'right', color: color.danger}}>
+            <Text style={{width: '30%', textAlign: 'right', color: color.danger}} numberOfLines={1} adjustsFontSizeToFit={true}>
                 {formatDate(item.Created_Date)}
             </Text>
         </TouchableOpacity>

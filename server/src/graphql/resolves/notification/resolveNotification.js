@@ -194,7 +194,6 @@ const resolvers = {
         let bodyData = args.bodyData;
 
         if (bodyData.Notification_To_Charity_ID && !bodyData.Notification_To_Company_ID) {
-          console.log(1, bodyData)
           await db.table('Notification')
             .insert({
               Notification_From_User_ID: User_ID,
@@ -205,7 +204,6 @@ const resolvers = {
             });
         }
         else if (!bodyData.Notification_To_Charity_ID && bodyData.Notification_To_Company_ID) {
-          console.log(2, bodyData)
           await db.table('Notification')
             .insert({
               Notification_From_User_ID: User_ID,

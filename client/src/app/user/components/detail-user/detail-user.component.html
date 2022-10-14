@@ -58,7 +58,7 @@
                 error['Surname'] }}</p>
             </div>
             <div class="col-md-12 form-group">
-              <label>Job role</label><span class="error-message">*</span>
+              <label>Job role</label>
               <input type="text" pInputText formControlName="User_Job_Roll" class="w-100"
                 [ngClass]="submitted && formGroup.controls.User_Job_Roll.errors ? 'ng-invalid ng-dirty' : ''" />
               <p class="error-message" *ngIf="submitted && formGroup.controls.User_Job_Roll.errors">{{

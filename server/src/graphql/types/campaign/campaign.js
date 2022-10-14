@@ -25,7 +25,9 @@ const typeDefs = gql`
     Charity_icon: String,
     Charity_URL: String,
     Company_Name: String,
+    Company_URL: String,
     Appeal_Name: String,
+    Appeal_Icon: String
     Amount_Raised: Float,
     Progress_Number: Int,
     Progress_Date: Float,
@@ -94,12 +96,13 @@ const typeDefs = gql`
   type GetListCampaignResponse {
     ListCampaign: [Campaign],
     ListStatus: [Category],
+    IsShowButtonCreateCampaign: Boolean,
     messageCode: Int!,
     message: String!
   }
 
   input UpdateCampaignInput {
-    Password: String!,
+    Password: String,
     Campaign_ID: Int!,
     Campaign_Icon: String,
     Campaign_Icon_File: Upload,

@@ -108,7 +108,8 @@ export class DashboardProfileComponent implements OnInit {
         Charity_Commission_No: [{ value: null, disabled: true }],
         Moves_Charity_ID: [{ value: null, disabled: true }],
         Charity_URL: [null],
-        Contact_Name: [null],
+        Contact_Forename: [null],
+        Contact_Surname: [null],
         Contact_Email: [null],
         Contact_Phone_Number: [null],
         Charity_Date_Founded: [null],
@@ -135,7 +136,8 @@ export class DashboardProfileComponent implements OnInit {
         Company_Number: [{ value: null, disabled: true }],
         Moves_Company_ID: [{ value: null, disabled: true }],
         Company_URL: [null],
-        Contact_Name: [null],
+        Contact_Forename: [null],
+        Contact_Surname: [null],
         Contact_Email: [null],
         Contact_Phone_Number: [null],
         Company_CSR_Statement: [null],
@@ -154,7 +156,8 @@ export class DashboardProfileComponent implements OnInit {
         Charity_Commission_No: this.charity?.Charity_Commission_No ?? null,
         Moves_Charity_ID: this.charity?.Moves_Charity_ID ?? null,
         Charity_URL: this.charity?.Charity_URL ?? null,
-        Contact_Name: this.charity?.Contact_Name ?? null,
+        Contact_Forename: this.charity?.Contact_Forename ?? null,
+        Contact_Surname: this.charity?.Contact_Surname ?? null,
         Contact_Email: this.charity?.Contact_Email ?? null,
         Contact_Phone_Number: this.charity?.Contact_Phone_Number ?? null,
         Charity_Date_Founded: this.charity?.Charity_Date_Founded ? new Date(this.charity?.Charity_Date_Founded) : null,
@@ -162,7 +165,7 @@ export class DashboardProfileComponent implements OnInit {
         Charity_Geographical_Scope: Geographical_Scope,
         Charity_Income_Band_ID: Income_Band,
         Charity_Sector: this.listCharitySector.filter(x => this.charity?.List_Charity_Sector_ID.includes(x.Category_ID)),
-        Date_Active: this.charity?.Date_Active,
+        Date_Active: this.charity?.Date_Active ? new Date(this.charity?.Date_Active) : null,
         Address_For_Invoice: this.charity?.Address_For_Invoice ?? null,
         Payment_Site_Url: this.charity?.Payment_Site_Url ?? null,
         Account_Name: this.charity?.Account_Name ?? null,
@@ -181,15 +184,21 @@ export class DashboardProfileComponent implements OnInit {
         Company_Number: this.company?.Company_Number,
         Moves_Company_ID: this.company?.Moves_Company_ID,
         Company_URL: this.company?.Company_URL,
-        Contact_Name: this.company?.Contact_Name,
+        Contact_Forename: this.company?.Contact_Forename ?? null,
+        Contact_Surname: this.company?.Contact_Surname ?? null,
         Contact_Email: this.company?.Contact_Email,
         Contact_Phone_Number: this.company?.Contact_Phone_Number,
         Company_CSR_Statement: this.company?.Company_CSR_Statement,
-        Date_Active: this.company?.Date_Active,
+        Date_Active: this.company?.Date_Active ? new Date(this.company?.Date_Active) : null,
       });
     }
 
     this.formGroup.disable();
+    if (this.type == 4) {
+      this.formGroup.get('Charity_Geographical_Scope').enable();
+      this.formGroup.get('Charity_Income_Band_ID').enable();
+      this.formGroup.get('Charity_Sector').enable();
+    }
   }
 
   viewProfile() {

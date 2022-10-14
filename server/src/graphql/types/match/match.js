@@ -12,6 +12,7 @@ const typeDefs = gql`
     Company_Name: String,
     Campaign_Icon: String,
     Campaign_Name: String
+    Company_URL: String,
   }
 
   type GetListMatchByObjectIdResponse {

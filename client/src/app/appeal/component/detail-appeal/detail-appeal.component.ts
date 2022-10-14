@@ -24,7 +24,7 @@ export class DetailAppealComponent implements OnInit {
   submitted: boolean = false;
   isEdit: boolean = false;
 
-  minDate = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+  minDate = new Date();
 
   createForm: FormGroup;
   nameControl: FormControl;
@@ -39,7 +39,9 @@ export class DetailAppealComponent implements OnInit {
   @ViewChild('currentLogo') currentLogo: ElementRef;
   currentLogoUrl: any = '/assets/img/Default Image.png';
   newLogoUrl: any = null;
-  charityLogoUrl: any = '/assets/img/Default Image.png';
+  charityName: any = null;
+  charityLogoUrl: any = null;
+  charityUrl: any = null;
 
   appeal = new Appeal();
   percent: number = 0;
@@ -83,7 +85,7 @@ export class DetailAppealComponent implements OnInit {
     this.desControl = new FormControl(null);
     this.startDateControl = new FormControl(null, [Validators.required]);
     this.endDateControl = new FormControl(null);
-    this.targetAmountControl = new FormControl(null, [Validators.required, Validators.min(0.01)]);
+    this.targetAmountControl = new FormControl(null, [Validators.min(0.01)]);
 
     this.createForm = new FormGroup({
       nameControl: this.nameControl,
@@ -106,17 +108,21 @@ export class DetailAppealComponent implements OnInit {
     }
 
     this.appeal = data.getDetailAppeal.Appeal;
-    this.isShowButtonCreateCampaign = data.getDetailAppeal.isShowButtonCreateCampaign;;
-    this.isShowButtonEdit = data.getDetailAppeal.isShowButtonEdit;;
-    this.isShowButtonPublish = data.getDetailAppeal.isShowButtonPublish;;
-    this.isShowButtonAbandon = data.getDetailAppeal.isShowButtonAbandon;;
+    this.isShowButtonCreateCampaign = data.getDetailAppeal.isShowButtonCreateCampaign;
+    this.isShowButtonEdit = data.getDetailAppeal.isShowButtonEdit;
+    this.isShowButtonPublish = data.getDetailAppeal.isShowButtonPublish;
+    this.isShowButtonAbandon = data.getDetailAppeal.isShowButtonAbandon;
+
+    this.newLogoUrl = this.appeal.Appeal_Icon;
     
     this.setDefaulValueForm();
   }
 
   setDefaulValueForm() {
     this.currentLogoUrl = this.appeal.Appeal_Icon ? this.appeal.Appeal_Icon : '/assets/img/Default Image.png';
-    this.charityLogoUrl = this.appeal.Charity_icon ? this.appeal.Charity_icon : '/assets/img/Default Image.png';
+    this.charityName = this.appeal.Charity_Name;
+    this.charityLogoUrl = this.appeal.Charity_icon;
+    this.charityUrl = this.appeal.Charity_URL;
     this.percent = this.roundNumber((this.appeal.Amount_Raised / this.appeal.Appeal_Target_Amount) * 100, 2);
     this.nameControl.setValue(this.appeal.Appeal_Name);
     this.urlControl.setValue(this.appeal.Appeal_URL);
@@ -161,6 +167,7 @@ export class DetailAppealComponent implements OnInit {
     }
     else {
       this.currentLogoUrl = '/assets/img/Default Image.png';
+      this.newLogoUrl = null;
     }
   }
 
@@ -240,17 +247,17 @@ export class DetailAppealComponent implements OnInit {
       return;
     }
 
-    let now = (new Date()).getTime();
+    let now = (new Date() as Date).getTime();
     let startDate = (this.startDateControl.value as Date).getTime();
     let endDate = this.endDateControl.value ? (this.endDateControl.value as Date).getTime() : null;
 
-    if (startDate <= now ) {
-      this.showMessage('error', 'Appeal Start Date must be in the future');
-      return;
-    }
+    // if (startDate < now ) {
+    //   this.showMessage('error', 'Appeal Start Date must be in the future');
+    //   return;
+    // }
 
-    if (endDate && startDate >= endDate) {
-      this.showMessage('error', 'Appeal End Date must be after Appeal Start Date');
+    if (endDate && startDate > endDate) {
+      this.showMessage('error', 'Appeal End Date must be after Appeal Launch Date');
       return;
     }
 
@@ -260,8 +267,8 @@ export class DetailAppealComponent implements OnInit {
       Appeal_ID: this.appeal.Appeal_ID,
       Appeal_Icon_File: file,
       Appeal_Name: this.nameControl.value.trim(),
-      Appeal_URL: this.urlControl.value.trim(),
-      Appeal_Description: this.desControl.value.trim(),
+      Appeal_URL: this.urlControl.value?.trim(),
+      Appeal_Description: this.desControl.value?.trim(),
       Appeal_Start_Date: this.startDateControl.value,
       Appeal_End_Date: this.endDateControl.value,
       Appeal_Target_Amount: this.targetAmountControl.value,
@@ -284,12 +291,16 @@ export class DetailAppealComponent implements OnInit {
 
   preview() {
     this.previewForm = {
-      Icon: this.currentLogoUrl,
+      Icon: this.newLogoUrl,
       Appeal_URL: this.urlControl.value?.trim(),
+      Charity_Name:  this.charityName,
+      Charity_icon: this.charityLogoUrl,
+      Charity_URL: this.charityUrl,
       Name: this.nameControl.value?.trim(),
       Status_Name: this.appeal.Appeal_Status_Name.toUpperCase(),
       Description: this.desControl.value?.trim(),
       Launch_Date: this.startDateControl.value, 
+      End_Date: this.endDateControl.value,
       Amount_Date: this.getDiffDate(this.startDateControl.value, new Date), //D: H: M: S
       Target: this.targetAmountControl.value, //Target
       Amount_Raised: this.appeal.Amount_Raised,

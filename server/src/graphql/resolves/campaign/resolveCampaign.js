@@ -28,11 +28,13 @@ const resolvers = {
           let listAppealId = _listAppeal.map(x => x.Appeal_ID);
           await changeStatus.appeal();
 
+          //Live, Publish
           listAppeal = await db.table('Appeal')
-            .where(builder => {
-              builder.where('Moves_Charity_ID', args.ObjectId)
+            .where('Moves_Charity_ID', args.ObjectId)
+            .andWhere(builder => {
+              builder.where('Appeal_Status_ID', 15)
 
-              builder.andWhere('Appeal_Status_ID', 16)
+              builder.orWhere('Appeal_Status_ID', 16)
             })
             .orderBy('Appeal_Name');
         }
@@ -43,11 +45,13 @@ const resolvers = {
           let listAppealId = _listAppeal.map(x => x.Appeal_ID);
           await changeStatus.appeal();
 
+          //Live, Publish
           listAppeal = await db.table('Appeal')
-            .where(builder => {
-              builder.where('Appeal_ID', args.ObjectId)
+            .where('Appeal_ID', args.ObjectId)
+            .andWhere(builder => {
+              builder.where('Appeal_Status_ID', 15)
 
-              builder.andWhere('Appeal_Status_ID', 16)
+              builder.orWhere('Appeal_Status_ID', 16)
             })
             .orderBy('Appeal_Name');
         }
@@ -138,18 +142,25 @@ const resolvers = {
           .where('Moves_Charity_ID', campaign.Moves_Charity_ID)
           .first();
 
+        let company = await db.table('Company')
+          .where('Moves_Company_ID', campaign.Moves_Company_ID)
+          .first();
+
         campaign.Charity_Name = charity?.Charity_Name;
         campaign.Charity_icon = charity?.Charity_icon ? URL_FOLDER + charity.Charity_icon : null;
         campaign.Charity_URL = charity?.Charity_URL;
-
-        let _listAppeal = await db.table('Appeal')
-          .where('Moves_Charity_ID', campaign.Moves_Charity_ID)
+        campaign.Company_Name = company?.Company_Name;
+        campaign.Company_URL = company?.Company_URL;
 
         await changeStatus.appeal();
 
         let listAppeal = await db.table('Appeal')
           .where('Moves_Charity_ID', campaign.Moves_Charity_ID)
-          .andWhere('Appeal_Status_ID', 16);
+          .andWhere(builder => {
+            builder.where('Appeal_Status_ID', 15)
+
+            builder.orWhere('Appeal_Status_ID', 16)
+          });
 
         if (campaign.Appeal_ID != null) {
           let existsAppeal = listAppeal.find(x => x.Appeal_ID == campaign.Appeal_ID);
@@ -173,8 +184,9 @@ const resolvers = {
           let extendCompany = await db.table('Company')
             .where('Moves_Company_ID', campaign.Moves_Company_ID)
             .first();
-
-          if (extendCompany) listCompany.push(extendCompany);
+          if (extendCompany) {
+            listCompany.push(extendCompany);
+          } 
         }
 
         listCompany.forEach(item => {
@@ -194,7 +206,7 @@ const resolvers = {
         let PercentageDiscount = parseFloat(PERCENTAGE_DISCOUNT);
 
         if (campaign.Moves_Charity_ID == User.Moves_Charity_ID && User.Moves_Charity_ID != null &&
-          (campaign.Campaign_Status_ID == 19 || campaign.Campaign_Status_ID == 20)) {
+          (campaign.Campaign_Status_ID == 19 || campaign.Campaign_Status_ID == 20 || campaign.Campaign_Status_ID == 21)) {
           IsShowButtonEdit = true;
         }
 
@@ -215,7 +227,6 @@ const resolvers = {
             .where('Campaign_ID', campaign.Campaign_ID)
             .where('Moves_Company_ID', User.Moves_Company_ID)
             .first();
-
           if (!existsMatch) IsShowButtonCreateMatch = true;
         }
 
@@ -251,9 +262,9 @@ const resolvers = {
         }
       }
     }),
-    getListCampaign: authenticated(async (parent, args, context) => {
+    getListCampaign: (async (parent, args, context) => {
       try {
-        let User_ID = context.currentUser.User_ID;
+        let User_ID = context.currentUser?.User_ID ?? null;
         let User = await db.table('User').where('User_ID', User_ID).first();
 
         let ObjectType = args.ObjectType;
@@ -266,7 +277,9 @@ const resolvers = {
           .where('Category_Type', 5);
         let statusLive = listStatus.find(x => x.Category_ID == 23);
 
-        //Charity dashboard && user is charity && charity dashboard is my user charity
+        let isShowButtonCreateCampaign = true;
+
+        //Charity dashboard && user is charity && charity dashboard is my user charity / admin
         if (ObjectType == 'a') {
           let charity = await db.table('Charity')
             .where('Moves_Charity_ID', ObjectId)
@@ -282,6 +295,10 @@ const resolvers = {
           ListCampaign = await db.table('Campaign')
             .where('Moves_Charity_ID', ObjectId)
             .orderBy('Created_Date', 'desc');
+
+          if(User?.IsAmin || User?.Moves_Charity_ID != ObjectId) {
+            isShowButtonCreateCampaign = false;
+          }
         }
         //Company dashboard
         else if (ObjectType == 'b') {
@@ -304,7 +321,7 @@ const resolvers = {
           let listCampaignMatchId = listCampaignMatch.map(x => x.Campaign_ID);
 
           //my company
-          if (company.Moves_Company_ID == User.Moves_Company_ID) {
+          if (company.Moves_Company_ID == User?.Moves_Company_ID) {
             ListCampaign = await db.table('Campaign')
               .where(builder => {
                 builder.where('Moves_Company_ID', ObjectId);
@@ -325,6 +342,10 @@ const resolvers = {
               .orWhereIn('Campaign_ID', listCampaignMatchId)
               .orderBy('Created_Date', 'desc');
           }
+
+          if(!User?.Moves_Company_ID) {
+            isShowButtonCreateCampaign = false;
+          }
         }
         //Appeal
         else if (ObjectType == 'c') {
@@ -337,6 +358,11 @@ const resolvers = {
               message: 'Appeal not found',
               messageCode: 404
             }
+          }
+
+          //Appeal khác trạng thái Live, Publish thì ẩn nút tạo Campaign
+          if (appeal.Appeal_Status_ID != 15 && appeal.Appeal_Status_ID != 16) {
+            isShowButtonCreateCampaign = false;
           }
 
           ListCampaign = await db.table('Campaign')
@@ -357,7 +383,7 @@ const resolvers = {
           }
 
           let company = await db.table('Company')
-            .where('Moves_Company_ID', User.Moves_Company_ID)
+            .where('Moves_Company_ID', User?.Moves_Company_ID)
             .first();
 
           if (!company) {
@@ -423,7 +449,6 @@ const resolvers = {
           .whereIn('Campaign_ID', listCampaignId);
 
         ListCampaign.forEach(item => {
-          item.Campaign_Icon = item.Campaign_Icon ? URL_FOLDER + item.Campaign_Icon : null;
 
           let status = listStatus.find(x => x.Category_ID == item.Campaign_Status_ID);
           item.Campaign_Status_Name = status?.Category_Name;
@@ -436,6 +461,8 @@ const resolvers = {
 
           let appeal = listAppeal.find(x => x.Appeal_ID == item.Appeal_ID);
           item.Appeal_Name = appeal?.Appeal_Name;
+          
+          item.Campaign_Icon = item.Campaign_Icon ? URL_FOLDER + item.Campaign_Icon : (appeal?.Appeal_Icon ? URL_FOLDER + appeal?.Appeal_Icon : (charity?.Charity_icon ? URL_FOLDER + charity?.Charity_icon : null));
 
           let _listMatch = listMatch.filter(x => x.Campaign_ID == item.Campaign_ID);
           item.Number_Matches = _listMatch?.length ?? 0;
@@ -457,6 +484,7 @@ const resolvers = {
         return {
           ListCampaign: ListCampaign,
           ListStatus: listStatus,
+          IsShowButtonCreateCampaign: isShowButtonCreateCampaign,
           message: 'OK',
           messageCode: 200
         }
@@ -536,7 +564,7 @@ const resolvers = {
 
           return {
             Campaign_ID: Campaign_ID,
-            message: 'OK',
+            message: 'The Campaign has been saved and will be reviewed by the Company',
             messageCode: 200
           }
         });
@@ -629,14 +657,18 @@ const resolvers = {
               .returning(['News_Item_ID'])
               .insert({
                 News_Item_Author_ID: context.currentUser.User_ID,
-                News_Title: company.Company_Name + ' - ' + campaign.Campaign_Name,
-                News_Content: `<p>${campaign.Campaign_Description}</p>
+                News_Image: company.Company_Icon,
+                News_Title: `CAMPAIGN MATCHED. ${company.Company_Name ?? ''} has matched the ${campaign.Campaign_Name ?? ''} Campaign. Geeat news!`,//company.Company_Name + ' - ' + campaign.Campaign_Name
+                News_Content: `<p>${campaign.Campaign_Description ?? ''}</p>
                   <p>Launch date: ${commonSystem.convertDateToString(campaign.Campaign_Launch_Date)}</p>
-                  <p>End date: ${commonSystem.convertDateToString(campaign.Campaign_End_Date)}</p>
-                  ${campaign.End_Date_Target == false ? '<p>Target donation amount: ' + campaign.Campaign_Target_Value + '</p>' : ''}
-                  <p>Price per move: ${campaign.Campaign_Price_Per_Move}</p>`,
-                Appeal_ID: campaign.Appeal_ID,
-                Moves_Charity_ID: campaign.Moves_Charity_ID,
+                  ${campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(campaign.Campaign_End_Date) + '</p>'}
+                  ${campaign.End_Date_Target == false ? '<p>Target donation amount: ' + new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(campaign.Campaign_Target_Value) + '</p>' : ''}
+                  <p>Price per move: £${campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
                 Moves_Company_ID: User.Moves_Company_ID,
                 Campaign_ID: campaign.Campaign_ID,
                 News_Status_ID: 26, //Live
@@ -852,13 +884,14 @@ const resolvers = {
           let User_ID = context.currentUser.User_ID;
           let User = await trx.table('User').where('User_ID', User_ID).first();
 
-          const isEqual = await bcrypt.compare(bodyData.Password, User.User_Password);
-          if (!isEqual) {
-            return {
-              messageCode: 404,
-              message: 'Password is incorrect',
-            };
-          }
+          //thay đổi yêu cầu không cần nhập mật khẩu khi update campaign
+          // const isEqual = await bcrypt.compare(bodyData.Password, User.User_Password);
+          // if (!isEqual) {
+          //   return {
+          //     messageCode: 404,
+          //     message: 'Password is incorrect',
+          //   };
+          // }
 
           let campaign = await trx.table('Campaign')
             .where('Campaign_ID', bodyData.Campaign_ID)
@@ -871,7 +904,7 @@ const resolvers = {
             }
           }
 
-          if (campaign.Campaign_Status_ID != 19 && campaign.Campaign_Status_ID != 20) {
+          if (campaign.Campaign_Status_ID != 19 && campaign.Campaign_Status_ID != 20 && campaign.Campaign_Status_ID != 21) {
             return {
               message: 'Campaign status is incorrect',
               messageCode: 409
@@ -927,7 +960,7 @@ const resolvers = {
 
           return {
             messageCode: 200,
-            message: 'Save campaign success'
+            message: 'The Campaign has been saved and will be reviewed by the Company'
           }
         });
 

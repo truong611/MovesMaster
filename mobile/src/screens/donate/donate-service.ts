@@ -1,5 +1,25 @@
 import gql from "graphql-tag";
 
+export const getListMatch = gql `
+    query ListMatch($id: Int!, $type: String!) {
+        getListMatchByObjectId(Id: $id, Type: $type) {
+        ListMatch {
+            Match_ID
+            Campaign_ID
+            Moves_Company_ID
+            Match_Date_Created
+            Company_Icon
+            Company_Name
+            Campaign_Icon
+            Campaign_Name
+            Company_URL
+        }
+        messageCode
+        message
+        }
+    }
+`;
+
 export const FETCH_getListCharity = gql`
     query getListCharity($bodyData: CharityFilter!) {
         getListCharity(bodyData: $bodyData) {
@@ -76,6 +96,9 @@ export const FETCH_getDetailAppeal = gql`
                 Charity_Name
                 Charity_icon
                 TotalCampaign
+                Charity_URL
+                Payment_Site_Url,
+                Member_Payment_Site_Url
             }
             isShowButtonCreateCampaign
             isShowButtonEdit
@@ -118,17 +141,20 @@ export const FETCH_getDetailCampaign = gql`
                 Sterling_Amount
                 Progress_Donations
                 Progress_Moves
+                Charity_URL
             }
             ListAppeal {
                 Appeal_ID
                 Appeal_Name
                 Moves_Charity_ID
                 Appeal_Icon
+                Appeal_URL
             }
             ListCompany {
                 Moves_Company_ID
                 Company_Name
                 Company_Icon
+                Company_URL
             }
             IsShowButtonEdit
             IsShowButtonPublish
@@ -157,6 +183,8 @@ export const FETCH_getListCampaignMobile = gql`
                 Amount_Raised
                 Campaign_Description
                 Campaign_Launch_Date
+                Appeal_Icon
+                Charity_icon
             }
             Appeal {
                 Appeal_ID
@@ -164,6 +192,7 @@ export const FETCH_getListCampaignMobile = gql`
                 Appeal_Icon
                 Appeal_Description
                 Appeal_Start_Date
+                Charity_icon
             }
             Charity {
                 Moves_Charity_ID
@@ -173,6 +202,8 @@ export const FETCH_getListCampaignMobile = gql`
                 Created_Date
                 Is_Active
                 Charity_URL
+                Payment_Site_Url,
+                Member_Payment_Site_Url
             }
         }
     }

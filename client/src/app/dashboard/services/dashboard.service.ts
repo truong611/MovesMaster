@@ -14,6 +14,8 @@ const _getDashboardProfile = gql`
         Charity_Name
         Charity_Commission_No
         Contact_Name
+        Contact_Forename
+        Contact_Surname
         Contact_Email
         Contact_Phone_Number
         Charity_URL
@@ -49,6 +51,8 @@ const _getDashboardProfile = gql`
         Company_CSR_Statement
         Is_Active
         Contact_Name
+        Contact_Forename
+        Contact_Surname
         Contact_Email
         Contact_Phone_Number
         Date_Active

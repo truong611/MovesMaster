@@ -86,14 +86,14 @@ export const RecommendDonateScreen = observer(function RecommendDonateScreen() {
             showToast('error', 'charity name cannot be empty');
             return false;
         }
-        if (regexString(formData?.charityEmail)) {
-            showToast('error', 'charity email cannot be empty');
-            return false;
-        }
-        if (regexEmail(formData?.charityEmail)) {
-            showToast('error', 'invalid email address');
-            return false;
-        }
+        // if (regexString(formData?.charityEmail)) {
+        //     showToast('error', 'charity email cannot be empty');
+        //     return false;
+        // }
+        // if (regexEmail(formData?.charityEmail)) {
+        //     showToast('error', 'invalid email address');
+        //     return false;
+        // }
         return true
     };
 
@@ -157,7 +157,8 @@ export const RecommendDonateScreen = observer(function RecommendDonateScreen() {
                     <Input
                         style={[styles.mb16, styles.input]}
                         placeholder=''
-                        status={isSubmit && (regexString(formData?.charityEmail) || regexEmail(formData?.charityEmail)) ? 'danger' : 'none'}
+                        // status={isSubmit && (regexString(formData?.charityEmail) || regexEmail(formData?.charityEmail)) ? 'danger' : 'none'}
+                        status={'none'}
                         value={formData?.charityEmail}
                         onChangeText={nextValue => setChangeInput('charityEmail', nextValue)}
                     />

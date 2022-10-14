@@ -153,8 +153,8 @@ const commonSystem = {
       .where('User_ID', User_ID);
     for (let i = 0; i < Donation.length; i++) {
       let item = Donation[i];
-      Donated_Moves += parseFloat(item?.Moves_Donated)
-      Amount_Donated += parseFloat(item?.Sterling_Amount);
+      Donated_Moves += parseFloat(item?.Moves_Donated ?? 0)
+      Amount_Donated += parseFloat(item?.Sterling_Amount ?? 0);
     }
 
     Moves_Avaiable = Upload_Moves - Donated_Moves;
@@ -173,20 +173,21 @@ const commonSystem = {
     current.setDate((current.getDate() - current.getDay() + 1));
     for (let i = 0; i < 7; i++) {
       week.push(
-          new Date(current)
+        new Date(current)
       );
       current.setDate(current.getDate() + 1);
     }
     for (let i = 0; i < week.length; i++) {
       if (type == 'dayOfMonth') {
 
-      } else if(type == 'dayOfWeek') {
-        week[i] =  dayOfWeek[week[i]?.getDay()]
+      } else if (type == 'dayOfWeek') {
+        // @ts-ignore
+        week[i] = dayOfWeek[week[i]?.getDay()]
       }
     }
     return week;
   },
-  getDaysInMonth: (date, format = null) => {
+  getDaysInMonth: (date, format = '') => {
     date = new Date(date);
     let year = date.getFullYear();
     let month = date.getMonth();
@@ -199,6 +200,19 @@ const commonSystem = {
       } else {
         days.push(new Date(date));
       }
+      date.setDate(date.getDate() + 1);
+    }
+    return days;
+  },
+  getDaysInMonthMobile: (date) => {
+    date = new Date(date);
+    let year = date.getFullYear();
+    let month = date.getMonth();
+    date = new Date(year, month, 1);
+    date.setHours(7, 0, 0);
+    const days = [];
+    while (date.getMonth() === month) {
+        days.push(new Date(date));
       date.setDate(date.getDate() + 1);
     }
     return days;

@@ -7,7 +7,7 @@ exports.seed = function(knex) {
       User_Phone_Number: '0123456789',
       Surname: 'admin',
       Forename: '',
-      User_Password: '$2a$12$amgxZ0/4yKP5TXo9lqQSs.j/2MXybBXLTRcd6DrB90iQCBh9eEy3i',
+      User_Password: '$2a$12$yldsDuEXL6GSzMGufr0S.eGNmpOURcadvBi19IqCzecHWz6s.kJmO',
       IsAdmin: true,
       Is_Web_App_User: true,
       Is_Mobile_App_User: true
@@ -18,7 +18,7 @@ exports.seed = function(knex) {
       User_Phone_Number: '333',
       Surname: 'charity',
       Forename: '',
-      User_Password: '$2a$12$amgxZ0/4yKP5TXo9lqQSs.j/2MXybBXLTRcd6DrB90iQCBh9eEy3i',
+      User_Password: '$2a$12$yldsDuEXL6GSzMGufr0S.eGNmpOURcadvBi19IqCzecHWz6s.kJmO',
       IsAdmin: false,
       Is_Web_App_User: true,
       Is_Mobile_App_User: true,

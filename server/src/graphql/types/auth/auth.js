@@ -12,6 +12,7 @@ const typeDefs = gql`
     Is_Deleted: Boolean,
     Moves_Company_ID: Int,
     Company_Name: String,
+    Company_Icon: String,
     Moves_Charity_ID: Int,
     Charity_Name: String,
     Charity_icon: String,
@@ -65,6 +66,12 @@ const typeDefs = gql`
     BoolValue: Boolean,
   }
 
+  type ChangeResetPasswordResponse {
+    Is_Reset_Pass_From_Mobile: Boolean,
+    messageCode: Int!,
+    message: String!,
+  }
+
   # ROOT TYPE
   type Query {
     login(email: String!, password: String!, type: String, isActiveMobile: Boolean): ResponseLogin,
@@ -74,9 +81,9 @@ const typeDefs = gql`
   }
 
   type Mutation{
-    signResetPassWord(Email:String!,url:String):BaseResponse,
+    signResetPassWord(Email:String!, url:String, type:String):BaseResponse,
     checkCodeResetPassword(hashCode:String):BaseResponse,
-    changeResetPassword(hashCode:String,Password:String!):BaseResponse
+    changeResetPassword(hashCode:String,Password:String!):ChangeResetPasswordResponse,
     register(forename: String!, surname: String!, email: String!, phone: String, password: String!): ResponseRegister,
     updateProfile(forename: String!, surname: String!, email: String!, phone: String, avatar: String, fileName: String): ResponseUpdateProfile,
     changePassword(passwordOld: String!, passwordNew: String): ResponseChangePassword,

@@ -10,11 +10,11 @@ const dashboardHelper = {
       if (type == 1) Moves_Charity_ID = User?.Moves_Charity_ID;
       else Moves_Charity_ID = objectId;
 
-      //if user charity
+      //if user charity/admin
       if (Moves_Company_ID == null) {
         let listAppeal = await db.table('Appeal')
           .where('Moves_Charity_ID', Moves_Charity_ID);
-        
+
         let listCampaign = await db.table('Campaign')
           .where('Moves_Charity_ID', Moves_Charity_ID);
 
@@ -38,7 +38,7 @@ const dashboardHelper = {
           .sum('Sterling_Amount')
           .first();
         totalDonation += (donationAppeal.sum ?? 0);
-        
+
         let listDonationCampaign = await db.table('Donation')
           .whereIn('Campaign_ID', listCampaignId)
           .whereNull('Appeal_ID')
@@ -50,18 +50,36 @@ const dashboardHelper = {
         listDonationCampaign.forEach(item => {
           totalDonation += (item.Sterling_Amount ?? 0);
         });
+        
+        let totalMove = 0;
+        let donationMoveCharity = await db.table('Donation')
+          .where('Moves_Charity_ID', Moves_Charity_ID)
+          .whereNull('Appeal_ID')
+          .whereNull('Campaign_ID')
+          .sum('Moves_Donated')
+          .first();
+        totalMove = donationMoveCharity.sum ?? 0;
+
+        let donationMoveAppeal = await db.table('Donation')
+          .whereIn('Appeal_ID', listAppealId)
+          .whereNull('Moves_Charity_ID')
+          .whereNull('Campaign_ID')
+          .sum('Moves_Donated')
+          .first();
+        totalMove += (donationMoveAppeal.sum ?? 0);
 
         return {
           totalAppeal: listAppeal.length,
           totalCampaign: listCampaign.length,
-          totalDonation: totalDonation
+          totalDonation: totalDonation,
+          totalMove: totalMove
         }
       }
       //if user company
       else {
         let listAppeal = await db.table('Appeal')
           .where('Moves_Charity_ID', Moves_Charity_ID);
-        
+
         let listCampaign = await db.table('Campaign')
           .where('Moves_Charity_ID', Moves_Charity_ID);
 
@@ -85,7 +103,7 @@ const dashboardHelper = {
           .sum('Sterling_Amount')
           .first();
         totalDonation += (donationAppeal.sum ?? 0);
-        
+
         let listDonationCampaign = await db.table('Donation')
           .whereIn('Campaign_ID', listCampaignId)
           .whereNull('Appeal_ID')
@@ -124,13 +142,31 @@ const dashboardHelper = {
           .where('Moves_Charity_ID', Moves_Charity_ID)
           .where('Campaign_Status_ID', 23)
           .whereNotIn('Campaign_ID', listDistinctId);
-        
+
         let totalCampaign = listTotalCampaign1.length + listTotalCampaign2.length + listTotalCampaign3.length;
+        
+        let totalMove = 0;
+        let donationMoveCharity = await db.table('Donation')
+          .where('Moves_Charity_ID', Moves_Charity_ID)
+          .whereNull('Appeal_ID')
+          .whereNull('Campaign_ID')
+          .sum('Moves_Donated')
+          .first();
+        totalMove = donationMoveCharity.sum ?? 0;
+
+        let donationMoveAppeal = await db.table('Donation')
+          .whereIn('Appeal_ID', listAppealId)
+          .whereNull('Moves_Charity_ID')
+          .whereNull('Campaign_ID')
+          .sum('Moves_Donated')
+          .first();
+        totalMove += (donationMoveAppeal.sum ?? 0);
 
         return {
           totalAppeal: listAppeal.length,
           totalCampaign: totalCampaign,
-          totalDonation: totalDonation
+          totalDonation: totalDonation,
+          totalMove: totalMove
         }
       }
     }
@@ -142,7 +178,7 @@ const dashboardHelper = {
       else Moves_Company_ID = objectId;
 
       let listCampaign = [];
-      if (type == 2) {
+      if (type == 2 || User?.Moves_Company_ID == Moves_Company_ID) {
         listCampaign = await db.table('Campaign')
           .where('Moves_Company_ID', Moves_Company_ID)
           .whereNot('Campaign_Status_ID', 20)
@@ -154,7 +190,7 @@ const dashboardHelper = {
           .whereNotIn('Campaign_Status_ID', [19, 20, 21])
           .select('Campaign_ID');
       }
-      
+
       let listMapCampaignId = await db.table('Match')
         .where('Moves_Company_ID', Moves_Company_ID)
         .select('Campaign_ID');
@@ -202,8 +238,10 @@ const dashboardHelper = {
       .sum('Sterling_Amount as Sterling_Amount');
 
     let TotalDonation = 0;
+    let TotalMove = 0;
     listDonationAppeal.forEach(item => {
       TotalDonation += (item?.Sterling_Amount ?? 0);
+      TotalMove += (item?.Moves_Donated ?? 0)
     });
 
     listDonationCampaign.forEach(item => {
@@ -212,7 +250,8 @@ const dashboardHelper = {
 
     return {
       TotalCampaign: TotalCampaign,
-      TotalDonation: TotalDonation
+      TotalDonation: TotalDonation,
+      TotalMove: TotalMove
     }
   },
   getDonationCampaign: async (Campaign_ID) => {
@@ -220,7 +259,7 @@ const dashboardHelper = {
       .where('Campaign_ID', Campaign_ID)
       .sum('Sterling_Amount')
       .first();
-    
+
     let _Amount = (Sterling_Amount.sum ?? 0);
 
     let listMatch = await db.table('Match')

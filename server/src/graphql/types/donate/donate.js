@@ -93,7 +93,8 @@ const typeDefs = gql`
         startDate: Timestamp,
         endDate: Timestamp,
         listAppealId: [Int],
-        listCampaignId: [Int]
+        listCampaignId: [Int],
+        type: Int
     }
 
     type GetListDonationResponse {

@@ -18,6 +18,10 @@ const path = require('path');
 const pg = require('pg');
 const task = require('./cron-job/updateStatus');
 const fs = require(`fs`);
+const { 
+  ApolloServerPluginLandingPageGraphQLPlayground,
+  ApolloServerPluginLandingPageDisabled
+} = require('apollo-server-core');
 
 pg.types.setTypeParser(pg.types.builtins.NUMERIC, (value) => {
   return parseFloat(value);
@@ -30,6 +34,7 @@ var JWTSECRET = process.env.JWTSECRET;
 var STATIC_FOLDER = process.env.STATIC_FOLDER;
 var PORT_HTTP = process.env.PORT_HTTP;
 var HTTP_URL = process.env.HTTP_URL;
+var PROJECT_MODE = process.env.PROJECT_MODE;
 
 // Load schema and resolvers
 const typeDefs = require('./graphql/types/index');
@@ -37,6 +42,7 @@ const resolvers = require('./graphql/resolves/index');
 
 const tradeTokenForUser = async authorization => {
   const token = authorization ? authorization.slice(7, authorization.length) : '';
+  // @ts-ignore
   const verificationResponse = jwt.verify(token, JWTSECRET);
   if (!verificationResponse) {
     return false
@@ -77,7 +83,12 @@ const schema = makeExecutableSchema({
       return {
         currentUser
       };
-    }
+    },
+    plugins: [
+      // ApolloServerPluginLandingPageGraphQLPlayground(),
+      // ApolloServerPluginLandingPageDisabled(),
+    ],
+    introspection: PROJECT_MODE !== 'Production'
   });
 
   await server.start();
@@ -102,8 +113,8 @@ const schema = makeExecutableSchema({
 
   //router
   require('./router/strava/api')(app);
-  // require('./router/map-my-ride/api')(app);
-  // require('./router/garmin/api')(app);
+  require('./router/map-my-ride/api')(app);
+  require('./router/garmin/api')(app);
   
 
   // Mount Apollo middleware here.

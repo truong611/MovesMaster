@@ -58,7 +58,8 @@ const typeDefs = gql`
 
   input UpdateDashboardCharityInput {
     Charity_URL: String,
-    Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
     Charity_Date_Founded: Timestamp,
@@ -81,7 +82,8 @@ const typeDefs = gql`
   input UpdateDashboardCompanyInput {
     Company_Icon_File: Upload,
     Company_URL: String,
-    Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
     Company_CSR_Statement: String,

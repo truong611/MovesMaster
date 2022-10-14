@@ -1,31 +1,36 @@
 <div class="preview preview-new">
-  <div class="title-name text-bold mb-3">{{news?.News_Title}}</div>
   <div class="detail">
     <!-- <p class="text-url">{{news?.News_Url}}</p> -->
-    <div class="image text-center">
+    <div class="image text-center mb-3" *ngIf="countImage > 0">
       <ul class="nav list-image list-image-{{countImage}}">
-        <li (click)="openLink(1)" *ngIf="news?.News_Image">
-          <img class="img-fluid" [src]="news?.News_Image">
+        <li (click)="openLink(1)" *ngIf="news?.Charity_icon">
+          <img class="img-fluid" [src]="news?.Charity_icon">
         </li>
-        <li (click)="openLink(2)" *ngIf="news?.Moves_Company_ID">
+        <li (click)="openLink(2)" *ngIf="news?.Company_Icon">
           <img class="img-fluid" [src]="news?.Company_Icon">
         </li>
-        <li (click)="openLink(3)" *ngIf="news?.Appeal_ID">
+        <li (click)="openLink(3)" *ngIf="news?.Appeal_Icon">
           <img class="img-fluid" [src]="news?.Appeal_Icon">
         </li>
-        <li (click)="openLink(4)" *ngIf="news?.Campaign_ID">
+        <li (click)="openLink(4)" *ngIf="news?.Campaign_Icon">
           <img class="img-fluid" [src]="news?.Campaign_Icon">
         </li>
       </ul>
     </div>
-    <div class="infor">
-      <div class="content-detail">
+
+    <div class="title-name text-bold mb-3">{{news?.News_Title}}</div>
+    <div class="image text-center" (click)="openLink(5)" *ngIf="news?.News_Image">
+      <img class="img-fluid" [src]="news?.News_Image">
+    </div>
+    <div class="infor mt-3">
+      <div class="content-detail mb-3">
         <div class="content-new" [innerHtml]="news?.News_Content"></div>
-        <p class="text-right text-bold">{{(news?.News_Publish_Date ? (news?.News_Publish_Date  | date: 'dd/MM/yyyy HH:mm' ) : '' ) + ' - ' + (news?.CreateBy ? news?.CreateBy : '')}}</p>
       </div>
     </div>
   </div>
   <div class="content-end">
+    <p class="text-right text-bold">{{(news?.News_Publish_Date ? (news?.News_Publish_Date | date: 'dd/MM/yyyy HH:mm'
+      ) : '' ) + ' - ' + (news?.CreateBy ? news?.CreateBy : '')}}</p>
     <div class="list-btn-share">
       <p class="text-center">share this</p>
       <div class="list-btn text-center">

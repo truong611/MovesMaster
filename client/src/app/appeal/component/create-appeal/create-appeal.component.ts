@@ -23,7 +23,7 @@ export class CreateAppealComponent implements OnInit {
   Moves_Charity_ID: number = this.user.Moves_Charity_ID;
   submitted: boolean = false;
 
-  minDate = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+  minDate = new Date(); //new Date((new Date()).getTime() + (1000 * 60 * 60 * 24)) - minDate lớn hơn ngày hiện tại
 
   createForm: FormGroup;
   nameControl: FormControl;
@@ -39,6 +39,7 @@ export class CreateAppealComponent implements OnInit {
   currentLogoUrl: any = '/assets/img/Default Image.png';
   newLogoUrl: any = null;
   charityLogoUrl: any = null;
+  charityUrl: any = null;
 
   displayPreview: boolean = false;
   previewWidth: string;
@@ -71,7 +72,7 @@ export class CreateAppealComponent implements OnInit {
     this.desControl = new FormControl(null);
     this.startDateControl = new FormControl(null, [Validators.required]);
     this.endDateControl = new FormControl(null);
-    this.targetAmountControl = new FormControl(null, [Validators.required, Validators.min(0.01)]);
+    this.targetAmountControl = new FormControl(null, [Validators.min(0.01)]);
 
     this.createForm = new FormGroup({
       nameControl: this.nameControl,
@@ -96,6 +97,7 @@ export class CreateAppealComponent implements OnInit {
     let charity = data.getDetailCharity.Charity;
     this.charity_Name = charity.Charity_Name;
     this.charityLogoUrl = charity.Charity_icon;
+    this.charityUrl = charity.Charity_URL;
   }
 
   changeFile(file) {
@@ -131,6 +133,7 @@ export class CreateAppealComponent implements OnInit {
     }
     else {
       this.currentLogoUrl = '/assets/img/Default Image.png';
+      this.newLogoUrl = null;
     }
   }
 
@@ -157,8 +160,8 @@ export class CreateAppealComponent implements OnInit {
     let startDate = (this.startDateControl.value as Date).getTime();
     let endDate = this.endDateControl.value ? (this.endDateControl.value as Date).getTime() : null;
 
-    if (endDate && startDate >= endDate) {
-      this.showMessage('error', 'Appeal End Date must be after Appeal Start Date');
+    if (endDate && startDate > endDate) {
+      this.showMessage('error', 'Appeal End Date must be after Appeal Launch Date');
       return;
     }
 
@@ -197,12 +200,16 @@ export class CreateAppealComponent implements OnInit {
 
   preview() {
     this.previewForm = {
-      Icon: this.currentLogoUrl,
+      Icon: this.newLogoUrl,
       Appeal_URL: this.urlControl.value?.trim(),
+      Charity_Name:  this.charity_Name,
+      Charity_icon: this.charityLogoUrl,
+      Charity_URL: this.charityUrl,
       Name: this.nameControl.value?.trim(),
       Status_Name: 'Draft'.toUpperCase(),
       Description: this.desControl.value?.trim(),
       Launch_Date: this.startDateControl.value,
+      End_Date: this.endDateControl.value,
       Amount_Date: this.getDiffDate(this.startDateControl.value, new Date), //D: H: M: S
       Target: this.targetAmountControl.value, //Target
       Amount_Raised: 0,

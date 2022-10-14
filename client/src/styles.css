@@ -418,6 +418,10 @@ label {
   filter: grayscale(100%);
 }
 
+.table-gridview .grid-view .list-box {
+  padding: 10px 0;
+}
+
 .table-gridview .grid-view .list-box li {
   width: calc(100%/5);
   padding: 0 0.75rem;
@@ -428,13 +432,20 @@ label {
   position: relative;
 }
 
-.table-gridview .grid-view .list-box .icon img {
+.table-gridview .grid-view .list-box .icon .icon-image {
   box-shadow: 0px 0px 10px #00000080;
-  border-radius: 10px;
   width: 100%;
   height: 150px;
-  object-fit: cover;
-  object-position: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-gridview .grid-view .list-box .icon img {
+  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
 }
 
 .table-gridview .grid-view .list-box .title-name {
@@ -498,14 +509,19 @@ label {
   background: rgba(26, 17, 52, 1);
 }
 
-
-.table-gridview .scrollbar-table table img {
-  /* box-shadow: 0px 0px 10px #00000080; */
-  border-radius: 10px;
-  object-fit: cover;
-  object-position: center;
+.table-gridview .scrollbar-table table .icon-image {
   width: 90px;
   height: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-gridview .scrollbar-table table img {
+  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
 }
 
 .table-gridview .grid-view {
@@ -581,7 +597,7 @@ label {
 
 /* Layout */
 .main-header {
-  background: #2d2252 !important;
+  /* background: #2d2252 !important; */
   margin-left: 5.6rem !important;
   border: 0 !important;
   z-index: 1039 !important;
@@ -617,8 +633,8 @@ label {
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus{
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
   -webkit-text-fill-color: #ffffff;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -1091,6 +1107,12 @@ p-celleditor .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
   width: 80%;
 }
 
+
+.temps {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 @media only screen and (max-width: 600px) {
   :root .p-paginator-current {
     position: unset !important;
@@ -1214,10 +1236,10 @@ p-dropdown.w-100 .p-dropdown {
 }
 
 /* start preview */
-.p-dialog-right .popup-preview.p-dialog{
+.p-dialog-right .popup-preview.p-dialog {
   margin-right: 20px;
   margin-left: 0;
-  margin-top: 53px;
+  margin-top: 0px;
   box-shadow: 0px 0px 20px #000000;
 }
 
@@ -1238,25 +1260,35 @@ p-dropdown.w-100 .p-dropdown {
   box-shadow: 0px 0px 20px #000000;
 }
 
+.preview .icon-favourite {
+  position: absolute;
+  font-size: 24px;
+  /* color: red; */
+  left: 8px;
+  top: 10px;
+}
+
 .preview .content-detail {
   overflow-y: auto;
 }
 
 .preview .content-end {
-  position: absolute;
+  /* position: absolute;
   width: calc(100% - 32px);
-  bottom: 15px;
+  bottom: 15px; */
 }
+
 .preview .image {
   height: 100px;
   cursor: pointer;
 }
 
 .preview .image img {
-  max-height: 90%;
-  height: 90%;
+  max-height: 100%;
+  height: 100%;
   border-radius: 10px;
-  max-width: 180px;
+  max-width: 100%;
+  /* width: 100%; */
   object-fit: cover;
   object-position: center;
 }
@@ -1279,6 +1311,11 @@ p-dropdown.w-100 .p-dropdown {
   padding-top: 0;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
+  height: 100%;
+}
+
+.p-dialog.popup-preview .preview {
+  height: 100%;
 }
 
 .p-dialog.popup-preview .preview .list-number {
@@ -1291,6 +1328,7 @@ p-dropdown.w-100 .p-dropdown {
 
 /* scroll */
 .p-dialog-content::-webkit-scrollbar-track,
+.p-dialog-content .detail::-webkit-scrollbar-track,
 .p-dialog-content .content-detail::-webkit-scrollbar-track,
 .p-multiselect-items-wrapper::-webkit-scrollbar-track,
 textarea::-webkit-scrollbar-track {
@@ -1300,6 +1338,7 @@ textarea::-webkit-scrollbar-track {
 }
 
 .p-dialog-content::-webkit-scrollbar,
+.p-dialog-content .detail::-webkit-scrollbar,
 .p-dialog-content .content-detail::-webkit-scrollbar,
 .p-multiselect-items-wrapper::-webkit-scrollbar,
 textarea::-webkit-scrollbar {
@@ -1309,6 +1348,7 @@ textarea::-webkit-scrollbar {
 }
 
 .p-dialog-content::-webkit-scrollbar-thumb,
+.p-dialog-content .detail::-webkit-scrollbar-thumb,
 .p-dialog-content .content-detail::-webkit-scrollbar-thumb,
 .p-multiselect-items-wrapper::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
@@ -1405,7 +1445,15 @@ textarea::-webkit-scrollbar-thumb {
   .profile-page .label-company-left {
     min-width: 135px !important;
   }
-  
+
+  .profile-page .label-charity-right {
+    min-width: calc(100% - 175px) !important;
+  }
+
+  .profile-page .label-company-right {
+    min-width: calc(100% - 195px) !important;
+  }
+
 }
 
 @media (min-width: 1701px) {
@@ -1438,7 +1486,15 @@ textarea::-webkit-scrollbar-thumb {
   .profile-page .label-company-left {
     min-width: 140px !important;
   }
-  
+
+  .profile-page .label-charity-right {
+    min-width: calc(100% - 180px) !important;
+  }
+
+  .profile-page .label-company-right {
+    min-width: calc(100% - 200px) !important;
+  }
+
 }
 
 /* @media (min-width: 1801px) and (max-width: 1920px) {

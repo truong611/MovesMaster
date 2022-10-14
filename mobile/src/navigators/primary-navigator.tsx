@@ -40,6 +40,7 @@ import {
     DetailDonateScreen,
     ListDonateScreen,
     OverviewActivityScreen,
+    DetailActivityScreen
 } from '../screens';
 
 /**
@@ -130,6 +131,7 @@ export function PrimaryNavigator() {
                 <Drawer.Screen name="ListDonateScreen" component={ListDonateScreen}/>
                 <Drawer.Screen name="DetailDonateScreen" component={DetailDonateScreen}/>
                 <Drawer.Screen name="OverviewActivityScreen" component={OverviewActivityScreen}/>
+                <Drawer.Screen name="DetailActivityScreen" component={DetailActivityScreen}/>
             </Drawer.Navigator>
         </ApolloProvider>
     );

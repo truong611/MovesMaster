@@ -13,7 +13,7 @@ import {
 import {Badge, BtnBack, Header, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation} from "@react-navigation/native"
 import {color} from '../../theme';
-import {formatNumber, showToast, timestampToDate} from "../../services";
+import {formatNumber, replaceHTTP, showToast, timestampToDate} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getBadgeAwarded} from "./achievements-service";
 import CenterSpinner from "../../components/center-spinner/center-spinner";
@@ -116,14 +116,14 @@ export const AchievementsScreen = observer(function AchievementsScreen() {
             <View style={styles.container}>
                 <BtnBack title="My Achievements" goBack={goBack}/>
                 {listBadge?.length ?
-                    listBadge.map((item, index) => {
+                    listBadge.map((item, index) => {                  
                         return (
                             <View key={'achievements-' + item + index} style={styles.listContainer}>
                                 <Text style={styles.title}>{item?.title}</Text>
                                 <View style={styles.donationsWrapper}>
                                     {item?.values?.length ?
                                         item?.values.map((value, i) => {
-                                            let active = listBadgeAwarded && value?.Badge_ID && listBadgeAwarded[value?.Badge_ID];
+                                            let active = listBadgeAwarded && value?.Badge_ID && listBadgeAwarded[value?.Badge_ID];                                         
                                             return (
                                                 <View key={'achievements-item-' + value + i}>
                                                     <Badge
@@ -186,7 +186,7 @@ export const AchievementsScreen = observer(function AchievementsScreen() {
                                     <View style={[styles.iconWrapper, {width: ((layout.width - 16 * 3) * 50 / 100) - 32, height: ((layout.width - 16 * 3) * 50 / 100) - 32,}]}>
                                         {modalVisible?.value?.Badge_Icon ?
                                             <Image resizeMode={"contain"} style={[styles.icon, styles.Badge_Icon, listBadgeAwarded && modalVisible?.value?.Badge_ID && listBadgeAwarded[modalVisible?.value?.Badge_ID] ? {} : {tintColor: 'gray'}]}
-                                                   source={{uri: modalVisible?.value?.Badge_Icon}}/>
+                                                   source={{uri: replaceHTTP(modalVisible?.value?.Badge_Icon)}}/>
                                             : null}
                                     </View>
                                     <View style={[styles.flagBottom, {borderBottomWidth: (((layout.width - 16 * 3) * 50 / 100) - 32)/3, borderLeftWidth: ((layout.width - 16 * 3) * 50 / 100) / 2, borderRightWidth: ((layout.width - 16 * 3) * 50 / 100) / 2,}]}/>

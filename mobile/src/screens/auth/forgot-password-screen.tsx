@@ -17,13 +17,16 @@ const ROOT: ViewStyle = {
 };
 
 const IMAGE_HEIGHT_SMALL = Dimensions.get('window').width / 5;
+const IMAGE_HEIGHT = Dimensions.get('window').width / 2;
 
 export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
     const [isLoading, setLoading] = useState(false);
     const [isSubmit, setSubmit] = useState(false);
     const [email, setEmail] = useState('');
+    const [placeholderEmail,setPlaceholderEmail] = useState('email')
     const navigation = useNavigation();
     const isFocused = useIsFocused();
+    const [imageHeight, setImageHeight] = useState(new Animated.Value(IMAGE_HEIGHT));
 
     useEffect(() => {
         fetchData();
@@ -44,12 +47,13 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
             setLoading(true);
             const successCallback = async (response) => {
                 setLoading(false);
-                goToPage('LoginScreen');
-                showToast('success', response.message);
+                // goToPage('LoginScreen');
+                showToast('success', response.message); 
             };
             const errorCallback = (e) => {
                 setLoading(false);
                 showToast('error', e.message);
+                
             };
             forgotPassword(email, successCallback, errorCallback);
         }
@@ -77,20 +81,23 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
             {isLoading && <CenterSpinner/>}
             <Screen style={ROOT} preset="fixed">
                 <View style={styles.container}>
-                    <Animated.Image source={images.login_1} style={[styles.login_1, {height: IMAGE_HEIGHT_SMALL}]}/>
+                    <Animated.Image source={images.login_1} style={[styles.login_1, {height: imageHeight}]}/>
                     <View style={{alignItems: 'center'}}>
                         <Text style={{marginBottom: 24}}>enter your email to reset your password.</Text>
                         <Input
                             onSubmitEditing={() => submit()}
                             blurOnSubmit={false}
-                            placeholder='email address' type='email-address'
+                            placeholder={placeholderEmail}
+                            onFocus={() => setPlaceholderEmail('')}
+                            onBlur={() => setPlaceholderEmail('email')}
+                            type='email-address'
                             status={isSubmit && (regexString(email) || regexEmail(email)) ? 'danger' : ''}
                             value={email}
                             onChangeText={(value) => setEmail(value)}
                         />
-                        <MButton onPress={submit} text='send'/>
+                        <MButton onPress={submit} text='reset'/>
                         <TouchableOpacity style={styles.forgotPasswordWrapper} onPress={() => navigation.goBack()}>
-                            <Text style={styles.signUpText}>cancel</Text>
+                            <Text style={styles.signUpText}>login</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

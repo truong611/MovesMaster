@@ -69,6 +69,8 @@ const resolvers = {
 					.andWhere('Charity_Type', 1)
 					.orderBy('Created_Date', 'desc');
 
+				ListCharity.map(item => item.Contact_Name = (item.Contact_Forename ?? "" ) + " " + (item.Contact_Surname ?? ""));
+
 				return {
 					ListCharity: ListCharity,
 					message: 'OK',
@@ -172,6 +174,8 @@ const resolvers = {
 				let ListCharity = await db.table('Charity')
 					.where('Charity_Type', 0)
 					.orderBy('Created_Date', 'desc');
+
+				ListCharity.map(item => item.Contact_Name = (item.Contact_Forename ?? "" ) + " " + (item.Contact_Surname ?? ""));
 
 				return {
 					ListCharity: ListCharity,
@@ -324,7 +328,8 @@ const resolvers = {
 						.insert({
 							Charity_Name: bodyData.Charity_Name.trim(),
 							Charity_Commission_No: bodyData.Charity_Commission_No.trim(),
-							Contact_Name: bodyData.Contact_Name.trim(),
+							Contact_Forename: bodyData.Contact_Forename.trim(),
+              Contact_Surname: bodyData.Contact_Surname.trim(),
 							Contact_Email: bodyData.Contact_Email.trim(),
 							Contact_Phone_Number: bodyData.Contact_Phone_Number,
 							Is_Active: null
@@ -339,7 +344,7 @@ const resolvers = {
 
 					return {
 						messageCode: 200,
-						message: `<p>Thank you for submitting this request to sign up ${bodyData.Charity_Name.trim()}. Your reference number is ${bodyData.Charity_Commission_No.trim()}.</p><p>We will carry out the necessary due diligence and advise when complete</p>`
+						message: `<p>Thank you for submitting this request to sign up ${bodyData.Charity_Name.trim()}. Your reference number is ${CharityResult[0]}.</p><p>We will carry out the necessary due diligence and advise when complete</p>`
 					}
 				});
 
@@ -415,8 +420,8 @@ const resolvers = {
 					let UserResult = await trx.table('User')
 						.returning(['User_ID'])
 						.insert({
-							Surname: charity.Charity_Name.trim(),
-							Forename: '',
+							Surname: charity.Contact_Surname,
+							Forename: charity.Contact_Forename,
 							User_Email: charity.Contact_Email.trim(),
 							User_Phone_Number: charity.Contact_Phone_Number.trim(),
 							Is_Web_App_User: true,
@@ -466,16 +471,17 @@ const resolvers = {
 							News_Publish_Date: new Date()
 						});
 
-					const url = `${CLIENT}/reset-password;id=${tokenReset}`;
+					const url = `${CLIENT}/reset-password;Charity_Name=${charity.Charity_Name};id=${tokenReset}`;
 					const urlTerm = `${CLIENT}/terms-and-conditions`;
 					const urlPolicy = `${CLIENT}/policy`;
 
 					let fileNamePdf = await exportPDF.charityInvoice('invoice', charity);
 					let filePdf = 'temp/' + fileNamePdf;
 
+					let contact_Name = (charity.Contact_Forename ?? "" ) + " " + (charity.Contact_Surname ?? "");
 					await sendEmail.sendEmail(charity.Contact_Email.trim(),
 						charity.Charity_Name + ' - Request to join Moves Matter ' + charity.Charity_Commission_No,
-						emailTemp.templateAcceptRequestCharity(url, urlTerm, urlPolicy, charity.Contact_Name),
+						emailTemp.templateAcceptRequestCharity(url, urlTerm, urlPolicy, contact_Name),
 						[
 							{
 								filename: fileNamePdf,
@@ -547,9 +553,10 @@ const resolvers = {
 
 					const url = `${CLIENT}/home`;
 
+					let contact_Name = (charity.Contact_Forename ?? "" ) + " " + (charity.Contact_Surname ?? "");
 					await sendEmail.sendEmail(charity.Contact_Email.trim(),
 						charity.Charity_Name + ' - Request to join Moves Matter ' + charity.Charity_Commission_No,
-						emailTemp.templateDenyCharity(charity.Contact_Name, url),
+						emailTemp.templateDenyCharity(contact_Name, url),
 						[], 'stream'
 					).catch(err => {
 						throw new Error(err);

@@ -36,3 +36,4 @@ export * from './activity/add-individual-activity-items.screen';
 export * from './activity/view-activity-screen';
 export * from './activity/calendar-activity-screen';
 export * from './activity/overview-activity-screen';
+export * from './activity/detail-activity-screen';

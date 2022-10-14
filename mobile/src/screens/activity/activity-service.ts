@@ -20,11 +20,15 @@ export const FETCH_getMasterDataUploadActivity = gql`
               Conversation_To_Moves_Rate
               Date_Introduced
               Date_Retired
+              Limit_Minute
             }
             Activity_Type_ID
           }
         }
         LastUpload
+        Upload_Count
+        Upload_End_Date
+        JOINING_BONUS
         Activity_Type_Entry {
           Activity_Upload_ID
           Include_YN
@@ -58,6 +62,24 @@ export const FETCH_uploadActivity = gql`
   }
 `;
 
+export const FETCH_uploadActiviyGarmin = gql`
+  mutation Mutation {
+    updateGarminActivity {
+      messageCode
+      message
+    }
+  }
+`;
+
+export const FETCH_uploadActivityApple = gql`
+mutation UpdateAppleHealthActivity($bodyData: [AppleHealthActivityInput]) {
+  updateAppleHealthActivity(bodyData: $bodyData) {
+    messageCode
+    message
+  }
+}
+`;
+
 export const FETCH_getViewActivity = gql`
   query GetViewActivity($date: Timestamp!) {
     getViewActivity(date: $date) {
@@ -71,6 +93,7 @@ export const FETCH_getViewActivity = gql`
         Activity_Start_Time
         Activity_Entry_ID
         Activity_End_Time
+        Upload_Count
         ActivityType {
           Activity_Type_Name
           Activity_Type_Icon
@@ -84,6 +107,7 @@ export const FETCH_getViewActivity = gql`
         Conversion_Rate
         Fitness_App {
           Fitness_App_Name
+          Fitness_App_Icon
         }
       }
     }
@@ -96,6 +120,21 @@ export const FETCH_getOverViewActivity = gql`
       message
       messageCode
       data
+    }
+  }
+`;
+
+export const FETCH_getOverViewActivityMobile = gql`
+  query getOverviewActivityMobile($date: Timestamp!, $type: String!, $lechGio: Int!) {
+    getOverviewActivityMobile(date: $date, type: $type, lechGio: $lechGio) {
+      message
+      messageCode
+      data{
+        day
+        month
+        year
+        activity
+      }
     }
   }
 `;

@@ -60,10 +60,10 @@ export class ReportsComponent implements OnInit {
     let previewWidth = document.getElementById("dashboardReport").offsetWidth + 'px';
     let previewHeight = document.getElementById("dashboardReport").offsetHeight + 'px';
 
-    if(this.isMyCharity || this.isMyCompany) {
-      localStorage.setItem('preview', JSON.stringify({width: previewWidth, height: previewHeight}));
+    if (this.isMyCharity || this.isMyCompany) {
+      localStorage.setItem('preview', JSON.stringify({ width: previewWidth, height: previewHeight }));
     }
-    
+
   }
 
   /* Nếu Input có thay đổi */
@@ -136,9 +136,9 @@ export class ReportsComponent implements OnInit {
   }
 
   goToListAppeal() {
-    if (this.isMyCharity) {
-      this.router.navigate(['/appeal/list-appeal']);
-    }
+    // if (this.isMyCharity) {
+    this.router.navigate(['/appeal/list-appeal', { objectId: this.encrDecrService.set(this.objectId) }]);
+    // }
 
   }
 
@@ -157,12 +157,22 @@ export class ReportsComponent implements OnInit {
         objectType = 'company';
         objectId = this.user.Moves_Company_ID;
         break;
+      case 4:
+        //màn hình charity dashboard với tất cả tài khoản
+        objectType = 'charity';
+        objectId = this.objectId;
+        break;
+      case 5:
+        //màn hình company dashboard với tất cả tài khoản
+        objectType = 'company';
+        objectId = this.objectId;
+        break;
       default:
         break;
     }
 
-    if(objectType) {
-      this.router.navigate(['/donation/list-donation', { objectType: this.encrDecrService.set(objectType), objectId: this.encrDecrService.set(objectId) }]);
+    if (objectType) {
+      this.router.navigate(['/donation/list-donation', { objectType: this.encrDecrService.set(objectType), objectId: this.encrDecrService.set(objectId), type: this.encrDecrService.set(this.type)  }]);
     }
   }
 
@@ -182,7 +192,7 @@ export class ReportsComponent implements OnInit {
     let objectType = this.setObject().objectType;
     let objectId = this.setObject().objectId;
 
-    if(objectType) {
+    if (objectType) {
       this.router.navigate(['/campaign/campaign-list', { objectType: this.encrDecrService.set(objectType), objectId: this.encrDecrService.set(objectId) }]);
     }
   }
@@ -190,9 +200,9 @@ export class ReportsComponent implements OnInit {
   goToListMatches() {
     let objectId = this.setObject().objectId;
 
-    if(this.isMyCompany) {
+    // if (this.isMyCompany) {
       this.router.navigate(['/match/match-list', { type: this.encrDecrService.set('company'), id: this.encrDecrService.set(objectId) }]);
-    }
+    // }
   }
 
   setObject() {
@@ -211,25 +221,25 @@ export class ReportsComponent implements OnInit {
         objectId = this.user.Moves_Company_ID;
         break;
       case 4:
-        //màn hình charity dashboard với tài khoản là charity và charityId = Moves_Charity_ID
-        if(this.user.Type == 1 && this.user.Moves_Charity_ID == this.objectId) {
+        //màn hình charity dashboard với tài khoản khác company
+        if (this.user.Type != 2) {
           objectType = 'a';
           objectId = this.objectId;
         }
 
         //màn hình charity dashboard với tài khoản là company
-        if(this.user.Type == 2) {
+        if (this.user.Type == 2) {
           objectType = 'd';
           objectId = this.objectId;
         }
-        
+
         break;
       case 5:
-        //màn hình company dashboard với tài khoản là company
-        if(this.user.Type == 2) {
-          objectType = 'b';
-          objectId = this.objectId;
-        }
+        //màn hình company dashboard với tất cả tài khoản
+        // if(this.user.Type == 2) {
+        objectType = 'b';
+        objectId = this.objectId;
+        // }
         break;
     }
 
@@ -240,8 +250,8 @@ export class ReportsComponent implements OnInit {
   }
 
   showMessage(severity: string, detail: string) {
-    let msg = { severity: severity, summary: 'Notification:', detail: detail, sticky:false };
-    if(severity == 'error') {
+    let msg = { severity: severity, summary: 'Notification:', detail: detail, sticky: false };
+    if (severity == 'error') {
       msg.sticky = true;
     }
     this.messageService.add(msg);

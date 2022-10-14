@@ -32,13 +32,23 @@
 }
 
 ::ng-deep .preview-new.preview .content-detail {
-  height: 340px;
+  /* height: 240px; */
 }
 
 .preview.preview-new .image img {
   max-width: 100%;
   max-height: 100%;
   height: auto;
+}
+
+::ng-deep .preview-new .detail {
+  height: calc(100% - 150px);
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+::ng-deep .preview-new.preview .content-end {
+  height: 150px;
 }
 
 ::ng-deep .preview-new .detail .infor img {

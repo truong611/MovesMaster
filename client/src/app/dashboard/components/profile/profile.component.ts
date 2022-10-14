@@ -68,7 +68,8 @@ export class ProfileComponent implements OnInit {
   error_charity: any = {
     Charity_Name: '',
     Charity_URL: '',
-    Contact_Name: '',
+    Contact_Forename: '',
+    Contact_Surname: '',
     Contact_Email: '',
     Contact_Phone_Number: '',
     Charity_Date_Founded: '',
@@ -90,7 +91,8 @@ export class ProfileComponent implements OnInit {
   error_company: any = {
     Company_Name: '',
     Company_URL: '',
-    Contact_Name: '',
+    Contact_Forename: '',
+    Contact_Surname: '',
     Contact_Email: '',
     Contact_Phone_Number: '',
     Company_CSR_Statement: ''
@@ -154,6 +156,8 @@ export class ProfileComponent implements OnInit {
         this.type = this.user.Type; //type: 1 hoặc 4: charity, 2 hoặc 5: company
       }
 
+      if(this.type == 1) this.objectId = this.user.Moves_Charity_ID;
+
       if (this.type == 1 || (this.type == 4 && this.user.Moves_Charity_ID == this.objectId)) this.isMyCharity = true;
       else this.isMyCharity = false;
 
@@ -209,7 +213,8 @@ export class ProfileComponent implements OnInit {
         Charity_Commission_No: [{ value: null, disabled: true }],
         Moves_Charity_ID: [{ value: null, disabled: true }],
         Charity_URL: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText, this.validaytorsService.isValidHttpUrl]],
-        Contact_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+        Contact_Forename: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+        Contact_Surname: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
         Contact_Email: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.email), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
         Contact_Phone_Number: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.phone_number), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
         Charity_Date_Founded: [null, [Validators.required]],
@@ -236,7 +241,8 @@ export class ProfileComponent implements OnInit {
         Company_Number: [{ value: null, disabled: true }],
         Moves_Company_ID: [{ value: null, disabled: true }],
         Company_URL: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText, this.validaytorsService.isValidHttpUrl]],
-        Contact_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+        Contact_Forename: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+        Contact_Surname: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
         Contact_Email: [null, [Validators.required, , Validators.maxLength(255), Validators.pattern(this.validaytorsService.regex.email), this.validaytorsService.forbiddenSpaceText]],
         Contact_Phone_Number: [null, [Validators.required, Validators.maxLength(255), Validators.pattern(this.validaytorsService.regex.phone_number), this.validaytorsService.forbiddenSpaceText]],
         Company_CSR_Statement: [null, [Validators.required, this.validaytorsService.forbiddenSpaceText]],
@@ -255,7 +261,8 @@ export class ProfileComponent implements OnInit {
         Charity_Commission_No: this.charity?.Charity_Commission_No ?? null,
         Moves_Charity_ID: this.charity?.Moves_Charity_ID ?? null,
         Charity_URL: this.charity?.Charity_URL ?? null,
-        Contact_Name: this.charity?.Contact_Name ?? null,
+        Contact_Forename: this.charity?.Contact_Forename ?? null,
+        Contact_Surname: this.charity?.Contact_Surname ?? null,
         Contact_Email: this.charity?.Contact_Email ?? null,
         Contact_Phone_Number: this.charity?.Contact_Phone_Number ?? null,
         Charity_Date_Founded: this.charity?.Charity_Date_Founded ? new Date(this.charity?.Charity_Date_Founded) : null,
@@ -282,7 +289,8 @@ export class ProfileComponent implements OnInit {
         Company_Number: this.company?.Company_Number,
         Moves_Company_ID: this.company?.Moves_Company_ID,
         Company_URL: this.company?.Company_URL,
-        Contact_Name: this.company?.Contact_Name,
+        Contact_Forename: this.company?.Contact_Forename ?? null,
+        Contact_Surname: this.company?.Contact_Surname ?? null,
         Contact_Email: this.company?.Contact_Email,
         Contact_Phone_Number: this.company?.Contact_Phone_Number,
         Company_CSR_Statement: this.company?.Company_CSR_Statement,
@@ -303,10 +311,12 @@ export class ProfileComponent implements OnInit {
 
         if (this.type == 1 || this.type == 4) {
           this.currentLogoUrl = this.charity.Charity_icon ? this.charity.Charity_icon : '/assets/img/Default Image.png'
+          this.newLogoUrl = this.charity.Charity_icon;
         }
 
         if (this.type == 2 || this.type == 5) {
           this.currentLogoUrl = this.company.Company_Icon ? this.company.Company_Icon : '/assets/img/Default Image.png'
+          this.newLogoUrl = this.company.Company_Icon;
         }
 
         this.listGeographicalScope = data.getDashboardProfile.List_Geographical_Scope;
@@ -322,10 +332,9 @@ export class ProfileComponent implements OnInit {
         this.totalCompanyNotActive = data.getDashboardProfile.TotalCompanyNotActive;
         this.totalCharityInvitation = data.getDashboardProfile.TotalCharityInvitation;
 
-        if (!this.user.IsAdmin) {
+        if(!this.user?.IsAdmin || this.type == 4 || this.type == 5) {
           this.setForm();
         }
-
       }
       else {
         this.showMessage('error', data.getDashboardProfile.message);
@@ -340,6 +349,11 @@ export class ProfileComponent implements OnInit {
   viewProfile() {
     this.isView = true;
     this.formGroup.disable();
+    if (this.type == 1 || this.type == 4) {
+      this.formGroup.get('Charity_Geographical_Scope').enable();
+      this.formGroup.get('Charity_Income_Band_ID').enable();
+      this.formGroup.get('Charity_Sector').enable();
+    }
   }
 
   editProfile() {
@@ -399,10 +413,12 @@ export class ProfileComponent implements OnInit {
     this.setError();
     if (this.isMyCharity) {
       this.currentLogoUrl = this.charity.Charity_icon ? this.charity.Charity_icon : '/assets/img/Default Image.png'
+      this.newLogoUrl = this.charity.Charity_icon;
     }
 
     if (this.isMyCompany) {
       this.currentLogoUrl = this.company.Company_Icon ? this.company.Company_Icon : '/assets/img/Default Image.png'
+      this.newLogoUrl = this.company.Company_Icon;
     }
   }
 
@@ -410,7 +426,8 @@ export class ProfileComponent implements OnInit {
     this.error_charity = {
       Charity_Name: '',
       Charity_URL: '',
-      Contact_Name: '',
+      Contact_Forename: '',
+      Contact_Surname: '',
       Contact_Email: '',
       Contact_Phone_Number: '',
       Charity_Date_Founded: '',
@@ -432,7 +449,8 @@ export class ProfileComponent implements OnInit {
     this.error_company = {
       Company_Name: '',
       Company_URL: '',
-      Contact_Name: '',
+      Contact_Forename: '',
+      Contact_Surname: '',
       Contact_Email: '',
       Contact_Phone_Number: '',
       Company_CSR_Statement: ''
@@ -476,10 +494,12 @@ export class ProfileComponent implements OnInit {
     } else {
       if (this.isMyCharity) {
         this.currentLogoUrl = this.charity.Charity_icon ? this.charity.Charity_icon : '/assets/img/Default Image.png'
+        this.newLogoUrl = this.charity.Charity_icon;
       }
 
       if (this.isMyCompany) {
         this.currentLogoUrl = this.company.Company_Icon ? this.company.Company_Icon : '/assets/img/Default Image.png'
+        this.newLogoUrl = this.company.Company_Icon;
       }
     }
 
@@ -490,21 +510,27 @@ export class ProfileComponent implements OnInit {
     if (this.formGroup.invalid) {
       if (this.isMyCharity) {
         if (this.formGroup.get('Charity_URL').errors?.required || this.formGroup.get('Charity_URL').errors?.forbiddenSpaceText) {
-          this.error_charity['Charity_URL'] = 'This is mandatory field';
+          this.error_charity['Charity_URL'] = 'This field is mandatory';
         } else if (this.formGroup.get('Charity_URL').errors?.invalidUrl) {
           this.error_charity['Charity_URL'] = 'Incorrect url format';
         } else if (this.formGroup.get('Charity_URL').errors?.maxlength) {
           this.error_charity['Charity_URL'] = 'Maximum 255 characters exceeded';
         }
 
-        if (this.formGroup.get('Contact_Name').errors?.required || this.formGroup.get('Contact_Name').errors?.forbiddenSpaceText) {
-          this.error_charity['Contact_Name'] = 'This is mandatory field';
-        } else if (this.formGroup.get('Contact_Name').errors?.maxlength) {
-          this.error_charity['Contact_Name'] = 'Maximum 255 characters exceeded';
+        if (this.formGroup.get('Contact_Forename').errors?.required || this.formGroup.get('Contact_Forename').errors?.forbiddenSpaceText) {
+          this.error_charity['Contact_Forename'] = 'This field is mandatory';
+        } else if (this.formGroup.get('Contact_Forename').errors?.maxlength) {
+          this.error_charity['Contact_Forename'] = 'Maximum 255 characters exceeded';
+        }
+
+        if (this.formGroup.get('Contact_Surname').errors?.required || this.formGroup.get('Contact_Surname').errors?.forbiddenSpaceText) {
+          this.error_charity['Contact_Surname'] = 'This field is mandatory';
+        } else if (this.formGroup.get('Contact_Surname').errors?.maxlength) {
+          this.error_charity['Contact_Surname'] = 'Maximum 255 characters exceeded';
         }
 
         if (this.formGroup.get('Contact_Email').errors?.required || this.formGroup.get('Contact_Email').errors?.forbiddenSpaceText) {
-          this.error_charity['Contact_Email'] = 'This is mandatory field';
+          this.error_charity['Contact_Email'] = 'This field is mandatory';
         } else if (this.formGroup.get('Contact_Email').errors?.pattern) {
           this.error_charity['Contact_Email'] = 'Incorrect email format';
         } else if (this.formGroup.get('Contact_Email').errors?.maxlength) {
@@ -512,7 +538,7 @@ export class ProfileComponent implements OnInit {
         }
 
         if (this.formGroup.get('Contact_Phone_Number').errors?.required || this.formGroup.get('Contact_Phone_Number').errors?.forbiddenSpaceText) {
-          this.error_charity['Contact_Phone_Number'] = 'This is mandatory field';
+          this.error_charity['Contact_Phone_Number'] = 'This field is mandatory';
         } else if (this.formGroup.get('Contact_Phone_Number').errors?.pattern) {
           this.error_charity['Contact_Phone_Number'] = 'Incorrect phone format';
         } else if (this.formGroup.get('Contact_Phone_Number').errors?.maxlength) {
@@ -520,41 +546,41 @@ export class ProfileComponent implements OnInit {
         }
 
         if (this.formGroup.get('Charity_Date_Founded').errors?.required) {
-          this.error_charity['Charity_Date_Founded'] = 'This is mandatory field';
+          this.error_charity['Charity_Date_Founded'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Charity_Aims').errors?.required || this.formGroup.get('Charity_Aims').errors?.forbiddenSpaceText) {
-          this.error_charity['Charity_Aims'] = 'This is mandatory field';
+          this.error_charity['Charity_Aims'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Charity_Geographical_Scope').errors?.required) {
-          this.error_charity['Charity_Geographical_Scope'] = 'This is mandatory field';
+          this.error_charity['Charity_Geographical_Scope'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Charity_Income_Band_ID').errors?.required) {
-          this.error_charity['Charity_Income_Band_ID'] = 'This is mandatory field';
+          this.error_charity['Charity_Income_Band_ID'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Charity_Sector').errors?.required) {
-          this.error_charity['Charity_Sector'] = 'This is mandatory field';
+          this.error_charity['Charity_Sector'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Payment_Site_Url').errors?.required || this.formGroup.get('Payment_Site_Url').errors?.forbiddenSpaceText) {
-          this.error_charity['Payment_Site_Url'] = 'This is mandatory field';
+          this.error_charity['Payment_Site_Url'] = 'This field is mandatory';
         } else if (this.formGroup.get('Payment_Site_Url').errors?.invalidUrl) {
           this.error_charity['Payment_Site_Url'] = 'Incorrect url format';
         }
 
         if (this.formGroup.get('Account_Name').errors?.required) {
-          this.error_charity['Account_Name'] = 'This is mandatory field';
+          this.error_charity['Account_Name'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Account_No').errors?.required) {
-          this.error_charity['Account_No'] = 'This is mandatory field';
+          this.error_charity['Account_No'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Sort_Code').errors?.required) {
-          this.error_charity['Sort_Code'] = 'This is mandatory field';
+          this.error_charity['Sort_Code'] = 'This field is mandatory';
         }
 
         if (this.formGroup.get('Member_Payment_Site_Url').errors?.invalidUrl) {
@@ -565,21 +591,27 @@ export class ProfileComponent implements OnInit {
 
       if (this.isMyCompany) {
         if (this.formGroup.get('Company_URL').errors?.required || this.formGroup.get('Company_URL').errors?.forbiddenSpaceText) {
-          this.error_company['Company_URL'] = 'This is mandatory field';
+          this.error_company['Company_URL'] = 'This field is mandatory';
         } else if (this.formGroup.get('Company_URL').errors?.invalidUrl) {
           this.error_company['Company_URL'] = 'Incorrect url format';
         } else if (this.formGroup.get('Company_URL').errors?.maxlength) {
           this.error_company['Company_URL'] = 'Maximum 255 characters exceeded';
         }
 
-        if (this.formGroup.get('Contact_Name').errors?.required || this.formGroup.get('Contact_Name').errors?.forbiddenSpaceText) {
-          this.error_company['Contact_Name'] = 'This is mandatory field';
-        } else if (this.formGroup.get('Contact_Name').errors?.maxlength) {
-          this.error_company['Contact_Name'] = 'Maximum 255 characters exceeded';
+        if (this.formGroup.get('Contact_Forename').errors?.required || this.formGroup.get('Contact_Forename').errors?.forbiddenSpaceText) {
+          this.error_charity['Contact_Forename'] = 'This field is mandatory';
+        } else if (this.formGroup.get('Contact_Forename').errors?.maxlength) {
+          this.error_charity['Contact_Forename'] = 'Maximum 255 characters exceeded';
+        }
+
+        if (this.formGroup.get('Contact_Surname').errors?.required || this.formGroup.get('Contact_Surname').errors?.forbiddenSpaceText) {
+          this.error_charity['Contact_Surname'] = 'This field is mandatory';
+        } else if (this.formGroup.get('Contact_Surname').errors?.maxlength) {
+          this.error_charity['Contact_Surname'] = 'Maximum 255 characters exceeded';
         }
 
         if (this.formGroup.get('Contact_Email').errors?.required || this.formGroup.get('Contact_Email').errors?.forbiddenSpaceText) {
-          this.error_company['Contact_Email'] = 'This is mandatory field';
+          this.error_company['Contact_Email'] = 'This field is mandatory';
         } else if (this.formGroup.get('Contact_Email').errors?.pattern) {
           this.error_company['Contact_Email'] = 'Incorrect email format';
         } else if (this.formGroup.get('Contact_Email').errors?.maxlength) {
@@ -587,7 +619,7 @@ export class ProfileComponent implements OnInit {
         }
 
         if (this.formGroup.get('Contact_Phone_Number').errors?.required || this.formGroup.get('Contact_Phone_Number').errors?.forbiddenSpaceText) {
-          this.error_company['Contact_Phone_Number'] = 'This is mandatory field';
+          this.error_company['Contact_Phone_Number'] = 'This field is mandatory';
         } else if (this.formGroup.get('Contact_Phone_Number').errors?.pattern) {
           this.error_company['Contact_Phone_Number'] = 'Incorrect phone format';
         } else if (this.formGroup.get('Contact_Phone_Number').errors?.maxlength) {
@@ -595,7 +627,7 @@ export class ProfileComponent implements OnInit {
         }
 
         if (this.formGroup.get('Company_CSR_Statement').errors?.required || this.formGroup.get('Company_CSR_Statement').errors?.forbiddenSpaceText) {
-          this.error_company['Company_CSR_Statement'] = 'This is mandatory field';
+          this.error_company['Company_CSR_Statement'] = 'This field is mandatory';
         }
       }
 
@@ -611,8 +643,9 @@ export class ProfileComponent implements OnInit {
     if (this.isMyCharity) {
       dataSaveCharity = {
         Charity_URL: formData.Charity_URL.trim(),
-        Contact_Name: formData.Contact_Name.trim(),
-        Contact_Email: formData.Contact_Email.trim(),
+        Contact_Forename: formData.Contact_Forename.trim(),
+        Contact_Surname: formData.Contact_Surname.trim(),
+        Contact_Email: formData.Contact_Email.trim().toLowerCase(),
         Contact_Phone_Number: formData.Contact_Phone_Number.trim(),
         Charity_Date_Founded: formData.Charity_Date_Founded,
         Charity_Aims: formData.Charity_Aims,
@@ -635,8 +668,9 @@ export class ProfileComponent implements OnInit {
     if (this.isMyCompany) {
       dataSaveCompany = {
         Company_URL: formData.Company_URL.trim(),
-        Contact_Name: formData.Contact_Name.trim(),
-        Contact_Email: formData.Contact_Email.trim(),
+        Contact_Forename: formData.Contact_Forename.trim(),
+        Contact_Surname: formData.Contact_Surname.trim(),
+        Contact_Email: formData.Contact_Email.trim().toLowerCase(),
         Contact_Phone_Number: formData.Contact_Phone_Number.trim(),
         Company_CSR_Statement: formData.Company_CSR_Statement,
         Company_Icon_File: file

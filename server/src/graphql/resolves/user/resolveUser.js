@@ -162,7 +162,7 @@ const resolvers = {
         });
 
         return {
-          message: 'Your Password has been changed!',
+          message: 'Password change successful!!',
           messageCode: 200
         }
       }

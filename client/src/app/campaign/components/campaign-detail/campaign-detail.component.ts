@@ -189,6 +189,8 @@ export class CampaignDetailComponent implements OnInit {
     this.isShowButtonCreateMatch = data.getDetailCampaign.IsShowButtonCreateMatch;
     this.PercentageDiscount = data.getDetailCampaign.PercentageDiscount;
 
+    this.newLogoUrl = this.campaign.Campaign_Icon;
+
     this.setDefaulValueForm();
   }
 
@@ -268,6 +270,7 @@ export class CampaignDetailComponent implements OnInit {
     }
     else {
       this.currentLogoUrl = '/assets/img/Default Image.png';
+      this.newLogoUrl = null;
     }
   }
 
@@ -276,8 +279,9 @@ export class CampaignDetailComponent implements OnInit {
   }
 
   selectImage(url) {
-    this.isIcon = true;
-    this.currentLogoUrl = url;
+    // this.isIcon = true;
+    // this.currentLogoUrl = url;
+    // this.newLogoUrl = url;
   }
 
   editDetail() {
@@ -422,17 +426,19 @@ export class CampaignDetailComponent implements OnInit {
     if (this.choiceControl.value != 'true') {
       this.targetValueControl.setValidators([Validators.required, Validators.min(0.01)]);
       this.endDateControl.setValidators([]);
+      this.endDateControl.setValue(null);
     }
     else {
       this.endDateControl.setValidators([Validators.required]);
       this.targetValueControl.setValidators([]);
+      this.targetValueControl.setValue(null);
     }
 
     this.targetValueControl.updateValueAndValidity();
     this.endDateControl.updateValueAndValidity();
   }
 
-  checkForm() {
+  async checkForm() {
     this.submitted = true;
     if (!this.createForm.valid) {
       Object.keys(this.createForm.controls).forEach(key => {
@@ -469,19 +475,68 @@ export class CampaignDetailComponent implements OnInit {
       let endTimeAppeal = appeal.Appeal_End_Date;
 
       if (startTimeCampaign < startTimeAppeal) {
-        this.showMessage('error', 'The Campaign Start Date / Time cannot then be before the Appeal Start Date / Time');
+        this.showMessage('error', 'The Campaign Launch Date / Time cannot then be before the Appeal Start Date / Time');
         return;
       }
 
-      if (endTimeCampaign && endTimeCampaign > endTimeAppeal) {
-        this.showMessage('error', 'The Campaign End Date / Time cannot be after the Appeal End Date / Time');
-        return;
+      if (this.choiceControl.value != 'true') {
+        if (endTimeAppeal && startTimeCampaign > endTimeAppeal) {
+          this.showMessage('error', 'The Campaign Launch Date / Time cannot be after the Appeal End Date / Time');
+          return;
+        }
+      } else {
+        if (endTimeAppeal && endTimeCampaign && endTimeCampaign > endTimeAppeal) {
+          this.showMessage('error', 'The Campaign End Date / Time cannot be after the Appeal End Date / Time');
+          return;
+        }
       }
     }
 
-    this.passControl.setValue(null);
-    this.confirmPass.reset();
-    this.displayModal = true;
+    //thay đổi yêu cầu không cần nhập mật khẩu khi update campaign
+    // this.passControl.setValue(null);
+    // this.confirmPass.reset();
+    // this.displayModal = true;
+
+    //save form edit campaign
+    let file = (this.uploadedFiles.length > 0) ? this.uploadedFiles[0] : null;
+
+    let Campaign_Target_Value = 0;
+    if (this.choiceControl.value != 'true') {
+      Campaign_Target_Value = this.targetValueControl.value;
+    }
+
+    let dataInput = {
+      // Password: this.passControl.value.trim(),
+      Campaign_ID: this.id,
+      Campaign_Icon: (this.isIcon) ? this.currentLogoUrl : this.campaign.Campaign_Icon,
+      Campaign_Icon_File: file,
+      Campaign_Name: this.nameControl.value.trim(),
+      Campaign_URL: this.urlControl.value ? this.urlControl.value.trim() : null,
+      Campaign_Description: this.desControl.value ? this.desControl.value.trim() : null,
+      Campaign_Launch_Date: this.launchDateControl.value,
+      Campaign_End_Date: this.endDateControl.value,
+      End_Date_Target: this.choiceControl.value == 'true' ? true : false,
+      Campaign_Target_Value: Campaign_Target_Value,
+      Campaign_Price_Per_Move: this.pricePerMoveControl.value,
+      Public_Private: this.publicPrivateControl.value,
+      Is_Match: this.isMatchControl.value,
+      Appeal_ID: this.appealControl.value?.Appeal_ID,
+      Moves_Company_ID: this.companyControl.value.Moves_Company_ID,
+      // Currency_ID: this.currencyControl.value?.Currency_ID
+    };
+
+    this.loading = true;
+    let { data, loading }: any = await this.campaignService.updateCampaign(dataInput);
+    this.loading = loading;
+
+    if (data.updateCampaign.messageCode != 200) {
+      this.showMessage('error', data.updateCampaign.message);
+      return;
+    }
+
+    this.showMessage('success', data.updateCampaign.message);
+    this.isEdit = false;
+    this.createForm.disable();
   }
 
   async save() {
@@ -509,46 +564,7 @@ export class CampaignDetailComponent implements OnInit {
   
       this.showMessage('success', data.publishCampaign.message);
     } else {
-      //save form edit campaign
-      let file = (this.uploadedFiles.length > 0) ? this.uploadedFiles[0] : null;
-
-      let Campaign_Target_Value = 0;
-      if (this.choiceControl.value != 'true') {
-        Campaign_Target_Value = this.targetValueControl.value;
-      }
-  
-      let dataInput = {
-        Password: this.passControl.value.trim(),
-        Campaign_ID: this.id,
-        Campaign_Icon: (this.isIcon) ? this.currentLogoUrl : this.campaign.Campaign_Icon,
-        Campaign_Icon_File: file,
-        Campaign_Name: this.nameControl.value.trim(),
-        Campaign_URL: this.urlControl.value ? this.urlControl.value.trim() : null,
-        Campaign_Description: this.desControl.value ? this.desControl.value.trim() : null,
-        Campaign_Launch_Date: this.launchDateControl.value,
-        Campaign_End_Date: this.endDateControl.value,
-        End_Date_Target: this.choiceControl.value == 'true' ? true : false,
-        Campaign_Target_Value: Campaign_Target_Value,
-        Campaign_Price_Per_Move: this.pricePerMoveControl.value,
-        Public_Private: this.publicPrivateControl.value,
-        Is_Match: this.isMatchControl.value,
-        Appeal_ID: this.appealControl.value?.Appeal_ID,
-        Moves_Company_ID: this.companyControl.value.Moves_Company_ID,
-        // Currency_ID: this.currencyControl.value?.Currency_ID
-      };
-  
-      this.loading = true;
-      let { data, loading }: any = await this.campaignService.updateCampaign(dataInput);
-  
-      if (data.updateCampaign.messageCode != 200) {
-        this.loading = loading;
-        this.showMessage('error', data.updateCampaign.message);
-        return;
-      }
-
-      this.showMessage('success', data.updateCampaign.message);
-      this.isEdit = false;
-      this.createForm.disable();
+      
     }
     
     this.submittedConfirm = false;
@@ -576,11 +592,15 @@ export class CampaignDetailComponent implements OnInit {
     let inforCharityAppeal = this.getCharityAppealIcon();
     let inforCompany = this.getCompanyIcon();
 
+    let appeal = this.appealControl.value;
+
     this.previewForm = {
-      Campaign_Icon: this.currentLogoUrl,
+      Campaign_Icon: this.newLogoUrl,
       Campaign_URL: this.urlControl.value,
-      Charity_Appeal_Icon: inforCharityAppeal.icon,
-      Charity_Appeal_Url: inforCharityAppeal.url,
+      Charity_icon: this.campaign?.Charity_icon,
+      Charity_URL: this.campaign?.Charity_URL,
+      Appeal_Icon: appeal?.Appeal_Icon,
+      Appeal_URL: appeal?.Appeal_URL,
       Company_Icon: inforCompany.icon,
       Company_URL: inforCompany.url,
       Name: this.nameControl.value?.trim(),
@@ -595,6 +615,7 @@ export class CampaignDetailComponent implements OnInit {
       Progress_Moves: this.campaign?.Progress_Moves ?? 0, //Progress line 2
       Progress_Amount: this.campaign?.Amount_Raised ?? 0, //Progress line 3
       Progress_Line4: this.getProgressLine4(), //Progress line 4
+      Campaign_Value: (this.campaign?.Amount_Raised + this.campaign?.Amount_Raised*this.campaign?.Number_Matches)
     }
 
     let preview = JSON.parse(localStorage.getItem('preview'));
@@ -612,12 +633,12 @@ export class CampaignDetailComponent implements OnInit {
     let appeal = this.appealControl.value;
 
     if (appeal) {
-      inforCharityAppeal.icon = appeal.Appeal_Icon ? appeal.Appeal_Icon : '/assets/img/Default Image.png';
+      inforCharityAppeal.icon = appeal.Appeal_Icon;
       inforCharityAppeal.url = appeal?.Appeal_URL;
       return inforCharityAppeal;
     }
     
-    inforCharityAppeal.icon = this.campaign?.Charity_icon ? this.campaign?.Charity_icon : '/assets/img/Default Image.png';
+    inforCharityAppeal.icon = this.campaign?.Charity_icon;
     inforCharityAppeal.url = this.campaign?.Charity_URL;
     return inforCharityAppeal;
   }
@@ -629,7 +650,7 @@ export class CampaignDetailComponent implements OnInit {
     }
     let company = this.companyControl.value;
 
-    inforCompany.icon = company?.Company_Icon ? company?.Company_Icon : '/assets/img/Default Image.png';
+    inforCompany.icon = company?.Company_Icon;
     inforCompany.url = company?.Company_URL;
     
     return inforCompany;
@@ -680,12 +701,14 @@ export class CampaignDetailComponent implements OnInit {
   }
 
   getDiffDate(date1: Date, date2: Date) {
-    if (date1.getTime() > date2.getTime()) {
-      return '+0: 00: 00: 00';
-    }
-    
     if (!date1) {
-      return '+0: 00: 00: 00';
+      // return '+0: 00: 00: 00';
+      return '+0 days 0 hours';
+    }
+
+    if (date1.getTime() > date2.getTime()) {
+      // return '+0: 00: 00: 00';
+      return '+0 days 0 hours';
     }
 
     let diffTime = Math.abs(+date2 - +date1); //milliseconds
@@ -694,23 +717,24 @@ export class CampaignDetailComponent implements OnInit {
 
     let remain1 = diffTime - D * (1000 * 60 * 60 * 24);
     let H: any = Math.floor(remain1 / (1000 * 60 * 60));
-    if (H < 10) {
-      H = '0' + H;
-    }
+    // if (H < 10) {
+    //   H = '0' + H;
+    // }
 
     let remain2 = remain1 - H * (1000 * 60 * 60);
     let M: any = Math.floor(remain2 / (1000 * 60));
-    if (M < 10) {
-      M = '0' + M;
-    }
+    // if (M < 10) {
+    //   M = '0' + M;
+    // }
 
     let remain3 = remain2 - M * (1000 * 60);
     let S: any = Math.floor(remain3 / 1000);
-    if (S < 10) {
-      S = '0' + S;
-    }
+    // if (S < 10) {
+    //   S = '0' + S;
+    // }
     
-    return '+' + D + ': ' + H + ': ' + M + ': ' + S;
+    // return '+' + D + ': ' + H + ': ' + M + ': ' + S;
+    return '+' + D + ' days, ' + H + ' hours, ' + M + ' minutes';
   }
 
   getContractMove() {
@@ -800,7 +824,7 @@ export class CampaignDetailComponent implements OnInit {
   }
 
   goToTemps() {
-
+    window.open('/terms-and-conditions', '_blank').focus();
   }
 
   goToListDonation() {

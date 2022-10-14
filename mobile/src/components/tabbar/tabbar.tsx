@@ -9,7 +9,7 @@ import {color} from '../../theme';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 const width = Dimensions.get('window').width;
-const height = 56;
+const height = 40;
 const tabs = [
   {
     name: 'heart-outline',
@@ -75,7 +75,7 @@ export const Tabbar = observer(function Tabbar(props: TabbarProps) {
   return (
     <>
       <View {...{height, width}}>
-        <AnimatedSvg width={width * 2} {...{height}} style={{transform: [{translateX}]}}>
+        <AnimatedSvg width={width * 2} height={40} style={{transform: [{translateX}]}}>
           <Path fill={backgroundColor} {...{d}} />
         </AnimatedSvg>
         <View style={StyleSheet.absoluteFill}>

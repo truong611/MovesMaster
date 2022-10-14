@@ -1,16 +1,16 @@
 <!-- Navbar -->
 <nav class="main-header navbar navbar-expand navbar-light navbar-white">
   <!-- Left navbar links -->
-  <ul class="navbar-nav navbar-left">
+  <!-- <ul class="navbar-nav navbar-left"> -->
     <!-- <li class="nav-item">
       <a class="nav-link" data-widget="pushmenu" href="javascript:void(0)" role="button">
         <i class="fas fa-bars"></i>
       </a>
     </li> -->
-    <li class="nav-item d-sm-inline-flex">
+    <!-- <li class="nav-item d-sm-inline-flex">
       <span class="text-header">{{textHeader}}</span>
     </li>
-  </ul>
+  </ul> -->
 
   <!-- Center navbar links -->
   <ul class="navbar-nav navbar-center">
@@ -55,6 +55,9 @@
   <!-- Right navbar links -->
   <ul class="navbar-nav navbar-right ml-auto">
     <!-- Notifications Dropdown Menu -->
+    <li class="nav-item">
+      <img class="img-fluid icon-header" [src]="iconHeader" *ngIf="iconHeader">
+    </li>
     <li class="nav-item dropdown notifications">
       <a class="nav-link" data-toggle="dropdown" href="#" (click)="showListNotification()">
         <i class="far fa-bell"></i>

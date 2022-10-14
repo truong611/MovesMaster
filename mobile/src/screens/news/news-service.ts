@@ -47,6 +47,14 @@ export const FETCH_getNews = gql`
                     Forename
                 }
                 News_Url
+                Charity_icon
+                Charity_URL
+                Appeal_URL
+                Appeal_Icon
+                Campaign_URL
+                Campaign_Icon
+                Company_URL
+                Company_Icon
             }
         }
     }

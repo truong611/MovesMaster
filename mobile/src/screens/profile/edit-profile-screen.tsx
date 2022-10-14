@@ -9,7 +9,7 @@ import {useStores} from "../../models"
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 import {images} from '../../images';
-import {regexEmail, regexPhone, regexString, showToast} from '../../services';
+import {regexEmail, regexPhone, regexString, replaceHTTP, showToast} from '../../services';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useMutation} from "@apollo/react-hooks";
 import {FETCH_updateProfile} from "./profile-service";
@@ -185,7 +185,7 @@ export const EditProfileScreen = observer(function EditProfileScreen() {
                                 <Image style={styles.avatar} resizeMode={"cover"}
                                        source={{uri: `data:image/png;base64,${formData?.avatar}`}}/> :
                                 <Image style={styles.avatar} resizeMode={"cover"}
-                                       source={{uri: formData?.avatar}}/>
+                                       source={{uri: replaceHTTP(formData?.avatar)}}/>
                             : null}
                     </TouchableOpacity>
                     <Text style={styles.infoText}>Forename</Text>

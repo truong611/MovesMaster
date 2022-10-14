@@ -12,7 +12,16 @@ const emailTemp = {
       </div>
     `;
   },
-  templateForgotPassword: (url) => {
+  templateForgotPassword: (url, type, password) => {
+    if(type == 'mobile'){
+      return `
+        <div>
+          <p>A request for a new password for the Moves Matter mobile app has been received. If this was not you, simply ignore this email. If this was you, please use the below temporary password to log in. </p>
+          <p><b>${password}</b></p>
+          <p>Please change your password when you log in to Moves Matter.</p>
+        </div>
+      `
+    }
     return `
       <div>
         <p>A request for a new password for the Moves Matter web app has been received. If this was not you, simply ignore this email. If this was you, please click on the link below to reset your password: </p>

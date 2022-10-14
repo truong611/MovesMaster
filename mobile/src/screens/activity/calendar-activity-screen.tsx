@@ -15,6 +15,9 @@ import {
     timestampToDate
 } from "../../services";
 import DatePicker from "react-native-date-picker";
+import {FETCH_getOverViewActivityMobile} from "./activity-service";
+import {useQuery} from "@apollo/react-hooks";
+
 
 const layout = Dimensions.get('window');
 
@@ -31,6 +34,7 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
     const [isRefresh, setRefresh] = useState(false);
     const [today, setToday] = useState(new Date());
     const [days, setDays] = useState<any>([]);
+    const [arrDays, setArrDay] = useState([])
     const isFocused = useIsFocused();
     const {params}: any = useRoute();
     const [date, setDate] = useState<any>(null);
@@ -38,25 +42,55 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
     const [isShow, setShow] = useState<any>({
         date: false,
     });
+    const [lechGio,setLechGio] = useState(0)
+
+    const {refetch} = useQuery(FETCH_getOverViewActivityMobile);
+
 
     useEffect(() => {
         fetchData();
+        getActivityMonth(params?.date)
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
+        let test_date1 = new Date("2020-04-13T00:00:00.000+07:00").getTime()
+        let test_date2 = new Date(2020,3,13).getTime()
+        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) > 0){
+            setLechGio(1)
+        }
+        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) < 0){
+            setLechGio(-1)
+        }
         setRefresh(false);
         if (isFocused && !isRefresh) {
             let days = getDaysInMonth(params?.date);
+          
             setDays(days);
-
-            let _date: any = timestampToDate(params?.date, 'YYYY-MM-dd');
+            let _date = params?.date
             _date = new Date(_date);
             setDate(_date);
             setDate2(_date);
-
             let _userInfo = await movesModel.getUserInfo();
             setUserInfo(_userInfo)
         }
     };
+
+    const getActivityMonth = async (date) => {
+        let _lechGio = 0
+        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) > 0){
+            _lechGio = 1
+            setLechGio(_lechGio)
+        }
+        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) < 0){
+            _lechGio = -1
+            setLechGio(_lechGio)
+        }
+        let {data : {getOverviewActivityMobile : {data},message, messageCode}} = await refetch({
+            "date": new Date(date).getTime(),
+            "type": "month",
+            "lechGio" : _lechGio
+        })
+        setArrDay(data)   
+    }
 
     const goToPage = (page) => {
         navigation.navigate('MainScreen', {screen: page});
@@ -73,24 +107,23 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
         let current;
         if (boolean) {
             if (date2.getMonth() == 11) {
-                current = new Date(date2.getFullYear() + 1, 0, 1);
+                current = new Date(new Date(date2).getFullYear() + 1, 0, 1);
             } else {
-                current = new Date(date2.getFullYear(), date2.getMonth() + 1, 1);
+                current = new Date(new Date(date2).getFullYear(), new Date(date2).getMonth() + 1, 1);
             }
         } else {
             if (date2.getMonth() == 0) {
-                current = new Date(date2.getFullYear() - 1, 11, 1);
+                current = new Date(new Date(date2).getFullYear() - 1, 11, 1);
             } else {
-                current = new Date(date2.getFullYear(), date2.getMonth() - 1, 1);
+                current = new Date(new Date(date2).getFullYear(), new Date(date2).getMonth() - 1, 1);
             }
         }
-
         current.setHours(7, 0, 0);
 
-        let _current = dateToTimestamp(current);
-        let days = getDaysInMonth(_current);
+        // let _current = dateToTimestamp(current);
+        getActivityMonth(current.getTime())
+        let days = getDaysInMonth(current);
         setDays(days);
-
         setDate2(current);
     };
 
@@ -105,19 +138,33 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
     };
 
     const goToDate = (date, screen = 'ViewActivityScreen') => {
-        setChangeShow('date', false);
-        let _date = new Date(date);
-        _date.setHours(7, 0, 0);
 
-        navigation.navigate('MainScreen', {
-            screen: screen,
-            params: {
-                date: dateToTimestamp(_date)
-            },
-        });
+        let future_date = new Date()
+        future_date.setDate(future_date.getDate() + 1)
+        future_date.setHours(0)
+        future_date.setMinutes(0)
+        future_date.setSeconds(0)
+        future_date.setMilliseconds(0)
+        if(date.getDate() < future_date.getDate() && date.getMonth() <= future_date.getMonth() && date.getFullYear() <= future_date.getFullYear()){
+            setChangeShow('date', false); 
+            // _date.setHours(7, 0, 0);
+            navigation.navigate('MainScreen', {
+                screen: screen,
+                params: {
+                    date: date.getTime(),
+                    reset: false
+                },
+            });
+        }
+       
     };
 
     const topComponent = () => {
+        let newDate = new Date();
+        newDate.setHours(0)
+        newDate.setMinutes(0)
+        newDate.setSeconds(0)
+        newDate.setMilliseconds(0)    
         return (
             <View style={styles.container}>
                 <BtnBack title="CALENDAR" goBack={() => goToDate(date)}/>
@@ -152,18 +199,34 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flexWrap: 'wrap',}}>
-                            {days.map((item, index) => {
+                            {arrDays && arrDays.map((item, index) => {                            
+                                    return (
+                                        <View key={'day-' + item?.day?.toString() + index} style={[{width: '25%'}, {paddingHorizontal: 8, paddingVertical: 8, justifyContent: 'center', alignItems: 'center'}]}>
+                                            <TouchableOpacity style={[{borderWidth: 1, borderColor: color.white, paddingVertical: 16, paddingHorizontal: 18, borderRadius: 16},
+                                                item?.day == newDate.getDate() && item?.month == (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear() ? {borderColor: color.green} : {},
+                                                item?.activity && (item?.day) < newDate.getDate() && item?.month <= (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear() ? {borderColor: color.error} : {},
+                                                !item?.activity && (item?.day) < newDate.getDate() && item?.month <= (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear()  ? {borderColor: color.blue} : {},
+                                            ]} onPress={() => {
+                                                let _date = new Date(item.year,item.month - 1,item.day).getTime()
+                                                goToDate(new Date(_date))}}>
+                                                <Text>{item?.day}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )
+                                })}
+                            {/* {arrDays.map((item, index) => {                            
                                 return (
-                                    <View key={'day-' + item?.toString() + index} style={[{width: '25%'}, {paddingHorizontal: 8, paddingVertical: 8, justifyContent: 'center', alignItems: 'center'}]}>
-                                        <TouchableOpacity style={[{borderWidth: 1, borderColor: color.blue, paddingVertical: 16, paddingHorizontal: 18, borderRadius: 16},
-                                            formatDate(today) == formatDate(item) ? {borderColor: color.green} : {},
-                                            formatDate(date) == formatDate(item) ? {borderColor: color.warning} : {},
-                                        ]} onPress={() => goToDate(item)}>
-                                            <Text>{getDay(item)}</Text>
+                                    <View key={'day-' + item?.day?.toString() + index} style={[{width: '25%'}, {paddingHorizontal: 8, paddingVertical: 8, justifyContent: 'center', alignItems: 'center'}]}>
+                                        <TouchableOpacity style={[{borderWidth: 1, borderColor: color.white, paddingVertical: 16, paddingHorizontal: 18, borderRadius: 16},
+                                            formatDate(today) == formatDate(new Date(item?.day)) ? {borderColor: color.green} : {},
+                                            item?.activity && new Date(newDate).getTime() > new Date(item?.day).getTime() ? {borderColor: color.error} : {},
+                                            !item?.activity && new Date(newDate).getTime() > new Date(item?.day).getTime()  ? {borderColor: color.blue} : {},
+                                        ]} onPress={() => goToDate(new Date(item?.day))}>
+                                            <Text>{getDay(new Date(item?.day))}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 )
-                            })}
+                            })} */}
                         </View>
                     </View>
                     : null}

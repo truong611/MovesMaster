@@ -15,7 +15,7 @@ import {BtnBack, Header, MButton, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation, useRoute} from "@react-navigation/native"
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
-import {formatNumber,} from "../../services";
+import {formatNumber, replaceHTTP,} from "../../services";
 import {useStores} from "../../models";
 import {Donate} from "../../components/donate/donate";
 
@@ -121,9 +121,7 @@ export const SearchDonate2Screen = observer(function SearchDonate2Screen() {
                                         style={{width: '100%' ,paddingHorizontal: 16}}
                                         ListHeaderComponent={() => {
                                             return (
-                                                <View style={{marginTop: 16}}>
-                                                    <Text fonts={'DemiBold'}>RESULT</Text>
-                                                </View>
+                                                <></>
                                             )
                                         }}
                                         data={params?.list}
@@ -135,7 +133,7 @@ export const SearchDonate2Screen = observer(function SearchDonate2Screen() {
                                                 ]} onPress={() => goToSearchDonate3Screen(item)}>
                                                     <View style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, marginRight: 16, borderRadius: 8, backgroundColor: color.primary}}>
                                                         {item?.Charity_icon?
-                                                            <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, marginRight: 16, borderRadius: 8, backgroundColor: color.primary}} source={{uri: item?.Charity_icon}}/>
+                                                            <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, marginRight: 16, borderRadius: 8, backgroundColor: color.primary}} source={{uri: replaceHTTP(item?.Charity_icon)}}/>
                                                             :null}
                                                     </View>
                                                     <Text style={{width: layout.width - 32 - 32 - (layout.width / 3) - 16}} numberOfLines={3}>{item?.Charity_Name}</Text>

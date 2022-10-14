@@ -3,7 +3,9 @@
   <div class="list-news">
     <div class="row item mb-3" *ngFor="let item of listNew" (click)="goToDetail(item.News_Item_ID)">
       <div class="col-md-3">
-        <img class="img-fluid img-new" [src]="item.News_Image ? item.News_Image : '/assets/img/Default Image.png'">
+        <div class="icon-image">
+          <img class="img-fluid img-new" [src]="item.News_Image ? item.News_Image : '/assets/img/Default Image.png'">
+        </div>
       </div>
       <div class="col-md-9">
         <div class="title-new text-green">{{item.News_Title}}</div>

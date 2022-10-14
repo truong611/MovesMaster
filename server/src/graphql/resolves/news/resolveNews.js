@@ -1,3 +1,4 @@
+// @ts-nocheck
 const db = require('../../../data/knex-db');
 const messages = require('../../../messages/auth');
 const authenticated = require('../../../middleware/authenticated-guard');
@@ -38,7 +39,7 @@ const resolvers = {
                             if (User.IsAdmin)
                                 builder.whereIn('Created_By', listUserAdminId)
                         })
-                        .orderBy('News_Publish_Date', 'desc');
+                        .orderBy('Created_Date', 'desc');
                 }
                 else {
                     listNews.all = await db.table('News_Item')
@@ -90,7 +91,7 @@ const resolvers = {
                 if (listNews.all.length) {
                     listNews.all.map(item => {
                         item.News_Image = item.News_Image ? URL_FOLDER + item.News_Image : null;
-                        item.News_Url = item.News_Url ? URL_FOLDER + item.News_Url : null;
+                        item.News_Url = item.News_Url ? item.News_Url : null;
                         return item;
                     });
 
@@ -161,7 +162,7 @@ const resolvers = {
 
                     listNews.favourite.map(item => {
                         item.News_Image = item.News_Image ? URL_FOLDER + item.News_Image : null;
-                        item.News_Url = item.News_Url ? URL_FOLDER + item.News_Url : null;
+                        item.News_Url = item.News_Url ? item.News_Url : null;
                         return item;
                     });
 
@@ -211,7 +212,29 @@ const resolvers = {
                     .first();
 
                 news.News_Image = news.News_Image ? URL_FOLDER + news.News_Image : null;
-                news.News_Url = news.News_Url ? URL_FOLDER + news.News_Url : null;
+                news.News_Url = news.News_Url ? news.News_Url : null;
+
+                let charity = await db.table('Charity')
+                   .where('Moves_Charity_ID', news.Moves_Charity_ID)
+                   .first();
+                let appeal = await db.table('Appeal')
+                    .where("Appeal_ID", news.Appeal_ID)
+                    .first();
+                let campaign = await db.table('Campaign')
+                    .where('Campaign_ID', news.Campaign_ID)
+                    .first();
+                let company = await db.table('Company')
+                    .where('Moves_Company_ID', news.Moves_Company_ID)
+                    .first();
+
+                news.Charity_icon = charity?.Charity_icon ? URL_FOLDER + charity?.Charity_icon : null;
+                news.Charity_URL = charity?.Charity_URL ? charity?.Charity_URL : null;
+                news.Appeal_Icon = appeal?.Appeal_Icon ? URL_FOLDER + appeal?.Appeal_Icon : null;
+                news.Appeal_URL = appeal?.Appeal_URL ? appeal?.Appeal_URL : null;
+                news.Campaign_Icon = campaign?.Campaign_Icon ? URL_FOLDER + campaign?.Campaign_Icon : null;
+                news.Campaign_URL = campaign?.Campaign_URL ? campaign?.Campaign_URL : null
+                news.Company_Icon = company?.Company_Icon ? URL_FOLDER + company?.Company_Icon : null;
+                news.Company_URL = company?.Company_URL ? company?.Company_URL : null
 
                 return {
                     news,
@@ -234,6 +257,9 @@ const resolvers = {
                 let User = await db.table('User').where('User_ID', User_ID).first();
 
                 let Charity = await db.table('Charity').where('Moves_Charity_ID', User.Moves_Charity_ID).first();
+                if(Charity) {
+                    Charity.Charity_icon = Charity?.Charity_icon ? URL_FOLDER + Charity?.Charity_icon : null;
+                }
 
                 let ListAppeal = [];
                 let ListCampaign = [];
@@ -247,6 +273,10 @@ const resolvers = {
                         .where('Moves_Charity_ID', User.Moves_Charity_ID)
                         .where('Campaign_Status_ID', 23);
                 }
+
+                ListCompany.map(item => item.Company_Icon = item.Company_Icon ? URL_FOLDER + item.Company_Icon : null);
+                ListAppeal.map(item => item.Appeal_Icon = item.Appeal_Icon ? URL_FOLDER + item.Appeal_Icon : null);
+                ListCampaign.map(item => item.Campaign_Icon = item.Campaign_Icon ? URL_FOLDER + item.Campaign_Icon : null);
 
                 return {
                     Charity: Charity,
@@ -350,6 +380,7 @@ const resolvers = {
 
                 News.Charity_Name = newsCharity?.Charity_Name;
                 News.Charity_URL = newsCharity?.Charity_URL;
+                News.Charity_icon = newsCharity?.Charity_icon ? URL_FOLDER + newsCharity?.Charity_icon : null;
                 News.News_Image = News.News_Image ? URL_FOLDER + News.News_Image : null;
                 News.CreateBy = (News.Is_Manual) ? newsCreateBy?.Forename + ' ' + newsCreateBy?.Surname : 'Auto';
                 News.CreateByIsAdmin = newsCreateBy?.IsAdmin;
@@ -384,6 +415,16 @@ const resolvers = {
                 let perPage = args.perPage || 20;
                 let offset = (pageIndex - 1) * perPage;
 
+                let listAllNews = await db.table('News_Item')
+                .where(builder => {
+                    builder.where('News_Status_ID', 26);
+
+                    if (textSearch) {
+                        builder.where('News_Title', 'ilike', '%' + textSearch + '%');
+                        builder.orWhere('News_Content', 'ilike', '%' + textSearch + '%');
+                    }
+                })
+
                 let listNews = await db.table('News_Item')
                     .where(builder => {
                         builder.where('News_Status_ID', 26);
@@ -395,7 +436,7 @@ const resolvers = {
                     })
                     .offset(offset)
                     .limit(perPage)
-                    .orderBy('News_Publish_Date', 'desc');
+                    .orderBy('Created_Date', 'desc');
 
                 if (listNews.length) {
                     let listStatus = await db.table('Category')
@@ -403,7 +444,7 @@ const resolvers = {
 
                     listNews.map(item => {
                         item.News_Image = item.News_Image ? URL_FOLDER + item.News_Image : null;
-                        item.News_Url = item.News_Url ? URL_FOLDER + item.News_Url : null;
+                        item.News_Url = item.News_Url ? item.News_Url : null;
                         return item;
                     });
 
@@ -461,7 +502,7 @@ const resolvers = {
                     }
                 }
 
-                totalRecords = listNews.length;
+                totalRecords = listAllNews.length;
 
                 return {
                     listNews: listNews,

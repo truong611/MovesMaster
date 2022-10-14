@@ -108,7 +108,7 @@ export class DetailUserComponent implements OnInit {
     this.formGroup = this.formBuilder.group({
       Surname: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Forename: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
-      User_Job_Roll: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+      User_Job_Roll: [null, [Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       User_Email: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.email), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       User_Phone_Number: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.phone_number), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]]
     });
@@ -272,25 +272,25 @@ export class DetailUserComponent implements OnInit {
 
   showMessError() {
     if (this.formGroup.get('Surname').errors?.required || this.formGroup.get('Surname').errors?.forbiddenSpaceText) {
-      this.error['Surname'] = 'This is mandatory field';
+      this.error['Surname'] = 'This field is mandatory';
     } else if (this.formGroup.get('Surname').errors?.maxlength) {
       this.error['Surname'] = 'Maximum 255 characters exceeded';
     }
 
     if (this.formGroup.get('Forename').errors?.required || this.formGroup.get('Forename').errors?.forbiddenSpaceText) {
-      this.error['Forename'] = 'This is mandatory field';
+      this.error['Forename'] = 'This field is mandatory';
     } else if (this.formGroup.get('Forename').errors?.maxlength) {
       this.error['Forename'] = 'Maximum 255 characters exceeded';
     }
 
     if (this.formGroup.get('User_Job_Roll').errors?.required || this.formGroup.get('User_Job_Roll').errors?.forbiddenSpaceText) {
-      this.error['User_Job_Roll'] = 'This is mandatory field';
+      this.error['User_Job_Roll'] = 'This field is mandatory';
     } else if (this.formGroup.get('User_Job_Roll').errors?.maxlength) {
       this.error['User_Job_Roll'] = 'Maximum 255 characters exceeded';
     }
 
     if (this.formGroup.get('User_Phone_Number').errors?.required || this.formGroup.get('User_Phone_Number').errors?.forbiddenSpaceText) {
-      this.error['User_Phone_Number'] = 'This is mandatory field';
+      this.error['User_Phone_Number'] = 'This field is mandatory';
     } else if (this.formGroup.get('User_Phone_Number').errors?.pattern) {
       this.error['User_Phone_Number'] = 'Incorrect phone format';
     } else if (this.formGroup.get('User_Phone_Number').errors?.maxlength) {
@@ -298,7 +298,7 @@ export class DetailUserComponent implements OnInit {
     }
 
     if (this.formGroup.get('User_Email').errors?.required || this.formGroup.get('User_Email').errors?.forbiddenSpaceText) {
-      this.error['User_Email'] = 'This is mandatory field';
+      this.error['User_Email'] = 'This field is mandatory';
     } else if (this.formGroup.get('User_Email').errors?.pattern) {
       this.error['User_Email'] = 'Incorrect email format';
     } else if (this.formGroup.get('User_Email').errors?.maxlength) {
@@ -330,9 +330,9 @@ export class DetailUserComponent implements OnInit {
     let dataSave: UserInforModel = {
       Surname: formData.Surname.trim(),
       Forename: formData.Forename.trim(),
-      User_Job_Roll: formData.User_Job_Roll.trim(),
+      User_Job_Roll: formData.User_Job_Roll ?.trim(),
       User_Phone_Number: formData.User_Phone_Number.trim(),
-      User_Email: formData.User_Email.trim(),
+      User_Email: formData.User_Email.trim().toLowerCase(),
       User_Avatar_File: file,
       List_User_Permission: user_Permission
     };

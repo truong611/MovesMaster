@@ -20,7 +20,11 @@ export class ResetPasswordComponent implements OnInit {
     newPass: '',
     reNewPass: ''
   }
+  type: number = 0; // 0 - Đăng ký tài khoản thành công và set password; 1 - forgot password
   hashCode: string = '';
+  Charity_Name: string = '';
+  Company_Name: string = '';
+  is_Reset_Pass_From_Mobile: boolean = null;
 
   constructor(
     private authService: AuthenticationService,
@@ -31,7 +35,16 @@ export class ResetPasswordComponent implements OnInit {
     private validaytorsService: ValidaytorsService
   ) {
     this.route.params.subscribe(params => {
-      this.hashCode = params['id']
+      this.hashCode = params['id'];
+      if(params['type']) {
+        this.type = Number(params['type']);
+      }
+      if(params['Charity_Name']) {
+        this.Charity_Name = params['Charity_Name'];
+      }
+      if(params['Company_Name']) {
+        this.Company_Name = params['Company_Name'];
+      }
     });
     if (this.hashCode) {
       this.authService.checkCodeResetPassword(this.hashCode).then(res => {
@@ -71,7 +84,7 @@ export class ResetPasswordComponent implements OnInit {
     this.submitted = true
     if (this.formGroup.invalid) {
       if (this.formGroup.get('email').errors?.required) {
-        this.error['email'] = 'This is mandatory field';
+        this.error['email'] = 'This field is mandatory';
       } else if (this.formGroup.get('email').errors?.email) {
         this.error['email'] = 'Incorrect email format';
       }
@@ -90,7 +103,7 @@ export class ResetPasswordComponent implements OnInit {
 
     if (this.formGroup.invalid) {
       if (this.formGroup.get('newPass').errors?.required) {
-        this.error['newPass'] = 'This is mandatory field';
+        this.error['newPass'] = 'This field is mandatory';
       }
       else if (this.formGroup.get('newPass').errors?.minlength || this.formGroup.get('newPass').errors?.maxlength) {
         this.error['newPass'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
@@ -99,7 +112,7 @@ export class ResetPasswordComponent implements OnInit {
         this.error['newPass'] = 'Password must have at least 6 characters, at least one uppercase, at least one lowercase character and at least one number';
       }
       if (this.formGroup.get('reNewPass').errors?.required) {
-        this.error['reNewPass'] = 'This is mandatory field';
+        this.error['reNewPass'] = 'This field is mandatory';
       }
       return;
     }
@@ -108,7 +121,7 @@ export class ResetPasswordComponent implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: 'Notification',
-        detail: 'Confirm Password is incorrect',
+        detail: 'Passwords do not match',
         sticky: true 
       })
       return;
@@ -117,15 +130,26 @@ export class ResetPasswordComponent implements OnInit {
     this.loading = true;
     this.authService.changeResetPassword(this.hashCode, this.formGroup.get('newPass').value).then(res => {
       this.loading = false;
+      
       this.messageService.add({
         severity: res.messageCode === 200 ? 'success' : 'error',
         summary: 'Notification',
         detail: res.message,
         sticky: res.messageCode === 200 ? false : true
-      })
-      sessionStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      this.router.navigate(['/login'])
+      });
+
+      this.is_Reset_Pass_From_Mobile = res.Is_Reset_Pass_From_Mobile;
+
+      //Nếu không phải là reset pass từ mobile
+      if (!this.is_Reset_Pass_From_Mobile) {
+        sessionStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        this.router.navigate(['/login']);
+      }
+      //Nếu là reset pass từ mobile
+      else {
+        this.message = 'Password has been changed. Please go back to the Moves Matter app to log in.';
+      }
     })
   }
 }

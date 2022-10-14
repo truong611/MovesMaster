@@ -52,9 +52,12 @@
     </ng-container>
     <ng-container *ngIf="user">
       <ul class="navbar-nav navbar-right ml-auto">
-        <li class="nav-item nav-home" *ngIf="user?.Is_Web_App_User">
-          <a href="javascript:;" (click)="goToDashboard()"><i class="fas fa-home"></i></a>
+        <li class="nav-item" (click)="goToDashboard()">
+          <img class="img-fluid icon-header" [src]="iconHeader" *ngIf="iconHeader">
         </li>
+        <!-- <li class="nav-item nav-home" *ngIf="user?.Is_Web_App_User">
+          <a href="javascript:;" (click)="goToDashboard()"><i class="fas fa-home"></i></a>
+        </li> -->
         <li class="nav-item dropdown">
           <a class="nav-link icon-user" data-toggle="dropdown" href="#">
             <div class="text-infor text-center mr-2">

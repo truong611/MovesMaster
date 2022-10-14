@@ -16,6 +16,12 @@ const UserInfoModel = types.model('UserInfo').props({
     phone: types.maybe(types.string),
     avatar: types.maybe(types.string),
     createdDate: types.maybe(types.Date),
+    count: types.maybe(types.number),
+    lastUpload: types.maybe(types.Date),
+    totalMoveDevice: types.maybe(types.number),
+    totalMoveFitness: types.maybe(types.number),
+    totalMoveManual: types.maybe(types.number),
+    reloadUpload: types.maybe(types.boolean)
 });
 
 const AppInfoModel = types.model('AppInfo').props({
@@ -60,6 +66,12 @@ export const MovesModel = types
             phone: '',
             avatar: '',
             createdDate: 0,
+            count: 0,
+            lastUpload: 0,
+            totalMoveDevice: 0,
+            totalMoveFitness: 0,
+            totalMoveManual: 0,
+            reloadUpload: true
         }),
         appInfo: types.optional(types.maybe(AppInfoModel), {
             tabIndex: 1,
@@ -146,6 +158,28 @@ export const MovesModel = types
             if (value?.createdDate != null) {
                 self.userInfo.createdDate = value?.createdDate;
             }
+            if (value?.count != null) {
+                self.userInfo.count = value?.count;
+            }
+            if (value?.lastUpload != null) {
+                self.userInfo.lastUpload = value?.lastUpload;
+            }
+            if (value?.lastUpload != null) {
+                self.userInfo.lastUpload = value?.lastUpload;
+            }
+            if (value?.totalMoveDevice != null) {
+                self.userInfo.totalMoveDevice = value?.totalMoveDevice;
+            }
+            if (value?.totalMoveFitness != null) {
+                self.userInfo.totalMoveFitness = value?.totalMoveFitness;
+            }
+            if (value?.totalMoveManual != null) {
+                self.userInfo.totalMoveManual = value?.totalMoveManual;
+            }
+            if (value?.reloadUpload != null) {
+                self.userInfo.reloadUpload = value?.reloadUpload;
+            }
+
         },
         setAppInfo(value: any) {
             if (value?.tabIndex != null) {
@@ -167,6 +201,8 @@ export const MovesModel = types
             self.userInfo.phone = '';
             self.userInfo.avatar = '';
             self.userInfo.createdDate = 0;
+            self.userInfo.count = 0;
+            self.userInfo
 
             self.appInfo.tabIndex = 1;
             self.appInfo.version = 1;
@@ -174,6 +210,7 @@ export const MovesModel = types
             self.donateInfo.donatedMoves = 0;
             self.donateInfo.amountDonated = 0;
             self.donateInfo.movesAvailable = 0;
+            self.activity = []
         },
     })); // eslint-disable-line @typescript-eslint/no-unused-vars
 

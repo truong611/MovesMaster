@@ -23,12 +23,16 @@ export const HomeScreen = observer(function HomeScreen() {
         ;(async () => {
             if (refetch) {
                 let token = await movesModel.getUserInfoByKey('token');
+                let count = await movesModel.getUserInfoByKey('count');
                 let {data: {refreshToken: {user: {refreshToken}, message, messageCode}}} = await refetch({
                     refreshToken: token
                 });
                 if (messageCode == 200) {
                     await movesModel.setUserInfo({
                         token: refreshToken
+                    })
+                    await movesModel.setUserInfo({
+                        count: count + 1
                     })
                 }
             }

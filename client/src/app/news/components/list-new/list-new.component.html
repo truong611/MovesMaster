@@ -63,7 +63,9 @@
                 [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
                 <span class="p-column-title">{{col.header}}</span>
                 <span *ngSwitchCase="'News_Icon_Image'" class="link" (click)="goToDetail(rowData.News_Item_ID)">
-                  <img [src]="rowData[col.field]" [class]="rowData.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field]" [class]="rowData.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                  </div>
                 </span>
                 <span *ngSwitchCase="'News_Title'" class="link" (click)="goToDetail(rowData.News_Item_ID)">
                   {{rowData[col.field]}}
@@ -87,7 +89,10 @@
           <ul class="nav list-box">
             <li class="nav-item" *ngFor="let item of listNews">
               <div class="icon">
-                <img src="{{item.News_Icon_Image}}" [class]="item.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                <div class="icon-image">
+                  <img src="{{item.News_Icon_Image}}" [class]="item.News_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                </div>
+                
                 <div class="more-info" (click)="goToDetail(item.News_Item_ID)">
                   <p class="status-name status-{{item.News_Status_Name}} m-0">{{item.News_Status_Name}}</p>
                   <p class="text-more">More info</p>

@@ -78,12 +78,12 @@ export class LoginComponent implements OnInit {
     this.submitted = true;
     if (this.formGroup.invalid) {
       if (this.formGroup.get('email').errors?.required) {
-        this.error['email'] = 'This is mandatory field';
+        this.error['email'] = 'This field is mandatory';
       } else if (this.formGroup.get('email').errors?.pattern) {
         this.error['email'] = 'Incorrect email format';
       }
       if (this.formGroup.get('password').errors?.required) {
-        this.error['password'] = 'This is mandatory field';
+        this.error['password'] = 'This field is mandatory';
       } else if (this.formGroup.get('password').errors['minlength'] || this.formGroup.get('password').errors['maxlength']) {
         this.error['password'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
       }

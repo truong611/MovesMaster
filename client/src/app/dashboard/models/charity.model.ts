@@ -1,6 +1,8 @@
 export class DashboardCharity {
   Charity_URL: String;
-  Contact_Name: String;
+  Contact_Name?: String;
+  Contact_Forename: String;
+  Contact_Surname: String;
   Contact_Email: String;
   Contact_Phone_Number: String;
   Charity_Date_Founded: Date;
@@ -23,7 +25,9 @@ export class DashboardCharity {
 export class DashboardCompany {
   Company_Icon_File: File;
   Company_URL: String;
-  Contact_Name: String;
+  Contact_Name?: String;
+  Contact_Forename: String;
+  Contact_Surname: String;
   Contact_Email: String;
   Contact_Phone_Number: String;
   Company_CSR_Statement: String;
@@ -32,7 +36,8 @@ export class DashboardCompany {
 export class Company {
   Company_Name: String;
   Company_Number: String;
-  Contact_Name: String;
+  Contact_Forename: String;
+  Contact_Surname: String;
   Contact_Email: String;
   Contact_Phone_Number: String;
 }

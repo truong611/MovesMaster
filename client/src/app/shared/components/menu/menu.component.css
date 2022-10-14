@@ -4,6 +4,7 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  background: #ffffff;
 }
 ::ng-deep .main-sidebar .logo img.favicon-icon {
   display: none;

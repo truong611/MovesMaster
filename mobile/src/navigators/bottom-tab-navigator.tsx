@@ -23,6 +23,7 @@ import {
     ListDonateScreen,
     DetailDonateScreen,
     OverviewActivityScreen,
+    DetailActivityScreen,
 } from '../screens';
 import {BottomTabBar, createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Animated, StyleSheet, View} from 'react-native';
@@ -62,6 +63,8 @@ export default function BottomTabsScreen(props: any) {
         {name: 'ListDonateScreen', component: ListDonateScreen, icon: 'heart-outline'},
         {name: 'DetailDonateScreen', component: DetailDonateScreen, icon: 'heart-outline'},
         {name: 'OverviewActivityScreen', component: OverviewActivityScreen, icon: 'heart-outline'},
+        {name: 'DetailActivityScreen', component: DetailActivityScreen, icon: 'heart-outline'},
+
     ];
 
     if (!screens.length) {

@@ -71,4 +71,10 @@ export class NewsTemplateComponent implements OnInit {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
+  goToLink() {
+    if(this.news.News_Url) {
+      window.open(this.news.News_Url, '_blank').focus();
+    }
+  }
+
 }

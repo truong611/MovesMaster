@@ -1,47 +1,67 @@
 <div class="preview preview-appeal">
-  <div class="title-name text-bold text-center mb-3">{{appeal?.Name}}</div>
+  <div class="icon-favourite">
+    <i class="far fa-heart"></i>
+  </div>
   <div class="detail">
-    <div class="image text-center" (click)="openLink()">
-      <img class="img-fluid" [src]="appeal?.Icon">
+    <div class="text-center title-name text-bold mb-3">{{appeal?.Name}}</div>
+    <div class="row m-0">
+      <div [class]="appeal.Icon ? 'col-md-6' : 'col-md-12'" *ngIf="appeal?.Charity_icon">
+        <!-- <div class="title-name text-bold text-center mb-1">{{appeal?.Charity_Name}}</div> -->
+        <div class="image text-center" (click)="openLink(1)">
+          <img class="img-fluid" [src]="appeal?.Charity_icon">
+        </div>
+      </div>
+      <div [class]="appeal.Charity_icon ? 'col-md-6' : 'col-md-12'" *ngIf="appeal?.Icon">
+        <!-- <div class="title-name text-bold text-center mb-1">{{appeal?.Name}}</div> -->
+        <div class="image text-center" (click)="openLink(2)">
+          <img class="img-fluid" [src]="appeal?.Icon">
+        </div>
+      </div>
     </div>
     <div class="infor">
       <p class="text-center text-italic">{{appeal?.Status_Name}}</p>
-      <div class="content-detail">
-        {{appeal?.Description}}
+      <div class="content-detail" [innerHtml]="appeal?.Description">
       </div>
-      
-    </div>
 
-    <div class="content-end">
-      <div class="list-number mt-3">
-        <ul class="nav">
-          <li class="nav-item">
-            <label>Launch Date</label>
-            <p><strong>{{appeal?.Launch_Date | date: 'dd/MM/yyyy'}}</strong><br>
+    </div>
+  </div>
+
+  <div class="content-end">
+    <div class="list-number mt-3">
+      <ul class="nav">
+        <li class="nav-item d-inline-flex w-100">
+          <div [class]="appeal?.End_Date ? 'w-50' : 'w-100'">
+            <label>Launch</label>
+            <span class="text-bold ml-2">{{appeal?.Launch_Date | date: 'dd/MM/yyyy'}}
               <!-- D: H: M: S<br>
             {{appeal?.Amount_Date}} -->
-            </p>
-          </li>
-          <li class="nav-item">
+            </span>
+          </div>
+          <div class="w-50 text-right" *ngIf="appeal?.End_Date">
+            <label>End</label>
+            <span class="text-bold ml-2">{{appeal?.End_Date | date: 'dd/MM/yyyy'}}</span>
+          </div>
+        </li>
+        <li class="nav-item d-inline-flex w-100">
+          <div class="w-50" *ngIf="appeal?.Target">
             <label>Target</label>
-            <p class="text-bold">£{{appeal?.Target | number}}</p>
-          </li>
-          <li class="nav-item">
-            <label>Campaigns</label>
-            <p class="text-bold">{{appeal?.TotalCampaign | number}}</p>
-          </li>
-          <li class="nav-item">
-            <label>Progress</label>
-            <p class="text-bold">
-              £{{appeal?.Amount_Raised | number}}<br>
-              {{appeal?.Progress}}%</p>
-          </li>
-        </ul>
-      </div>
-      <div class="list-button text-center mt-4">
-        <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button>
-        <button pButton type="button" label="Donate" class="btn btn-pink w-30 ml-3"></button>
-      </div>
+            <span class="text-bold ml-2">£{{appeal?.Target | number: '0.2-2'}}</span>
+          </div>
+          <div [class]="appeal?.Target ? 'w-50 text-right' : 'w-100'">
+            <label>Raised</label>
+            <span class="text-bold ml-2">£{{appeal?.Amount_Raised | number: '0.2-2'}}</span>
+              <!-- {{appeal?.Progress}}% -->
+          </div>
+        </li>
+        <li class="nav-item">
+          <label>Campaigns</label>
+          <span class="text-bold ml-2">{{appeal?.TotalCampaign | number}}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="list-button text-center mt-4">
+      <!-- <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button> -->
+      <button pButton type="button" label="Donate" class="btn btn-pink w-30"></button>
     </div>
   </div>
 </div>

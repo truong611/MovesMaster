@@ -16,10 +16,19 @@ export class PreviewAppealComponent implements OnInit {
   ngOnInit(): void {
     
   }
-
-  openLink() {
-    if(this.appeal?.Appeal_URL) {
-      window.open(this.appeal?.Appeal_URL, '_blank').focus();
+  
+  openLink(type) {
+    let url;
+    switch (type) {
+      case 1:
+        url = this.appeal.Charity_URL;
+        break;
+      case 2:
+        url = this.appeal?.Appeal_URL;
+        break;
+    }
+    if(url) {
+      window.open(url, '_blank').focus();
     }
   }
 

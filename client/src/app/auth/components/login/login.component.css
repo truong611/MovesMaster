@@ -54,6 +54,10 @@
   color: #ffffff;
 }
 
+.login input:focus::placeholder{
+  color: #2D2252;
+}
+
 .login button {
   width: 50%;
   border-radius: 20px;

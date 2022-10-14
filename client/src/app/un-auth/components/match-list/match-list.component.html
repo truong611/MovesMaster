@@ -1,0 +1,110 @@
+<div class="loading-indicator" *ngIf="loading">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="8" fill="#EEEEEE" animationDuration=".5s">
+  </p-progressSpinner>
+</div>
+<p-toast position="bottom-right" [baseZIndex]="2147483647"></p-toast>
+<div class="col-md-12">
+  <div class="page-list-match page-card report">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="title-name text-bold mb-3">MATCHES</div>
+      </div>
+      <div class="col-md-6 text-right">
+        <button pButton type="button" label="Back" class="btn btn-border-yellow btn-back" (click)="back()"></button>
+      </div>
+    </div>
+
+    <div class="list-btn-add d-inline-flex">
+      <div class="btn-add btn-count-match">
+        <span class="total-number">{{totalMatch}}</span><br>
+        <span class="name">Matches</span>
+      </div>
+    </div>
+
+    <div class="list-match">
+      <div class="filter">
+        <p-tabView [(activeIndex)]="activeIndex">
+          <p-tabPanel header="" rightIcon="pi pi-align-justify">
+          </p-tabPanel>
+          <p-tabPanel header="" rightIcon="pi pi-microsoft">
+          </p-tabPanel>
+        </p-tabView>
+      </div>
+      <div class="card-content table-gridview mt-4">
+        <p-table *ngIf="activeIndex == 0" #myTable [columns]="colHeader" [value]="listMatch"
+          class="table-center scrollbar-table scrollbar-table-appeal" [scrollable]="true"
+          scrollHeight="calc(100vh - 300px)" scrollDirection="both">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns; let i = index"
+                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                <span *ngIf="i > 0">{{col.header}}</span>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            <tr>
+              <td *ngFor="let col of columns" [ngSwitch]="col.field"
+                [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
+                <span class="p-column-title">{{col.header}}</span>
+                <span *ngSwitchCase="'Company_Icon'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  </div>
+                </span>
+                <span *ngSwitchCase="'Campaign_Icon'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  </div>
+                </span>
+                <span *ngSwitchCase="'Match_Date_Created'">
+                  {{rowData[col.field] | date: 'dd/MM/yyyy HH:mm'}}
+                </span>
+                <span *ngSwitchDefault>{{rowData[col.field]}}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="columns.length">
+                No data found
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div *ngIf="activeIndex == 1" class="grid-view grid-view-appeal">
+          <ul class="nav list-box" *ngIf="type == 'campaign'">
+            <li class="nav-item" *ngFor="let item of listMatch">
+              <div class="icon">
+                <div class="icon-image">
+                  <img [src]="item.Company_Icon ? item.Company_Icon : '../../../../assets/img/Default Image.png'">
+                </div>
+                <!-- <div class="more-info">
+                  <p class="text-more">More info</p>
+                </div> -->
+              </div>
+              <div class="title-name">
+                {{item.Company_Name}}
+              </div>
+            </li>
+          </ul>
+          <ul class="nav list-box" *ngIf="type == 'company'">
+            <li class="nav-item" *ngFor="let item of listMatch">
+              <div class="icon">
+                <div class="icon-image">
+                  <img [src]="item.Campaign_Icon ? item.Campaign_Icon : '../../../../assets/img/Default Image.png'">
+                </div>
+                <!-- <div class="more-info">
+                  <p class="text-more">More info</p>
+                </div> -->
+              </div>
+              <div class="title-name">
+                {{item.Campaign_Name}}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,7 +14,7 @@
     background-color: #fff;
 }
 
-.home-ethos img {
+.home-ethos .text-white img {
     margin-top: 8%;
     margin-left: 6%;
     height: 80%;
@@ -77,135 +77,11 @@
     font-size: 13px;
 }
 
-.home-ethos .tables-gridview .grid-view .list-box li {
-    width: calc(100%/5);
-    padding: 0 0.75rem;
-    margin-bottom: 2rem;
-
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon {
-    position: relative;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon img {
-    box-shadow: 0px 0px 10px #00000080;
-    border-radius: 10px;
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    object-position: center;
-    margin-left: 0% !important;
-    margin-top: 0% !important;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .title-name {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    margin-top: .5rem;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .more-info {
-    padding: 10px;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-    color: #fff;
-    opacity: 0;
-    z-index: 1;
-    height: 100%;
-    cursor: pointer;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .more-info .text-more {
-    text-align: center;
-    margin: 0 auto;
-    display: inline-flex;
-    width: 100%;
-    height: calc(100% - 30px);
-    align-items: center;
-    justify-content: center;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon:hover .more-info {
-    opacity: 1;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon:hover:after {
-    opacity: 0.5;
-    border: 2px solid #009FC8;
-    border-radius: 10px;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    -webkit-transition: all 0.3s ease-in-out;
-    -moz-transition: all 0.3s ease-in-out;
-    -o-transition: all 0.3s ease-in-out;
-    -ms-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-    opacity: 0;
-}
-
-.home-ethos .tables-gridview .grid-view .list-box .icon::after {
-    background: rgba(26, 17, 52, 1);
-}
-
-
-.home-ethos .tables-gridview .scrollbar-table table img {
-    box-shadow: 0px 0px 10px #00000080;
-    border-radius: 10px;
-    object-fit: cover;
-    object-position: center;
-    width: 90px;
-    height: 60px;
-}
-
-.home-ethos .tables-gridview .grid-view {
-    height: 70vh;
-    overflow-y: auto;
-}
-
-.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar-track,
-.home-ethos .tables-gridview .grid-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    background-color: #1A1334;
-}
-
-.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar,
-.home-ethos .tables-gridview .grid-view::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-    border-radius: 10px;
-    background-color: #1A1334;
-}
-
-.home-ethos .tables-gridview .scrollbar-table .p-datatable-wrapper::-webkit-scrollbar-thumb,
-.home-ethos .tables-gridview .grid-view::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-}
-
-.home-ethos .tables-gridview .scrollbar-table.scrollbar-table-appeal .p-datatable-wrapper::-webkit-scrollbar-thumb,
-.home-ethos .tables-gridview .grid-view.grid-view-appeal::-webkit-scrollbar-thumb {
-    background-color: #009FC8;
-}
-
-::ng-deep .home-ethos .tables-gridview .p-paginator .p-paginator-pages .p-paginator-page {
+::ng-deep .home-ethos .table-gridview .p-paginator .p-paginator-pages .p-paginator-page {
     border-radius: 50%;
 }
 
-::ng-deep .home-ethos .tables-gridview .p-paginator {
+::ng-deep .home-ethos .table-gridview .p-paginator {
     background: unset;
 }
 

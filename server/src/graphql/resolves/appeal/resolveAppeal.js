@@ -45,19 +45,22 @@ const resolvers = {
         appeal.Charity_Name = charity.Charity_Name;
         appeal.Charity_icon = charity.Charity_icon ? URL_FOLDER + charity.Charity_icon : null;
         appeal.Charity_URL = charity.Charity_URL;
+        appeal.Payment_Site_Url = charity.Payment_Site_Url
+        appeal.Member_Payment_Site_Url = charity.Member_Payment_Site_Url
         appeal.Amount_Raised = 0;
 
         let _result = await dashboardHelper.getDonationAppeal(appeal.Appeal_ID);
         appeal.TotalCampaign = _result.TotalCampaign;
         appeal.Amount_Raised = _result.TotalDonation;
+        appeal.TotalMove = _result.TotalMove;
 
         let isShowButtonCreateCampaign = false;
         let isShowButtonEdit = false;
         let isShowButtonPublish = false;
         let isShowButtonAbandon = false;
 
-        //Live
-        if (appeal.Appeal_Status_ID == 16) {
+        //Live, Publish
+        if (appeal.Appeal_Status_ID == 15 || appeal.Appeal_Status_ID == 16) {
           isShowButtonCreateCampaign = true;
         }
 
@@ -68,14 +71,14 @@ const resolvers = {
         }
 
         //Draft
-        if (appeal.Appeal_Status_ID == 28 ) {
+        if (appeal.Appeal_Status_ID == 28) {
           isShowButtonPublish = true;
         }
 
         let isFavourite = await db.table('Favorites')
-            .where('User_ID', context.currentUser.User_ID)
-            .where('Appeal_ID', args.Appeal_ID)
-            .first();
+          .where('User_ID', context.currentUser.User_ID)
+          .where('Appeal_ID', args.Appeal_ID)
+          .first();
         isFavourite = !!isFavourite;
 
         return {
@@ -97,10 +100,11 @@ const resolvers = {
         }
       }
     }),
-    getListAppeal: authenticated(async (parent, args, context) => {
+    getListAppeal: (async (parent, args, context) => {
       try {
-        let User_ID = context.currentUser.User_ID;
+        let User_ID = context.currentUser?.User_ID ?? null;
         let User = await db.table('User').where('User_ID', User_ID).first();
+        let Moves_Charity_ID = args.Moves_Charity_ID;
 
         await changeStatus.appeal();
 
@@ -113,17 +117,22 @@ const resolvers = {
             'Appeal.Appeal_Start_Date',
             'Appeal.Appeal_End_Date',
             'Appeal.Created_Date',
-            'Appeal.Appeal_Status_ID'
+            'Appeal.Appeal_Status_ID',
+            'Appeal.Moves_Charity_ID'
           )
           .orderBy('Appeal.Created_Date', 'desc')
           .innerJoin('Category', 'Category.Category_ID', 'Appeal.Appeal_Status_ID')
           .where(builder => {
-            builder.where('Moves_Charity_ID', User.Moves_Charity_ID);
+            builder.where('Moves_Charity_ID', Moves_Charity_ID);
           });
 
         let listAppealId = ListAppeal.map(x => x.Appeal_ID);
         let listCampaign = await db.table('Campaign')
           .whereIn('Appeal_ID', listAppealId);
+
+        let charity = await db.table('Charity')
+          .where('Moves_Charity_ID', Moves_Charity_ID)
+          .first();
 
         let statusCampaignLive = await db.table('Category')
           .where('Category_ID', 23)
@@ -134,15 +143,15 @@ const resolvers = {
           let item = ListAppeal[i];
 
           let _listCampaign = listCampaign.filter(x => x.Appeal_ID == item.Appeal_ID);
-          
+
           let _result = await dashboardHelper.getDonationAppeal(item.Appeal_ID);
           item.Amount_Raised = _result.TotalDonation;
 
           let countStatusLive = _listCampaign.filter(x => x.Campaign_Status_ID == statusCampaignLive.Category_ID);
-          if (countStatusLive > 0) item.Live_Campaign = 'Y';
+          if (countStatusLive.length > 0) item.Live_Campaign = 'Y';
           else item.Live_Campaign = 'N';
 
-          item.Appeal_Icon = item.Appeal_Icon ? URL_FOLDER + item.Appeal_Icon : null;
+          item.Appeal_Icon = item.Appeal_Icon ? URL_FOLDER + item.Appeal_Icon : (charity.Charity_icon ? URL_FOLDER + charity.Charity_icon : null);
         }
 
         let ListStatus = await db.table('Category')
@@ -262,7 +271,7 @@ const resolvers = {
               .where('Appeal_ID', bodyData.Appeal_ID)
               .update({
                 Appeal_Name: bodyData.Appeal_Name,
-                Appeal_URL: bodyData.Appeal_URL.replace(/ /g, ''),
+                Appeal_URL: bodyData.Appeal_URL ? bodyData.Appeal_URL.replace(/ /g, '') : null,
                 Appeal_Description: bodyData.Appeal_Description,
                 Appeal_Start_Date: bodyData.Appeal_Start_Date,
                 Appeal_End_Date: bodyData.Appeal_End_Date,

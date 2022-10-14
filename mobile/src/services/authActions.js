@@ -1,14 +1,14 @@
 import {API_URL, WEB_URL} from "../config";
 
-export const login = (email, password, successCb, errorCb) => {
+export const login = (email, password, successCb, errorCb, isActiveMobile) => {
     fetch(API_URL, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
         body: JSON.stringify({
-            query: `query Query($email: String!, $password: String!, $type: String) {
-                      login(email: $email, password: $password, type: $type) {
+            query: `query Query($email: String!, $password: String!, $type: String, $isActiveMobile: Boolean!) {
+                      login(email: $email, password: $password, type: $type, isActiveMobile: $isActiveMobile) {
                         user {
                           token
                           refreshToken
@@ -27,15 +27,19 @@ export const login = (email, password, successCb, errorCb) => {
                           Moves_Charity_ID
                           Company_Name
                           Created_Date
+                          Is_Mobile_App_User
+                          Is_Web_App_User
                         }
                         messageCode
                         message
+                        isExistsWeb
                       }
                     }`,
             variables: {
                 'email': email,
                 'password': password,
-                "type": "mobile"
+                "type": "mobile",
+                "isActiveMobile": isActiveMobile
             },
         }),
     })
@@ -47,6 +51,7 @@ export const login = (email, password, successCb, errorCb) => {
                 errorCb({
                     title: 'Error',
                     message: response?.data?.login?.message,
+                    isExistsWeb: response?.data?.login?.isExistsWeb
                 });
             }
         })
@@ -55,6 +60,7 @@ export const login = (email, password, successCb, errorCb) => {
                 title: 'Unexpected',
                 message: 'Please try again',
             });
+
         });
 };
 
@@ -124,15 +130,16 @@ export const forgotPassword = (email, successCb, errorCb) => {
             'content-type': 'application/json',
         },
         body: JSON.stringify({
-            query: `mutation Mutation($email: String!, $url: String) {
-                      signResetPassWord(Email: $email, url: $url) {
+            query: `mutation Mutation($email: String!, $url: String, $type: String) {
+                      signResetPassWord(Email: $email, url: $url, type: $type) {
                         messageCode
                         message
                       }
                     }`,
             variables: {
                 email,
-                url: WEB_URL + '/reset-password'
+                url: WEB_URL + '/reset-password',
+                type: 'mobile'
             },
         }),
     })

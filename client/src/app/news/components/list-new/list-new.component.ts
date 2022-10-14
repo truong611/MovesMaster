@@ -40,13 +40,14 @@ export class ListNewComponent implements OnInit {
       { field: 'News_Icon_Image', header: '', textAlign: 'left', display: 'table-cell', colWith: '8vw' },
       { field: 'Is_Manual_Text', header: 'A/M', textAlign: 'center', display: 'table-cell', colWith: '8vw' },
       { field: 'News_Status_Name', header: 'Status', textAlign: 'left', display: 'table-cell', colWith: '10vw' },
+      { field: 'News_Title', header: 'Title', textAlign: 'left', display: 'table-cell', colWith: '12vw' },
+      { field: 'News_Publish_Date', header: 'Published', textAlign: 'left', display: 'table-cell', colWith: '12vw' },
+      { field: 'CreateBy', header: 'By', textAlign: 'left', display: 'table-cell', colWith: '10vw' },
       { field: 'Charity_Name', header: 'Charity', textAlign: 'left', display: 'table-cell', colWith: '15vw' },
       { field: 'Appeal_Name', header: 'Appeal', textAlign: 'left', display: 'table-cell', colWith: '15vw' },
       { field: 'Company_Name', header: 'Company', textAlign: 'left', display: 'table-cell', colWith: '15vw' },
       { field: 'Campaign_Name', header: 'Campaign', textAlign: 'left', display: 'table-cell', colWith: '15vw' },
-      { field: 'News_Title', header: 'Title', textAlign: 'left', display: 'table-cell', colWith: '12vw' },
-      { field: 'News_Publish_Date', header: 'Published', textAlign: 'left', display: 'table-cell', colWith: '12vw' },
-      { field: 'CreateBy', header: 'By', textAlign: 'left', display: 'table-cell', colWith: '10vw' }
+      
     ]
 
     this.getListNews();

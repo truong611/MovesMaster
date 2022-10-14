@@ -7,12 +7,20 @@
   height: calc(100% - 162px - 1rem);
 }
 
-.news .img-new {
+.news .icon-image {
   border-radius: 10px;
   height: 98px;
   width: 100%;
-  object-fit: cover;
-  object-position: center;
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.news .icon-image .img-new {
+  height: auto;
+  max-height: 100%;
+  max-width: 100%;
+  border-radius: 10px;
 }
 
 .news .list-news .item {

@@ -6,7 +6,7 @@ const PORT = process.env.PORT;
 const STATIC_FOLDER = process.env.STATIC_FOLDER;
 const URL_FOLDER = (HOSTNAME + ':' + PORT) + '/' + STATIC_FOLDER;
 const logging = require('../../../middleware/autologging');
-const {saveFile, deleteFile, downloadFile, copyFile, convertFileName} = require('../../../common/handleFile');
+const { saveFile, deleteFile, downloadFile, copyFile, convertFileName } = require('../../../common/handleFile');
 
 const resolvers = {
     //QUERY
@@ -64,10 +64,21 @@ const resolvers = {
                         message: 'remove successful'
                     };
                 } else {
-                    let find = await db.table('Fitness_App_Usage')
-                        .where('Fitness_App_Usage_ID', bodyData?.Fitness_App_Usage_ID)
-                        .first();
-
+                    let find = null;
+                    //strava
+                    if (bodyData?.Fitness_App_ID == 2) {
+                        find = await db.table('Fitness_App_Usage')
+                            .where('Fitness_App_Usage_ID', bodyData?.Fitness_App_Usage_ID)
+                            .first();
+                    }
+                    //garmin
+                    else if (bodyData?.Fitness_App_ID == 3) {
+                        find = await db.table('Fitness_App_Usage')
+                            .where('Fitness_App_Usage_Access_Token', bodyData?.Fitness_App_Usage_Access_Token)
+                            .where('Fitness_App_Usage_Refresh_Token', bodyData?.Fitness_App_Usage_Refresh_Token)
+                            .first();
+                    }
+                    
                     if (find) {
                         return {
                             messageCode: 400,

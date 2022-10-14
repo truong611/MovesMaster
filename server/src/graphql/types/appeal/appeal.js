@@ -17,14 +17,17 @@ const typeDefs = gql`
     Last_Modify_Date: Timestamp,
     Last_Modify_By: Int,
 
-    #Vitual Field:
+    #Virtual Field:
     Appeal_Status_Name: String,
     Amount_Raised: Float,
     Live_Campaign: String,
     Charity_Name: String,
     Charity_icon: String,
     TotalCampaign: Int,
-    Charity_URL: String
+    Charity_URL: String,
+    Payment_Site_Url: String,
+    Member_Payment_Site_Url: String,
+    TotalMove: Float
   }
 
   type GetDetailAppealResponse {
@@ -44,7 +47,7 @@ const typeDefs = gql`
     Appeal_Description: String,
     Appeal_Start_Date: Timestamp!,
     Appeal_End_Date: Timestamp,
-    Appeal_Target_Amount: Float!,
+    Appeal_Target_Amount: Float,
     Moves_Charity_ID: Int!,
     Appeal_Icon_File: Upload,
   }
@@ -62,7 +65,7 @@ const typeDefs = gql`
     Appeal_Description: String,
     Appeal_Start_Date: Timestamp!,
     Appeal_End_Date: Timestamp,
-    Appeal_Target_Amount: Float!,
+    Appeal_Target_Amount: Float,
     Appeal_Icon_File: Upload,
   }
 
@@ -77,7 +80,7 @@ const typeDefs = gql`
   # ROOT TYPE
   type Query {
     getDetailAppeal (Appeal_ID: Int!): GetDetailAppealResponse,
-    getListAppeal: GetListAppealResponse,
+    getListAppeal(Moves_Charity_ID: Int!): GetListAppealResponse,
   }
 
   type Mutation {

@@ -3,7 +3,7 @@
   <div class="page-list-campaign page-card report">
     <div class="title-name text-bold mb-3">CAMPAIGNS</div>
     <div class="list-btn-add d-inline-flex">
-      <div class="btn-add btn-add-campaign mr-4" (click)="createCampaign()" *ngIf="user?.Type == 1">
+      <div class="btn-add btn-add-campaign mr-4" (click)="createCampaign()" *ngIf="user?.Type == 1 && isShowButtonCreateCampaign">
         <span class="icon-add">+</span><br>
         <span>Add a campaign</span>
       </div>
@@ -48,7 +48,7 @@
       <div class="card-content table-gridview mt-4">
         <p-table *ngIf="activeIndex == 0" #myTable [columns]="colHeader" [value]="listCampaign" class="table-center scrollbar-table scrollbar-table-appeal"
         (sortFunction)="sortColumnInList($event)" [customSort]="true" [scrollable]="true"
-        scrollHeight="70vh" scrollDirection="both">
+        scrollHeight="60vh" scrollDirection="both">
           <ng-template pTemplate="header" let-columns>
             <tr>
               <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
@@ -63,7 +63,9 @@
                 [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
                 <span class="p-column-title">{{col.header}}</span>
                 <span *ngSwitchCase="'Campaign_Icon_Image'">
-                  <img [src]="rowData[col.field]" [class]="rowData.Campaign_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field]" [class]="rowData.Campaign_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                  </div>
                 </span>
                 <span *ngSwitchCase="'Campaign_Name'" class="link" (click)="goToDetail(rowData.Campaign_ID)">
                   {{rowData[col.field]}}
@@ -76,7 +78,7 @@
                     {{rowData.AmountOrEndDate | date: 'dd/MM/yyyy HH:mm'}}
                   </span>
                   <span *ngIf="!rowData.End_Date_Target">
-                    £{{rowData.AmountOrEndDate | number}}
+                    £{{rowData.AmountOrEndDate | number: '0.2-2'}}
                   </span>
                 </span>
                 <span *ngSwitchCase="'Progress'">
@@ -88,7 +90,7 @@
                   </span>
                 </span>
                 <span *ngSwitchCase="'Amount_Raised'">
-                  £{{rowData[col.field] | number}}
+                  £{{rowData[col.field] | number: '0.2-2'}}
                 </span>
                 <span *ngSwitchCase="'Number_Matches'">
                   ({{rowData[col.field]}})
@@ -109,7 +111,9 @@
           <ul class="nav list-box">
             <li class="nav-item" *ngFor="let item of listCampaign">
               <div class="icon">
-                <img src="{{item.Campaign_Icon_Image}}" [class]="item.Campaign_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                <div class="icon-image">
+                  <img src="{{item.Campaign_Icon_Image}}" [class]="item.Campaign_Status_Name == 'Live' ? 'img-fluid' : 'img-fluid img-not-live'">
+                </div>
                 <div class="more-info" (click)="goToDetail(item.Campaign_ID)">
                   <p class="status-name status-{{item.Campaign_Status_Name}} m-0">{{item.Campaign_Status_Name}}</p>
                   <p class="text-more">More info</p>

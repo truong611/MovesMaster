@@ -4,13 +4,13 @@ module.exports = {
   development: {
     client: "pg",
     connection: {
-      host: 'localhost',
-      database: 'moves_matter',
-      user: 'postgres',
-      password: 'postgres',
-      port: 5432
+      host: "localhost",
+      database: "moves_matter",
+      user: "postgres",
+      password: "postgres",
+      port: 5432,
     },
-  }
+  },
 
   // production: {
   //   client: 'postgresql',

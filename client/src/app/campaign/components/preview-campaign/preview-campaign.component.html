@@ -1,26 +1,44 @@
 <div class="preview preview-campaign">
+  <div class="icon-favourite">
+    <i class="far fa-heart"></i>
+  </div>
   <div class="detail">
     <div class="text-center title-name text-bold mb-3">{{campaign?.Name}}</div>
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-md-4">
-        <div class="image text-center" (click)="openLink(1)">
+        <div class="image text-center" (click)="openLink(1)" *ngIf="campaign?.Campaign_Icon">
           <img class="img-fluid" [src]="campaign?.Campaign_Icon">
         </div>
       </div>
       <div class="col-md-4">
-        <div class="image text-center" (click)="openLink(2)">
+        <div class="image text-center" (click)="openLink(2)" *ngIf="campaign?.Charity_Appeal_Icon">
           <img class="img-fluid" [src]="campaign?.Charity_Appeal_Icon">
         </div>
       </div>
       <div class="col-md-4">
-        <div class="image text-center" (click)="openLink(3)">
+        <div class="image text-center" (click)="openLink(3)" *ngIf="campaign?.Company_Icon">
           <img class="img-fluid" [src]="campaign?.Company_Icon">
         </div>
       </div>
+    </div> -->
+    <div class="image text-center mb-3" *ngIf="countImage > 0">
+      <ul class="nav list-image list-image-{{countImage}}">
+        <li (click)="openLink(1)" *ngIf="campaign?.Charity_icon">
+          <img class="img-fluid" [src]="campaign?.Charity_icon">
+        </li>
+        <li (click)="openLink(2)" *ngIf="campaign?.Company_Icon">
+          <img class="img-fluid" [src]="campaign?.Company_Icon">
+        </li>
+        <li (click)="openLink(3)" *ngIf="campaign?.Appeal_Icon">
+          <img class="img-fluid" [src]="campaign?.Appeal_Icon">
+        </li>
+        <li (click)="openLink(4)" *ngIf="campaign?.Campaign_Icon">
+          <img class="img-fluid" [src]="campaign?.Campaign_Icon">
+        </li>
+      </ul>
     </div>
     <div class="infor">
-      <div class="content-detail">
-        {{campaign?.Description}}
+      <div class="content-detail" [innerHtml]="campaign?.Description">
       </div>
     </div>
   </div>
@@ -29,36 +47,43 @@
     <div class="list-number mt-3">
       <ul class="nav">
         <li class="nav-item">
-          <label>Launch Date</label>
-          <p><strong>{{campaign?.Launch_Date | date: 'dd/MM/yyyy'}}</strong><br>
+          <label>Launch:</label>
+          <span class="ml-1">{{campaign?.Launch_Date | date: 'dd/MM/yyyy hh:mm:ss'}} {{'(' +
+            campaign?.Amount_Date + ')'}}
             <!-- D:  H:  M: S<br>
          {{campaign?.Amount_Date}} -->
-          </p>
+          </span>
         </li>
         <li class="nav-item">
-          <label>Contract</label>
-          <p class="text-bold">
-            £{{campaign?.Contract_Target_Amount | number}}<br>
-            @£{{campaign?.Contract_Price_Per_Move | number}} a Move <br>({{campaign?.Contract_Move | number}} Moves)</p>
+          <label>Contract:</label>
+          <span class="ml-1">
+            £{{campaign?.Contract_Target_Amount | number: '0.2-2'}}
+            @£{{campaign?.Contract_Price_Per_Move | number: '0.2-2'}}/Move ({{campaign?.Contract_Move | number}}
+            Moves)</span>
         </li>
         <li class="nav-item">
-          <label>Matches</label>
-          <p class="text-bold">
-            Matched by {{campaign?.Matches | number}} Companies</p>
+          <label>Donations:</label>
+          <span class="ml-1">
+            {{campaign?.Progress_Donations | number}} of
+            {{campaign?.Progress_Moves | number}} Moves
+            <!-- (£{{campaign?.Progress_Amount | number: '0.2-2'}}) -->
+            ({{campaign?.Progress_Line4}})</span>
         </li>
-        <li class="nav-item">
-          <label>Progress</label>
-          <p class="text-bold">
-            {{campaign?.Progress_Donations | number}} Donations<br>
-            {{campaign?.Progress_Moves | number}} Moves<br>
-            (£{{campaign?.Progress_Amount | number}})<br>
-            {{campaign?.Progress_Line4}}</p>
+        <li class="nav-item d-inline-flex w-100">
+          <div class="w-40">
+            <label>Matches:</label>
+            <span class="ml-1">{{campaign?.Matches | number}}</span>
+          </div>
+          <div class="w-60 text-right">
+            <label>Campaign Value:</label>
+            <span class="ml-1">£{{campaign?.Campaign_Value | number: '0.2-2'}}</span>
+          </div>
+          <!-- <p class="text-bold">Matched by {{campaign?.Matches | number}} Companies</p> -->
         </li>
       </ul>
     </div>
     <div class="list-button text-center mt-4">
-      <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button>
-      <button pButton type="button" label="Donate" class="btn btn-pink w-30 ml-3"></button>
+      <button pButton type="button" label="Donate" class="btn btn-pink w-30"></button>
     </div>
   </div>
 </div>

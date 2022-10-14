@@ -6,6 +6,8 @@ const typeDefs = gql`
     Charity_Name: String,
     Charity_Commission_No: String,
     Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
     Charity_URL: String,
@@ -58,7 +60,8 @@ const typeDefs = gql`
   input CharityUserInput {
     Charity_Name: String,
     Charity_Commission_No: String,
-    Contact_Name: String,
+    Contact_Forename: String,
+    Contact_Surname: String,
     Contact_Email: String,
     Contact_Phone_Number: String,
   }

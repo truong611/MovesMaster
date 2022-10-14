@@ -9,7 +9,7 @@ import {useStores} from "../../models";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getProfile} from "./profile-service";
 import { FETCH_getFitnessAppUsage } from '../fitness-apps/fitness-apps-service';
-import {showToast} from "../../services";
+import {replaceHTTP, showToast} from "../../services";
 
 const layout = Dimensions.get('window');
 
@@ -65,9 +65,7 @@ export const ProfileScreen = observer(function ProfileScreen() {
         let {data: {getFitnessAppUsage: {FitnessApp, FitnessAppUsage, message, messageCode}}} = await query.refetch()
         setLoading(false);
         if (messageCode == 200) {
-            setListFitnessAppUsage(FitnessAppUsage)
-            console.log("OK");
-            
+            setListFitnessAppUsage(FitnessAppUsage)  
         }
     }
 
@@ -89,7 +87,7 @@ export const ProfileScreen = observer(function ProfileScreen() {
                     <View style={styles.avatarWrapper}>
                         {movesModel?.userInfo?.avatar ?
                             <Image resizeMode={"cover"} style={styles.avatar}
-                                   source={{uri: movesModel?.userInfo?.avatar}}/>
+                                   source={{uri: replaceHTTP(movesModel?.userInfo?.avatar)}}/>
                             : null}
                     </View>
                     <View style={{marginBottom: 16, alignItems: 'center'}}>

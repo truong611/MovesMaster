@@ -37,14 +37,14 @@
                     <div class="col-md-12 form-group">
                       <label>COMPANY (option)</label>
                       <p-dropdown [options]="listCompany" styleClass="w-100" optionLabel="Company_Text"
-                        optionValue="Moves_Company_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
                         [autoDisplayFirst]="false" placeholder="Select Company" formControlName="Moves_Company_ID">
                       </p-dropdown>
                     </div>
                     <div class="col-md-12 form-group">
                       <label>APPEAL (option)</label>
                       <p-dropdown [options]="listAppeal" styleClass="w-100" optionLabel="Appeal_Name"
-                        optionValue="Appeal_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
                         formControlName="Appeal_ID" [autoDisplayFirst]="false" placeholder="Select Appeal"
                         (onChange)="changeAppeal($event)">
                       </p-dropdown>
@@ -52,7 +52,7 @@
                     <div class="col-md-12 form-group">
                       <label>CAMPAIGN (option)</label>
                       <p-dropdown [options]="listCampaign" styleClass="w-100" optionLabel="Campaign_Name"
-                        optionValue="Campaign_ID" [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
+                        [filter]="true" [resetFilterOnHide]="true" [showClear]="true"
                         [autoDisplayFirst]="false" placeholder="Select Campaign" formControlName="Campaign_ID">
                       </p-dropdown>
                     </div>

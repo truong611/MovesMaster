@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { MessageService } from 'primeng/api';
 
@@ -15,6 +15,10 @@ import { PermissionService } from './../../../shared/services/permission.service
 })
 export class ListAppealComponent implements OnInit {
   loading: boolean = false;
+  user = JSON.parse(localStorage.getItem('user'));
+  objectId: number;
+  isMyCharity: boolean = false;
+
   colHeader: any = [];
   totalAppeal: number = 0;
   listAllAppeal: any;
@@ -34,11 +38,21 @@ export class ListAppealComponent implements OnInit {
     private messageService: MessageService,
     private appealService: AppealService,
     private router: Router,
+    private route: ActivatedRoute,
     private encrDecrService: EncrDecrService,
     private permissionService: PermissionService,
   ) { }
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      if (params['objectId']) {
+        this.objectId = Number(this.encrDecrService.get(params['objectId']));
+        if(this.user.Moves_Charity_ID == this.objectId) {
+          this.isMyCharity = true;
+        }
+      }
+    });
+
     this.colHeader = [
       { field: 'Appeal_Icon_Image', header: '', textAlign: 'center', display: 'table-cell', colWith: '8vw' },
       { field: 'Appeal_Name', header: 'Appeal', textAlign: 'left', display: 'table-cell', colWith: '' },
@@ -67,7 +81,7 @@ export class ListAppealComponent implements OnInit {
   async getListAppeal() {
     try {
       this.loading = true;
-      let { data, loading }: any = await this.appealService.getListAppeal();
+      let { data, loading }: any = await this.appealService.getListAppeal(this.objectId);
       this.loading = loading;
 
       if (data.getListAppeal.messageCode == 200) {
@@ -140,7 +154,9 @@ export class ListAppealComponent implements OnInit {
   }
 
   goToDetail(Id) {
-    this.router.navigate(['/appeal/detail-appeal', { id: this.encrDecrService.set(Id) }])
+    if(this.isMyCharity) {
+      this.router.navigate(['/appeal/detail-appeal', { id: this.encrDecrService.set(Id) }])
+    }
   }
 
   showMessage(severity: string, detail: string) {

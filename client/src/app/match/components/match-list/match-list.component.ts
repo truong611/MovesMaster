@@ -194,7 +194,7 @@ export class MatchListComponent implements OnInit {
   }
 
   goToTemps() {
-
+    window.open('/terms-and-conditions', '_blank').focus();
   }
 
   showMessage(severity: string, detail: string) {

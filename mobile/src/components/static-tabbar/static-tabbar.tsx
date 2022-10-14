@@ -83,7 +83,7 @@ export const StaticTabbar = observer(function StaticTabbar(props: StaticTabbarPr
           return (
             <React.Fragment {...{key}}>
               <TouchableWithoutFeedback onPress={() => setTabIndex(key)}>
-                <Animated.View style={[styles.tab, {opacity}]}>
+                <Animated.View style={[styles.tab, {opacity}, {paddingBottom: 10}]}>
                   <Ionicons name={tab.name} color="white" size={24}/>
                 </Animated.View>
               </TouchableWithoutFeedback>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 64,
+    height: 50,
   },
   activeIcon: {
     backgroundColor: color.primary,

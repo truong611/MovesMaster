@@ -53,10 +53,14 @@
                 [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
                 <span class="p-column-title">{{col.header}}</span>
                 <span *ngSwitchCase="'Company_Icon'">
-                  <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  </div>
                 </span>
                 <span *ngSwitchCase="'Campaign_Icon'">
-                  <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  <div class="icon-image">
+                    <img [src]="rowData[col.field] ? rowData[col.field] : '../../../../assets/img/Default Image.png'">
+                  </div>
                 </span>
                 <span *ngSwitchCase="'Match_Date_Created'">
                   {{rowData[col.field] | date: 'dd/MM/yyyy HH:mm'}}
@@ -77,7 +81,9 @@
           <ul class="nav list-box" *ngIf="type == 'campaign'">
             <li class="nav-item" *ngFor="let item of listMatch">
               <div class="icon">
-                <img [src]="item.Company_Icon ? item.Company_Icon : '../../../../assets/img/Default Image.png'">
+                <div class="icon-image">
+                  <img [src]="item.Company_Icon ? item.Company_Icon : '../../../../assets/img/Default Image.png'">
+                </div>
                 <!-- <div class="more-info">
                   <p class="text-more">More info</p>
                 </div> -->
@@ -90,7 +96,9 @@
           <ul class="nav list-box" *ngIf="type == 'company'">
             <li class="nav-item" *ngFor="let item of listMatch">
               <div class="icon">
-                <img [src]="item.Campaign_Icon ? item.Campaign_Icon : '../../../../assets/img/Default Image.png'">
+                <div class="icon-image">
+                  <img [src]="item.Campaign_Icon ? item.Campaign_Icon : '../../../../assets/img/Default Image.png'">
+                </div>
                 <!-- <div class="more-info">
                   <p class="text-more">More info</p>
                 </div> -->
@@ -142,7 +150,7 @@
                 [ngClass]="(submittedConfirm && passControl.invalid) ? 'ng-invalid ng-dirty' : ''" />
               <ng-container *ngIf="passControl?.invalid && submittedConfirm">
                 <p *ngIf="passControl?.hasError('required') || passControl?.errors?.forbiddenSpaceText"
-                  class="error-message">This is mandatory field
+                  class="error-message">This field is mandatory
                 </p>
                 <p *ngIf="passControl?.errors?.maxlength" class="error-message">Maximum 255 characters exceeded
                 </p>

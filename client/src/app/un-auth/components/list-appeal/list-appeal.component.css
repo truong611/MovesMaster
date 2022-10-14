@@ -1,0 +1,17 @@
+@import url('../../../dashboard/components/reports/reports.component.css');
+
+.page-list-appeal .list-btn-add .btn-add {
+  width: 180px;
+  height: 120px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+::ng-deep .filter .p-tabview .p-tabview-panels{
+  padding: 0;
+}

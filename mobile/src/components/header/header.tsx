@@ -12,6 +12,7 @@ import {images} from '../../images';
 import {useStores} from '../../models';
 import {observer} from 'mobx-react-lite';
 import codePush from "react-native-code-push";
+import { replaceHTTP } from '../../services';
 
 // static styles
 const ROOT: ViewStyle = {
@@ -95,7 +96,7 @@ export const Header = observer(function Header(props: HeaderProps) {
                     <View style={RIGHT_IMG_AVATAR}>
                         {movesModel?.userInfo?.avatar ?
                             <Image style={RIGHT_IMG_AVATAR}
-                                   source={{uri: movesModel?.userInfo?.avatar}}/>
+                                   source={{uri: replaceHTTP(movesModel?.userInfo?.avatar)}}/>
                             : null}
                     </View>
                 </Button>

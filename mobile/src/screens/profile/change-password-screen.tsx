@@ -76,10 +76,6 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
             showToast('error', 'new password cannot be empty');
             return false;
         }
-        if (regexPassword(formData?.passwordNew)) {
-            showToast('error', 'password must have at least six characters, at least one uppercase letter, one lowercase letter and one special character');
-            return false;
-        }
         if (regexString(formData?.passwordConfirm)) {
             showToast('error', 'confirm password cannot be empty');
             return false;
@@ -87,6 +83,12 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
         if (formData?.passwordConfirm != formData?.passwordNew) {
             showToast('error', 'password and confirm password does not match');
             return false;
+        }else{
+            if (regexPassword(formData?.passwordNew)) {
+                setShow(true)
+                showToast('error', 'password must have at least six characters, at least one uppercase letter, one lowercase letter and at least 1 number');
+                return false;
+            }else setShow(false)
         }
         if (formData?.passwordOld == formData?.passwordNew) {
             showToast('error', 'current password and new password cannot be same');
@@ -152,13 +154,13 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
                         onChangeSecure={() => setChangeText('passwordNewSecure', !formData?.passwordNewSecure)}
                         status={isSubmit && (regexString(formData?.passwordNew) || regexPassword(formData?.passwordNew)) ? 'danger' : 'none'}
                         value={formData?.passwordNew}
-                        onFocus={() => setShow(true)}
-                        onBlur={() => setShow(false)}
+                        // onFocus={() => setShow(true)}
+                        // onBlur={() => setShow(false)}
                         onChangeText={(value) => setChangeText('passwordNew', value)}
                     />
-                    {isShow && (regexString(formData?.passwordNew) || regexPassword(formData?.passwordNew)) ?
+                    {isShow && regexPassword(formData?.passwordNew) ?
                         <Text style={styles.passDescription}
-                              text='password must have at least six characters, at least one uppercase letter, one lowercase letter and one special character'/>
+                              text='password must have at least six characters, at least one uppercase letter, one lowercase letter and at least one number'/>
                         : null}
                     <Text style={styles.infoText}>confirm password</Text>
                     <Input

@@ -137,6 +137,7 @@ const _getListCampaign = gql`
         Category_ID
         Category_Name
       }
+      IsShowButtonCreateCampaign
       messageCode
       message
     }

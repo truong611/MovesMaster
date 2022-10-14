@@ -1,8 +1,11 @@
 <div class="preview preview-dashboard">
-  <div class="title-name text-bold text-center mb-3">{{(type == 1) ? formData?.Charity_Name : formData?.Company_Name}}
+  <div class="icon-favourite">
+    <i class="far fa-heart"></i>
   </div>
   <div class="detail">
-    <div class="image text-center" (click)="openLink()">
+    <div class="title-name text-bold text-center mb-3">{{(type == 1) ? formData?.Charity_Name : formData?.Company_Name}}
+    </div>
+    <div class="image text-center" (click)="openLink()" *ngIf="icon">
       <img class="img-fluid" [src]="icon ? icon : '/assets/img/Default Image.png'">
     </div>
     <div class="infor">
@@ -10,31 +13,31 @@
         {{(type == 1) ? formData?.Charity_Aims : formData?.Company_CSR_Statement}}
       </div>
     </div>
-    <div class="content-end">
-      <div class="list-number mt-3">
-        <ul class="nav">
-          <li class="nav-item">
-            <label>Joined Moves</label>
-            <p class="text-bold">{{formData?.Date_Active | date: 'dd/MM/yyyy'}}</p>
-          </li>
-          <li class="nav-item" *ngIf="type == 1">
-            <label>Appeals</label>
-            <p class="text-bold">{{totalAppeal | number}}</p>
-          </li>
-          <li class="nav-item">
-            <label>Campaigns</label>
-            <p class="text-bold">{{totalCampaign | number}}</p>
-          </li>
-          <li class="nav-item">
-            <label>Raised</label>
-            <p class="text-bold">£{{totalDonation | number}}</p>
-          </li>
-        </ul>
-      </div>
-      <div class="list-button text-center mt-4">
-        <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button>
-        <button pButton type="button" label="Donate" class="btn btn-pink w-30 ml-3"></button>
-      </div>
+  </div>
+  <div class="content-end">
+    <div class="list-number mt-3">
+      <ul class="nav">
+        <li class="nav-item">
+          <label>Joined Moves</label>
+          <p class="text-bold">{{formData?.Date_Active | date: 'dd/MM/yyyy'}}</p>
+        </li>
+        <li class="nav-item" *ngIf="type == 1">
+          <label>Appeals</label>
+          <p class="text-bold">{{totalAppeal | number}}</p>
+        </li>
+        <li class="nav-item">
+          <label>Campaigns</label>
+          <p class="text-bold">{{totalCampaign | number}}</p>
+        </li>
+        <li class="nav-item">
+          <label>Raised</label>
+          <p class="text-bold">£{{totalDonation | number: '0.2-2'}}</p>
+        </li>
+      </ul>
+    </div>
+    <div class="list-button text-center mt-4">
+      <!-- <button pButton type="button" label="Favourite" class="btn btn-yellow w-30"></button> -->
+      <button pButton type="button" label="Donate" class="btn btn-pink w-30"></button>
     </div>
   </div>
 </div>

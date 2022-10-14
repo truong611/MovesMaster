@@ -1,3 +1,17 @@
 ::ng-deep .preview-dashboard.preview .content-detail {
-  height: 340px;
+  /* height: 340px; */
+}
+
+::ng-deep .preview-dashboard .title-name {
+  margin: 0 15px;
+}
+
+::ng-deep .preview-dashboard .detail {
+  height: calc(100% - 140px);
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+::ng-deep .preview-dashboard.preview .content-end {
+  height: 140px;
 }

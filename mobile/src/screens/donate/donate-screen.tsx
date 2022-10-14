@@ -16,7 +16,7 @@ import {Header, MButton, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from "../../components/center-spinner/center-spinner";
-import {formatNumber, showToast, StatusBarHeight, stripHtml} from "../../services";
+import {formatNumber, numberFormat, replaceHTTP, showToast, StatusBarHeight, stripHtml} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getListCampaignMobile} from "./donate-service";
 import {useStores} from "../../models";
@@ -64,25 +64,23 @@ export const DonateScreen = observer(function DonateScreen() {
                     "type": tabIndex
                 });
                 setLoading(false);
-                if (messageCode == 200) {
+                if (messageCode == 200) {                 
                     let Campaign_check : any[] = [];
                     Campaign.map((item,index) => {
                         let check = true
                         for(let i = 0; i < Campaign_check?.length ; i++){
                             if(Campaign_check[i].Campaign_ID == item.Campaign_ID){
-                                console.log("done 2");
                                 check = false
                             }
                         }
                         if(check) Campaign_check.push(item)
-                    })
-                    console.log(Campaign_check);           
+                    })         
                     let _Campaign: any[] = [];
                     _Campaign = Campaign_check.map((item) =>
                         Object.assign({
                             id: item?.Campaign_ID,
                             name: item?.Campaign_Name,
-                            icon: item?.Campaign_Icon,
+                            icon: item?.Campaign_Icon ? item?.Campaign_Icon : item?.Appeal_Icon ? item?.Appeal_Icon : item?.Charity_icon,
                             date: item?.Campaign_Launch_Date,
                             per: item?.Campaign_Price_Per_Move,
                             type: 'campaign',
@@ -95,7 +93,7 @@ export const DonateScreen = observer(function DonateScreen() {
                         Object.assign({
                             id: item?.Appeal_ID,
                             name: item?.Appeal_Name,
-                            icon: item?.Appeal_Icon,
+                            icon: item?.Appeal_Icon ? item?.Appeal_Icon : item?.Charity_icon,
                             date: item?.Appeal_Start_Date,
                             type: 'appeal',
                             detail: item
@@ -120,7 +118,6 @@ export const DonateScreen = observer(function DonateScreen() {
                         // @ts-ignore
                         return new Date(b.date) - new Date(a.date);
                     });
-
                     setListData(_listData)
                 } else {
                     showToast('error', message)
@@ -176,24 +173,27 @@ export const DonateScreen = observer(function DonateScreen() {
     const ItemView = ({item, index}) => {
         return (
             <TouchableOpacity
-                style={[{width: '50%', justifyContent: 'flex-start', alignItems: 'center', marginVertical: 8},
+                style={[{width: '100%', marginVertical: 8,marginLeft: 10},
                     index == 0 || index == 1 ? {marginTop: 16} : {},
-                    index == listData.length - 1 || index == listData.length - 2 ? {marginBottom: 16} : {},
+                    index == listData.length - 1 || index == listData.length - 2 ? {marginBottom: 10} : {},
                 ]}
                 onPress={() => {
                     // console.log(item)
                     goToSearchDonate4Screen(item)
                 }}>
-                <View>
+                <View style={{flexDirection: 'row'}}>
                     <View style={{width: layout.width / 2.5, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary}}>
                         {item?.icon?
-                            <Image resizeMode={"contain"} style={{width: layout.width / 2.5, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary}} source={{uri: item?.icon}}/>
+                            <Image resizeMode={"contain"} style={{width: layout.width / 2.5, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary, overlayColor: color.tabbar }} source={{uri: replaceHTTP(item?.icon)}}/>
                             :null}
                     </View>
-                    <Text numberOfLines={2} style={{textAlign: 'center', width: layout.width / 2.5, fontSize: 14}}>{item?.name}</Text>
-                    {item?.type == 'campaign' ?
-                        <Text style={{fontSize: 13, color: color.danger, textAlign: 'center',}}>£{item?.per} per move</Text>
+                    <View style={{marginLeft: 10,justifyContent: 'center'}}>
+                        <Text numberOfLines={2} style={{textAlign: 'center', width: layout.width / 2.5, fontSize: 14}}>{item?.name}</Text>
+                        {item?.type == 'campaign' ?
+                        <Text style={{fontSize: 13, color: color.danger, textAlign: 'center',}}>£ {numberFormat(parseFloat(item?.per))} per move</Text>
                         : null}
+                    </View>
+                    
                 </View>
             </TouchableOpacity>
         );
@@ -224,12 +224,6 @@ export const DonateScreen = observer(function DonateScreen() {
                     <Header headerText='LOGO'/>
                     {topComponent()}
                     <ScrollView nestedScrollEnabled={true} style={{width: "100%"}}
-                                // refreshControl={
-                                //     <RefreshControl
-                                //     refreshing={isRefresh}
-                                //     onRefresh={onRefresh}
-                                //     />
-                                // }
                                 showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                         {listData?.length ?
                             <View style={{backgroundColor: color.tabbar, marginHorizontal: 16, borderRadius: 16}}>

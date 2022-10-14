@@ -43,7 +43,8 @@ export class IntroduceCompanyComponent implements OnInit {
     this.formGroup = this.formBuilder.group({
       Company_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Company_Number: [null, [Validators.required, Validators.pattern("^[0-9]*$")]],
-      Contact_Name: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+      Contact_Forename: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
+      Contact_Surname: [null, [Validators.required, Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Contact_Email: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.email), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]],
       Contact_Phone_Number: [null, [Validators.required, Validators.pattern(this.validaytorsService.regex.phone_number), Validators.maxLength(255), this.validaytorsService.forbiddenSpaceText]]
     });
@@ -53,25 +54,31 @@ export class IntroduceCompanyComponent implements OnInit {
     this.submitted = true;
     if (this.formGroup.invalid) {
       if (this.formGroup.get('Company_Name').errors?.required || this.formGroup.get('Company_Name').errors?.forbiddenSpaceText) {
-        this.error['Company_Name'] = 'This is mandatory field';
+        this.error['Company_Name'] = 'This field is mandatory';
       } else if (this.formGroup.get('Company_Name').errors?.maxlength) {
         this.error['Company_Name'] = 'Maximum 255 characters exceeded';
       }
 
       if (this.formGroup.get('Company_Number').errors?.required) {
-        this.error['Company_Number'] = 'This is mandatory field';
+        this.error['Company_Number'] = 'This field is mandatory';
       } else if (this.formGroup.get('Company_Number').errors?.pattern) {
         this.error['Company_Number'] = 'Only allow input number';
       }
 
-      if (this.formGroup.get('Contact_Name').errors?.required || this.formGroup.get('Contact_Name').errors?.forbiddenSpaceText) {
-        this.error['Contact_Name'] = 'This is mandatory field';
-      } else if (this.formGroup.get('Contact_Name').errors?.maxlength) {
-        this.error['Contact_Name'] = 'Maximum 255 characters exceeded';
+      if (this.formGroup.get('Contact_Forename').errors?.required || this.formGroup.get('Contact_Forename').errors?.forbiddenSpaceText) {
+        this.error['Contact_Forename'] = 'This field is mandatory';
+      } else if (this.formGroup.get('Contact_Forename').errors?.maxLength) {
+        this.error['Contact_Forename'] = 'Maximum 255 characters exceeded';
+      }
+
+      if (this.formGroup.get('Contact_Surname').errors?.required || this.formGroup.get('Contact_Surname').errors?.forbiddenSpaceText) {
+        this.error['Contact_Surname'] = 'This field is mandatory';
+      } else if (this.formGroup.get('Contact_Surname').errors?.maxLength) {
+        this.error['Contact_Surname'] = 'Maximum 255 characters exceeded';
       }
 
       if (this.formGroup.get('Contact_Email').errors?.required || this.formGroup.get('Contact_Email').errors?.forbiddenSpaceText) {
-        this.error['Contact_Email'] = 'This is mandatory field';
+        this.error['Contact_Email'] = 'This field is mandatory';
       } else if (this.formGroup.get('email').errors?.pattern) {
         this.error['Contact_Email'] = 'Incorrect email format';
       } else if (this.formGroup.get('Contact_Email').errors?.maxlength) {
@@ -79,7 +86,7 @@ export class IntroduceCompanyComponent implements OnInit {
       }
 
       if (this.formGroup.get('Contact_Phone_Number').errors?.required || this.formGroup.get('Contact_Phone_Number').errors?.forbiddenSpaceText) {
-        this.error['Contact_Phone_Number'] = 'This is mandatory field';
+        this.error['Contact_Phone_Number'] = 'This field is mandatory';
       } else if (this.formGroup.get('Contact_Phone_Number').errors?.pattern) {
         this.error['Contact_Phone_Number'] = 'Incorrect phone format';
       } else if (this.formGroup.get('Contact_Phone_Number').errors?.maxlength) {
@@ -93,8 +100,9 @@ export class IntroduceCompanyComponent implements OnInit {
     let dataSave: Company = {
       Company_Name: formData.Company_Name.trim(),
       Company_Number: formData.Company_Number.trim(),
-      Contact_Name: formData.Contact_Name.trim(),
-      Contact_Email: formData.Contact_Email.trim(),
+      Contact_Forename: formData.Contact_Forename.trim(),
+      Contact_Surname: formData.Contact_Surname.trim(),
+      Contact_Email: formData.Contact_Email.trim().toLowerCase(),
       Contact_Phone_Number: formData.Contact_Phone_Number.trim()
     }
 

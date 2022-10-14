@@ -1,7 +1,7 @@
 import * as React from "react"
 import {TouchableOpacity, View, StyleSheet, Image, Dimensions} from "react-native";
 import {Text} from '../index';
-import {formatDate, formatNumber,} from "../../services";
+import {formatDate, formatNumber, numberFormat, replaceHTTP,} from "../../services";
 import {color} from '../../theme';
 
 const layout = Dimensions.get('window');
@@ -23,7 +23,7 @@ export function Badge(props: any) {
                     : null}
                 <View style={styles.iconWrapper}>
                     {value?.Badge_Icon ?
-                        <Image resizeMode={"contain"} source={{uri: value?.Badge_Icon}}
+                        <Image resizeMode={"contain"} source={{uri: replaceHTTP(value?.Badge_Icon) }}
                                style={[styles.icon,
                                    active ? {} : {tintColor: 'gray'},
                                    isClick ? {} : {backgroundColor: color.tabbar}
@@ -32,9 +32,9 @@ export function Badge(props: any) {
                 </View>
                 <Text style={[
                         {textAlign: 'center'},
-                        active ? {} : {color: color.tabbar}
+                        active ? {} : {color: color.lightGrey}
                     ]}>
-                    {(value?.Badge_Type == 0 ? '' : '£') + formatNumber(value?.Badge_Condition)}
+                    {(value?.Badge_Type == 0 ? '' : '£') + (value?.Badge_Type == 0 ? formatNumber(value?.Badge_Condition) : numberFormat(value?.Badge_Condition) )}
                 </Text>
                 <View style={[styles.flagBottom,
                     active ? {} : {},
@@ -42,7 +42,7 @@ export function Badge(props: any) {
                 ]}/>
             </View>
             {isClick ?
-                <Text fonts={active ? 'DemiBold' : 'Medium'} style={[styles.itemTitle, active ? {} : {color: color.primary}]}>{value.Badge_Name}</Text>
+                <Text fonts={active ? 'DemiBold' : 'Medium'} style={[styles.itemTitle, active ? {} : {color: color.lightGrey}]}>{value.Badge_Name}</Text>
                 : null}
         </TouchableOpacity>
     )

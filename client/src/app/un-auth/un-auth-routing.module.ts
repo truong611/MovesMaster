@@ -9,6 +9,10 @@ import { HomeWorksComponent } from './components/home-works/home-works.component
 import { HomePerformanceComponent } from './components/home-performance/home-performance.component';
 import { HomeNewsComponent } from './components/home-news/home-news.component';
 import { HomeDirectoryComponent } from './components/home-directory/home-directory.component';
+import { ListAppealComponent } from './components/list-appeal/list-appeal.component';
+import { CampaignListComponent } from './components/campaign-list/campaign-list.component';
+import { ListDonationComponent } from './components/list-donation/list-donation.component';
+import { MatchListComponent } from './components/match-list/match-list.component';
 
 
 const routes: Routes = [{
@@ -45,6 +49,22 @@ const routes: Routes = [{
     {
       path: 'home-dashboard',
       component: HomeDashboardComponent,
+    },
+    {
+      path: 'home-list-appeal',
+      component: ListAppealComponent,
+    },
+    {
+      path: 'home-list-campaign',
+      component: CampaignListComponent,
+    },
+    {
+      path: 'home-list-donation',
+      component: ListDonationComponent,
+    },
+    {
+      path: 'home-list-match',
+      component: MatchListComponent,
     },
   ]}];
 

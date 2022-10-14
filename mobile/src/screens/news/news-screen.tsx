@@ -19,6 +19,7 @@ import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getListNews,} from "./news-service";
 import {showToast, StatusBarHeight, stripHtml} from "../../services";
 import {useNavigation} from "@react-navigation/native"
+import { replaceHTTP } from '../../services';
 
 const layout = Dimensions.get('window');
 
@@ -47,7 +48,7 @@ export const NewsScreen = observer(function NewsScreen() {
         if (isFocused && !isRefresh && refetch) {
             setLoading(true);
             try {
-                let {data: {getListNews: {listNews, message, messageCode}}} = await refetch();
+                let {data: {getListNews: {listNews, message, messageCode}}} = await refetch(); 
                 setLoading(false);
                 if (messageCode == 200) {
                     let _data = {...data};
@@ -83,7 +84,7 @@ export const NewsScreen = observer(function NewsScreen() {
                 <View style={[styles.newsImageWrapper,
                     item['News_Image'] ? {} : {backgroundColor: color.lightGrey}
                 ]}>
-                    <Image resizeMode={"contain"} style={styles.newsImage} source={{uri: item['News_Image']}}/>
+                    <Image resizeMode='contain' style={styles.newsImage} source={item['News_Image'] ? {uri: replaceHTTP(item['News_Image'])} : {}}/>    
                 </View>
                 <View>
                     <Text style={styles.newsTitle} numberOfLines={2} fonts='DemiBold'>
@@ -191,13 +192,14 @@ const styles = StyleSheet.create({
         height: (layout.width / 3) * 2 / 3,
         borderRadius: 16,
         // backgroundColor: color.lightGrey,
-        marginRight: 12
+        marginRight: 12,
     },
     newsImage: {
         width: layout.width / 3,
         height: (layout.width / 3) * 2 / 3,
         borderRadius: 16,
-        backgroundColor: color.tabbar
+        backgroundColor: color.tabbar,
+        overlayColor: color.tabbar
     },
     newsTitle: {
         fontSize: 15,

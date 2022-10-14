@@ -25,7 +25,9 @@ Xcode
 ```
 ## Android
 ```
-cd android && ./gradlew assembleRelease && cd ..
+cd android && ./gradlew assembleRelease && cd .. -> build apk
+cd android && ./gradlew bundleRelease && cd .. -> build aap
+
 ```
 app output apk
 E:\AlisamMove-MovesMatter\mobile\android\app\build\outputs\apk\release

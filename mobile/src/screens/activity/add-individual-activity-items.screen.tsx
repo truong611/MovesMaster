@@ -1,8 +1,8 @@
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {observer} from 'mobx-react-lite';
-import {Dimensions, FlatList, StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
+import {Dimensions, FlatList, Platform, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle} from 'react-native';
 import {Header, MButton, Screen, Text, Input} from '../../components';
 import {useIsFocused, useNavigation, useRoute} from "@react-navigation/native"
 import {useStores} from "../../models"
@@ -10,7 +10,9 @@ import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 import {IndexPath, Select, SelectItem} from "@ui-kitten/components";
 import DatePicker from 'react-native-date-picker'
+import SelectDropdown from 'react-native-select-dropdown'
 import {
+    calculateDate,
     dateToTimestamp,
     displaySelect,
     formatDate,
@@ -25,6 +27,8 @@ const ROOT: ViewStyle = {
     backgroundColor: color.primary,
     flex: 1,
 };
+
+const countries = ["Egypt", "Canada", "Australia", "Ireland"]
 
 export const AddIndividualActivityItemsScreen = observer(function AddIndividualActivityItemsScreen() {
     const navigation = useNavigation();
@@ -41,6 +45,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
         unit_type: null,
     });
     const [units, setUnits] = React.useState('');
+    const [showCalculate, setShowCalculate] = useState(false);
     const [isShow, setShow] = useState<any>({
         fromDate: false,
         fromTime: false,
@@ -51,19 +56,24 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
         fromDate: new Date(),
         toDate: new Date(),
     });
+    const [dataSelectActivity, setDataSelectActivity] = useState([])
+    const dropdownRef = useRef({});
 
     useEffect(() => {
+        dropdownRef.current.reset()
         fetchMasterData();
     }, [isFocused, isRefresh]);
     const fetchMasterData = async () => {
+        setShowCalculate(false)
         setRefresh(false);
         if (isFocused && !isRefresh) {
             resetData();
+            let activity = await movesModel.getActivity();
             if (params?.masterData) {
                 let _activityTypeMapIndex: any = {};
                 let _activityTypeUnitMapIndex: any = {};
                 let data = params?.masterData;
-                
+         
                 data?.ActivityType?.length && data?.ActivityType.map((item, index) => {
                     _activityTypeMapIndex[item?.Activity_Type_ID] = index;
                     item?.ActivityUnit?.length && item?.ActivityUnit.map((value, i) => {
@@ -75,11 +85,23 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                 setLastUpload(LastUpload);
 
                 let _datetime = {...datetime};
-                _datetime.fromDate = LastUpload
-                _datetime.toDate = LastUpload
+                if(activity?.length > 0){
+                    let lastDateActivity = new Date(activity[activity?.length - 1]?.ToDate)
+                    _datetime.fromDate = lastDateActivity
+                    _datetime.toDate = lastDateActivity  
+                }else{
+                    _datetime.fromDate = LastUpload
+                    _datetime.toDate = LastUpload
+                } 
                 setDatetime(_datetime);
-
                 setMasterData(data);
+
+                let data_Select_Activity = []
+                data?.ActivityType?.map((item,index) => {
+                    data_Select_Activity.push(item?.Activity_Type_Name)
+                })
+                setDataSelectActivity(data_Select_Activity)
+
                 if (params?.id != null) {
                     let activity = await movesModel.getActivity();
                     if (activity?.length) {
@@ -107,12 +129,6 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
             activity_type: null,
             unit_type: null,
         });
-
-        // let _datetime = {...datetime};
-        // _datetime.fromDate = new Date();
-        // _datetime.toDate = new Date();
-        // setDatetime(_datetime);
-
         setUnits('');
         setSubmit(false);
     };
@@ -144,36 +160,57 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
         setSelectedIndex(_selectedIndex);
     };
 
+    const calculateUnits = (toDate) => {
+        setShowCalculate(false)
+        let _fromDate = new Date(datetime?.fromDate)
+        _fromDate.setMilliseconds(0)
+        _fromDate.setSeconds(0)
+        let fromDate_second = _fromDate.getTime()
+        let _toDate = new Date(toDate)
+        _toDate.setMilliseconds(0)
+        _toDate.setSeconds(0)
+        let toDate_second = _toDate.getTime()
+        let resultMinute = Math.round((toDate_second - fromDate_second) / 60000);
+        if(resultMinute <= 0){
+           showToast('error', 'Activity must be for more than 0 minutes');
+        }  
+        setUnits(resultMinute?.toString())
+    }
+
+    const Handlecalculate = () => {
+        if(checkSubmit()){
+            setShowCalculate(true)
+        }
+    }
+
+    const addMinutesToDate = () => {
+        let _toDate = new Date(datetime?.fromDate)
+        if(parseInt(units) > 0) {
+            _toDate.setMinutes(_toDate.getMinutes() + parseInt(units))
+            if(_toDate.getTime() > new Date().getTime()){
+                showToast('error', 'Activity end must be after the current time')
+                setUnits('')
+            }else{
+                setChangeDatetime('toDate', _toDate)
+            }    
+    }
+    }
+
     const checkSubmit = (activity) => {
         setSubmit(true);
         if (!selectedIndex?.activity_type) {
             showToast('error', 'activity type cannot be empty');
             return false;
-        }
-        if (!selectedIndex?.unit_type) {
-            showToast('error', 'unit type cannot be empty');
+        }     
+        if (parseFloat(units) <= 0 || units == '') {
+            showToast('error', 'Activity of zero minutes not permitted');
             return false;
         }
-        if (regexString(units)) {
-            showToast('error', 'units cannot be empty');
+        if (dateToTimestamp(datetime?.fromDate) > dateToTimestamp(datetime?.toDate)) {
+      
+            showToast('error', 'Activity end must be after activity start');
             return false;
         }
-        if (regexDecimal(units)) {
-            showToast('error', 'units must be decimal');
-            return false;
-        }
-        if (parseFloat(units) <= 0) {
-            showToast('error', 'units must be greater than 0');
-            return false;
-        }
-        if (dateToTimestamp(datetime?.fromDate) >= dateToTimestamp(datetime?.toDate)) {
-            showToast('error', 'start time must be less than end time');
-            return false;
-        }
-        if (formatDate(datetime?.fromDate, "dd MM YYYY") != formatDate(datetime?.toDate, "dd MM YYYY")) {
-            showToast('error', 'Start and end End date must be within one day');
-            return false;
-        }      
         if (activity?.length) {
             let overlaps = false;
             // let Activity_Upload_Datetime = formatDate(datetime?.fromDate);
@@ -200,30 +237,120 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                 return false
             }
         }
+        if(parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Limit_Minute) < parseFloat(units))
+        {
+            showToast('error', `Activity time does not exceed ${parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Limit_Minute)} minutes`);
+            return false;
+        }
         return true;
     };
 
     const submit = async () => {
         let activity = await movesModel.getActivity();
         if (checkSubmit(activity)) {
-            let payload = {
+                let payload = {
                 Activity_Type_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_ID),
                 Activity_Type_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name,
                 Activity_Type_Icon: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Icon || '',
                 Activity_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_ID),
                 Activity_Unit_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name,
-                Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
-                Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                // Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                // Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
                 Units: parseFloat(units),
                 FromDate: datetime?.fromDate,
                 ToDate: datetime?.toDate,
-            };
-            if (isUpdate()) {
-                await movesModel.updateActivity(params?.id, payload);
-            } else {
-                await movesModel.addActivity(payload);
-            }
-            goToPage('UploadActivityScreen')
+                };
+                if (isUpdate()) {
+                    await movesModel.updateActivity(params?.id, payload);
+                } else {
+                    let arrUpload_giao = []
+                    let item = {...payload}
+                    if (formatDate(item?.FromDate, "dd MM YYYY") != formatDate(item?.ToDate, "dd MM YYYY")) {  
+                        
+                        let timeline_FromDate = new Date(item?.FromDate.getTime() + 24*60*60*1000)
+                        timeline_FromDate.setHours(0)
+                        timeline_FromDate.setMinutes(0)
+                        timeline_FromDate.setSeconds(0)
+                        timeline_FromDate.setMilliseconds(0)
+
+                        arrUpload_giao.push({
+                            Activity_Type_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_ID),
+                            Activity_Type_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name,
+                            Activity_Type_Icon: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Icon || '',
+                            Activity_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_ID),
+                            Activity_Unit_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name,
+                            Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                            Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                            Units: Math.round((timeline_FromDate.getTime() - new Date(item?.FromDate).getTime()) / 60000),
+                            FromDate: new Date(item?.FromDate).getTime(),
+                            ToDate: timeline_FromDate.getTime(),
+                        })
+
+                        let timeLine_ToDate = new Date(item?.ToDate)
+                        timeLine_ToDate.setHours(0)
+                        timeLine_ToDate.setMinutes(0)
+                        timeLine_ToDate.setSeconds(0)
+                        timeLine_ToDate.setMilliseconds(0)
+
+                        arrUpload_giao.push({
+                            Activity_Type_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_ID),
+                            Activity_Type_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name,
+                            Activity_Type_Icon: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Icon || '',
+                            Activity_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_ID),
+                            Activity_Unit_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name,
+                            Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                            Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                            Units: Math.round((new Date(item?.ToDate).getTime() - timeLine_ToDate.getTime()) / 60000),
+                            FromDate: timeLine_ToDate.getTime(),
+                            ToDate: new Date(item?.ToDate).getTime(),
+                        })
+
+                        let time_ToDate_Start_Date = (timeLine_ToDate.getTime() - timeline_FromDate.getTime()) / (24*60*60*1000)
+            
+                        if(time_ToDate_Start_Date > 0 ) {   
+                            for(let i = 1; i <= time_ToDate_Start_Date; i++){
+                                // arrUpload_giao.push({
+                                //     "Activity_Start_Time": timeline_FromDate.getTime() + (i - 1)* 24*60*60*1000 ,
+                                //     "Activity_End_Time": timeline_FromDate.getTime() + i* 24*60*60*1000,
+                                //     "Activity_Type_Unit_ID": item?.Activity_Type_Unit_ID,
+                                //     "Number_Units": Math.round(((timeline_FromDate.getTime() + i* 24*60*60*1000) - (timeline_FromDate.getTime() + (i - 1)* 24*60*60*1000)) / 60000)
+                                // })
+                                arrUpload_giao.push({
+                                    Activity_Type_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_ID),
+                                    Activity_Type_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name,
+                                    Activity_Type_Icon: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Icon || '',
+                                    Activity_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_ID),
+                                    Activity_Unit_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name,
+                                    Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                                    Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                                    Units: Math.round(((timeline_FromDate.getTime() + i* 24*60*60*1000) - (timeline_FromDate.getTime() + (i - 1)* 24*60*60*1000)) / 60000),
+                                    FromDate: timeline_FromDate.getTime() + (i - 1)* 24*60*60*1000,
+                                    ToDate: timeline_FromDate.getTime() + i* 24*60*60*1000,
+                                })
+                            }
+                        }     
+                    }else{
+                        arrUpload_giao.push({
+                            Activity_Type_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_ID),
+                            Activity_Type_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name,
+                            Activity_Type_Icon: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Icon || '',
+                            Activity_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_ID),
+                            Activity_Unit_Name: masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name,
+                            Activity_Type_Unit_ID: parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Activity_Type_Unit_ID),
+                            Conversation_To_Moves_Rate: parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate),
+                            Units: parseFloat(units),
+                            FromDate: datetime?.fromDate,
+                            ToDate: datetime?.toDate,
+                        })
+                    }
+
+                    for(let i = 0; i < arrUpload_giao?.length ; i++){
+                        await movesModel.addActivity(arrUpload_giao[i]);
+                    }
+                }
+                goToPage('UploadActivityScreen')    
         }
     };
 
@@ -236,27 +363,32 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
         return (
             <View style={{padding: 16}}>
                 <Text style={styles.label}>activity type</Text>
-                <Select
-                    placeholder='select activity type'
-                    status={isSubmit && !selectedIndex?.activity_type ? 'danger' : 'primary'}
-                    style={[styles.mb16]}
-                    selectedIndex={selectedIndex?.activity_type}
-                    value={displaySelect(masterData?.ActivityType, selectedIndex?.activity_type, 'Activity_Type_Name')}
-                    onSelect={index => {
+       
+                <SelectDropdown 
+                    data={dataSelectActivity}
+                    ref={dropdownRef}
+                    onSelect={(selectedItem, index) => { 
                         let _selectedIndex = {...selectedIndex};
-                        _selectedIndex['activity_type'] = index;
+                        _selectedIndex['activity_type'] = {"row": index, "section": undefined};
                         _selectedIndex['unit_type'] = null;
                         setSelectedIndex(_selectedIndex);
-                    }}>
-                    {masterData?.ActivityType?.length && masterData?.ActivityType?.map((item, index) => {
+                    }}
+                    renderDropdownIcon={() => {
                         return (
-                            <SelectItem
-                                key={'activity_type-' + item.toString() + index}
-                                title={item?.Activity_Type_Name}
-                            />
+                            <Ionicons name='chevron-down-outline' size={20} color={color.white}/>
                         )
-                    })}
-                </Select>
+                    }}
+                    defaultButtonText={'select activity type'}
+                    buttonStyle={{width: '100%', backgroundColor: color.tabbar,marginBottom: 10, height: 40}}
+                    buttonTextStyle={{color: color.white}}
+                    search={true}
+                    renderCustomizedButtonChild={(selectedItem, index) => {
+                    return (
+                        <Text>{selectedItem}</Text>
+                    )
+                    }}
+                />
+
                 <Text style={styles.label}>from</Text>
                 <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16}}>
                     <View style={{width: '55%'}}>
@@ -267,6 +399,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                         <DatePicker
                             minimumDate={lastUpload}
                             maximumDate={new Date()}
+                            textColor={Platform?.OS == 'ios' ? color.white : color.black}
                             mode="date"
                             modal
                             open={isShow?.fromDate}
@@ -274,6 +407,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                             onConfirm={(date) => {
                                 let _datetime = {...datetime};
                                 _datetime['fromDate'] = date;
+                                _datetime['toDate'] = date;
                                 setDatetime(_datetime);
                                 setChangeShow('fromDate', false);                             
                             }}
@@ -290,6 +424,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                         <DatePicker
                             minimumDate={lastUpload}
                             maximumDate={new Date()}
+                            textColor={Platform?.OS == 'ios' ? color.white : color.black}
                             mode="time"
                             modal
                             open={isShow?.fromTime}
@@ -307,13 +442,14 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                 <Text style={styles.label}>to</Text>
                 <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16}}>
                     <View style={{width: '55%'}}>
-                        <TouchableOpacity style={[styles.inputDate, {borderColor: color.lightGrey}]} onPress={() => setChangeShow('toDate', true)}>
-                            <Text style={{color: color.lightGrey}}>{formatDate(datetime?.toDate)}</Text>
-                            <Ionicons name={'calendar-outline'} color={color.lightGrey} size={24}/>
+                        <TouchableOpacity style={[styles.inputDate]} onPress={() => setChangeShow('toDate', true)}>
+                            <Text style={{}}>{formatDate(datetime?.toDate)}</Text>
+                            <Ionicons name={'calendar-outline'} color={color.white} size={24}/>
                         </TouchableOpacity>
                         <DatePicker
                             minimumDate={lastUpload}
                             maximumDate={new Date()}
+                            textColor={Platform?.OS == 'ios' ? color.white : color.black}
                             mode="date"
                             modal
                             open={isShow?.toDate}
@@ -321,6 +457,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                             onConfirm={(date) => {
                                setChangeShow('toDate', false);
                                setChangeDatetime('toDate', date);
+                               calculateUnits(date)
                             }}
                             onCancel={() => {
                                 setChangeShow('toDate', false);
@@ -334,7 +471,8 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                         </TouchableOpacity>
                         <DatePicker
                             minimumDate={lastUpload}
-                            // maximumDate={new Date()}
+                            maximumDate={new Date()}
+                            textColor={Platform?.OS == 'ios' ? color.white : color.black}
                             mode="time"
                             modal
                             open={isShow?.toTime}
@@ -342,6 +480,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                             onConfirm={(date) => {
                                 setChangeDatetime('toDate', date);
                                 setChangeShow('toTime', false);
+                                calculateUnits(date)
                             }}
                             onCancel={() => {
                                 setChangeShow('toTime', false);
@@ -349,58 +488,31 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                         />
                     </View>
                 </View>
-
-                {selectedIndex?.activity_type ?
-                    <View>
-                        <Text style={styles.label}>unit type</Text>
-                        <Select
-                            placeholder='select unit type'
-                            status={isSubmit && !selectedIndex?.unit_type ? 'danger' : 'primary'}
-                            style={[styles.mb16]}
-                            selectedIndex={selectedIndex?.unit_type}
-                            value={displaySelect(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit, selectedIndex?.unit_type, 'Activity_Unit_Name')}
-                            onSelect={index => setChangeSelected('unit_type', index)}>
-                            {masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit?.length
-                            && masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit?.map((item, index) => {
-                                return (
-                                    <SelectItem
-                                        key={'unit_type-' + item.toString() + index}
-                                        title={item?.Activity_Unit_Name}
-                                    />
-                                )
-                            })}
-                        </Select>
-                        {selectedIndex?.unit_type ?
-                            <Text style={[styles.mb16]}>
-                                {`conversation rate${
-                                    selectedIndex?.unit_type ?
-                                        ': ' + masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.ActivityTypeUnit?.Conversation_To_Moves_Rate
-                                        + ' ' + masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[selectedIndex?.unit_type?.row]?.Activity_Unit_Name
-                                        + '/moves'
-                                        : ""}`}
-                            </Text>
-                            : null}
-                    </View>
-                    : null}
-
-                <Text style={styles.label}>units</Text>
-                <Input
-                    style={[styles.mb16, styles.input]}
-                    keyboardType='numeric'
-                    placeholder=''
-                    status={isSubmit && (regexString(units) || regexDecimal(units) || parseFloat(units) <= 0) ? 'danger' : 'none'}
-                    value={units}
-                    onChangeText={nextValue => {
-                        let myArray = nextValue.split(".");
-                        if (regexDecimal(nextValue) || (myArray.length && (myArray[1] == '0' || myArray[1] == '00'))) {
-                            setUnits(nextValue);                   
-                        } else {
-                            let temp = Math.round(parseFloat(nextValue) * 100) / 100;
-                            setUnits(temp?.toString())                        
-                        }
-                    }}
-                />
+                <View style={{flexDirection: 'row', alignItems: 'center', height: 50}}>
+                    <TextInput 
+                       style={[styles.input, {width: '30%', color: color.white, height: 50, paddingLeft: 10}]}
+                       value={units}
+                       keyboardType='numeric'
+                       onChangeText={(value) => {
+                           setUnits(value)
+                           setShowCalculate(false)
+                        }}
+                       onEndEditing={() => addMinutesToDate()
+                       }
+                    />
+                    <Text style={{marginLeft: 16}}>Minutes</Text>
+                </View>
+            
                 <View style={[styles.center, styles.mt16]}>
+                    <MButton
+                        onPress={() => Handlecalculate()}
+                        style={styles.btnBlue}
+                        styleText={styles.textWhite}
+                        text={"Calculate"}/>    
+                </View>
+                {parseFloat(units) > 0 && selectedIndex?.activity_type && showCalculate ?
+                <View style={[styles.center, styles.mt16]}>
+                    <Text style={{marginBottom: 15}}>{units} minutes of {masterData?.ActivityType[selectedIndex?.activity_type?.row]?.Activity_Type_Name} at {parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate)} Move per minute = {parseFloat(units) * parseFloat(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Conversation_To_Moves_Rate)} Moves</Text>
                     <MButton
                         onPress={() => submit()}
                         style={styles.btnBlue}
@@ -414,6 +526,9 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                             text='remove'/>
                         : null}
                 </View>
+                : null}
+
+                
             </View>
         );
     };

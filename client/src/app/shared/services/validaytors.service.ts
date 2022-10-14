@@ -9,9 +9,9 @@ export class ValidaytorsService {
   public regex =
     {
       url: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/,
-      email: /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
+      email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
       phone_number: /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\.\/0-9]*$/,
-      password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[A-Za-z\d@$!%*?&]{6,}$/,//ít nhất 6 kí tự, 1 kí tự thường, 1 kí tự hoa, 1 số
+      password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{6,}$/,//ít nhất 6 kí tự, 1 kí tự thường, 1 kí tự hoa, 1 số
       // /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,//ít nhất 6 kí tự, 1 kí tự thường, 1 kí tự hoa, 1 kí tự đặc biệt
     }
 
@@ -45,7 +45,7 @@ export class ValidaytorsService {
 
   isValidEmail(control: FormControl) {
     let email = control.value;
-    var r = new RegExp(/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/);
+    var r = new RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/);
 
     if (email && !r.test(email)) {
       return {
@@ -73,7 +73,7 @@ export class ValidaytorsService {
 
   isValidPassword(control: FormControl) {
     let password = control.value;
-    var r = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[A-Za-z\d@$!%*?&]{6,}$/);
+    var r = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{6,}$/);
 
     if (password && !r.test(password)) {
       return {

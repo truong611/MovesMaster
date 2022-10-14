@@ -9,6 +9,7 @@ const _getDetailCharity = gql`
       Charity {
         Charity_Name
         Charity_icon
+        Charity_URL
       }
       messageCode
       message
@@ -34,7 +35,9 @@ const _getDetailAppeal = gql`
         Amount_Raised
         Charity_Name
         Charity_icon
+        Charity_URL
         TotalCampaign
+        TotalMove
       }
       isShowButtonCreateCampaign
       isShowButtonEdit
@@ -84,8 +87,8 @@ const _abandonAppeal = gql`
 `;
 
 const _getListAppeal = gql`
-  query Query {
-    getListAppeal {
+  query Query($Moves_Charity_ID: Int!) {
+    getListAppeal(Moves_Charity_ID: $Moves_Charity_ID) {
       ListStatus {
         Category_ID
         Category_Name
@@ -223,12 +226,13 @@ export class AppealService {
     });
   }
 
-  getListAppeal() {
+  getListAppeal(Moves_Charity_ID: number) {
     return new Promise((resolve, reject) => {
       return this.apollo
         .query<any>({
           query: _getListAppeal,
           variables: {
+            Moves_Charity_ID
           },
           fetchPolicy: 'network-only'
         }).toPromise()

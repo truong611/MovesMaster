@@ -13,7 +13,7 @@
                             <div class="col-md-5">
                                 <div class="row">
                                     <div class="col-md-12 form-group">
-                                        <div class="custom-image">
+                                        <div class="custom-image" (click)="goToLink()">
                                             <div class="image">
                                                 <img class="img-fluid image-profile" [src]="transform(currentLogoUrl)">
                                             </div>
@@ -31,9 +31,9 @@
                                         <div class="col-md-12 form-group title-name text-bold">
                                             <p>{{news?.News_Title}}</p>
                                         </div>
-                                        <div class="col-md-12 form-group">
+                                        <!-- <div class="col-md-12 form-group">
                                             <p class="text-url">{{news?.News_Url}}</p>
-                                        </div>
+                                        </div> -->
                                         <div class="infor col-md-12 form-group" [innerHtml]="news?.News_Content">
                                         </div>
                                     </div>

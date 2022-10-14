@@ -25,7 +25,8 @@ export class CampaignListComponent implements OnInit {
   listCampaign: any;
   activeIndex = 0;
 
-  listStatus = []
+  listStatus = [];
+  isShowButtonCreateCampaign: boolean;
 
   globalFilter: string = null;
   selectedStatus: any = null;
@@ -103,6 +104,7 @@ export class CampaignListComponent implements OnInit {
         );
 
         this.listCampaign = this.listAllCampaign;
+        this.isShowButtonCreateCampaign = data.getListCampaign.IsShowButtonCreateCampaign;
       }
       else {
         this.showMessage('error', data.getListCampaign.message);

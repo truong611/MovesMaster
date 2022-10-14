@@ -41,6 +41,8 @@ const resolvers = {
           }
 
           let Charity = await db.table('Charity').where('Moves_Charity_ID', Moves_Charity_ID).first();
+          Charity.Contact_Name = (Charity.Contact_Forename ?? "" ) + " " + (Charity.Contact_Surname ?? "");
+
           let listCharitySectorID = await db.table('Charity_Sector')
             .where('Moves_Charity_ID', Moves_Charity_ID)
             .select('Category_ID');
@@ -67,6 +69,8 @@ const resolvers = {
               Charity_Name: Charity.Charity_Name,
               Charity_Commission_No: Charity.Charity_Commission_No,
               Contact_Name: Charity.Contact_Name,
+              Contact_Forename: Charity.Contact_Forename,
+              Contact_Surname: Charity.Contact_Surname,
               Contact_Email: Charity.Contact_Email,
               Contact_Phone_Number: Charity.Contact_Phone_Number,
               Charity_URL: Charity.Charity_URL,
@@ -117,6 +121,7 @@ const resolvers = {
           }
 
           let Company = await db.table('Company').where('Moves_Company_ID', Moves_Company_ID).first();
+          Company.Contact_Name = (Company.Contact_Forename ?? "" ) + " " + (Company.Contact_Surname ?? "");
 
           let listActionHistory = await db
             .select('Action_History.*', 'User.Surname', 'User.Forename')
@@ -134,7 +139,10 @@ const resolvers = {
               Company_Icon: Company.Company_Icon ? URL_FOLDER + Company.Company_Icon : null,
               Company_CSR_Statement: Company.Company_CSR_Statement,
               Is_Active: Company.Is_Active,
+              Date_Active: Company.Date_Active,
               Contact_Name: Company.Contact_Name,
+              Contact_Forename: Company.Contact_Forename,
+              Contact_Surname: Company.Contact_Surname,
               Contact_Email: Company.Contact_Email,
               Contact_Phone_Number: Company.Contact_Phone_Number,
               Is_Remove_Privileges: Company.Is_Remove_Privileges,
@@ -333,7 +341,7 @@ const resolvers = {
           listNew = await db.table('News_Item')
             .select('News_Item_ID', 'News_Image', 'News_Title', 'News_Content')
             .andWhere('Moves_Charity_ID', Moves_Charity_ID)
-            .orderBy('News_Publish_Date', 'desc')
+            .orderBy('Created_Date', 'desc')
             .limit(3);
         }
         //Company
@@ -353,7 +361,7 @@ const resolvers = {
           listNew = await db.table('News_Item')
             .select('News_Item_ID', 'News_Image', 'News_Title', 'News_Content')
             .andWhere('Moves_Company_ID', Moves_Company_ID)
-            .orderBy('News_Publish_Date', 'desc')
+            .orderBy('Created_Date', 'desc')
             .limit(3);
         }
         //Admin
@@ -367,7 +375,7 @@ const resolvers = {
             .select('News_Item_ID', 'News_Image', 'News_Title', 'News_Content')
             .whereIn('Created_By', listUserAdminId)
             .andWhere('News_Status_ID', 26)
-            .orderBy('News_Publish_Date', 'desc')
+            .orderBy('Created_Date', 'desc')
             .limit(3);
         }
 
@@ -506,6 +514,7 @@ const resolvers = {
           TotalCampaign: result?.totalCampaign,
           TotalDonation: result?.totalDonation,
           TotalMatchOfCompany: result?.totalMatchOfCompany,
+          TotalMove: result?.totalMove,
           isFavourite,
           message: 'OK',
           messageCode: 200
@@ -522,22 +531,23 @@ const resolvers = {
     getDashboardMobile: authenticated(async (parent, args, context) => {
       try {
         let User_ID = context.currentUser.User_ID;
-
         let User = await db.table('User')
           .where('User_ID', User_ID)
           .where('Is_Mobile_App_User', true)
           .first();
-
         let LastUpload = User['Created_Date'];
 
+        // let Activity_Upload = await db.table('Activity_Upload')
+        //   .where('User_ID', User_ID)
+        //   .orderBy('Upload_Period_End_Time', 'desc');
+        
         let Activity_Upload = await db.table('Activity_Upload')
           .where('User_ID', User_ID)
-          .orderBy('Upload_Period_End_Time', 'desc');
+          .orderBy('Activity_Upload_Datetime', 'desc');
 
         if (Activity_Upload?.length) {
-          LastUpload = Activity_Upload[0]['Upload_Period_End_Time'];
+          LastUpload = Activity_Upload[0]['Activity_Upload_Datetime'];
         }
-
         let { Donated_Moves, Amount_Donated, Moves_Avaiable } = await commonSystem.getDonate(User_ID);
 
         return {
@@ -545,7 +555,7 @@ const resolvers = {
             Donated_Moves,
             Amount_Donated,
             Moves_Avaiable,
-            LastUpload,
+            LastUpload
           },
           message: messages.success,
           messageCode: 200
@@ -563,7 +573,7 @@ const resolvers = {
       try {
         let listCharity = await db.table('Charity')
           .where('Is_Active', true)
-          .orderBy('Created_Date', 'desc');
+          .orderBy('Charity_Name', 'asc');
 
         let listCharitySector = await db.table('Charity_Sector');
 
@@ -574,7 +584,7 @@ const resolvers = {
 
         let listCompany = await db.table('Company')
           .where('Is_Active', true)
-          .orderBy('Created_Date', 'desc');
+          .orderBy('Company_Name', 'asc');
 
         let ListIncomeBand = await db.table('Category')
           .where('Category_Type', 2);
@@ -645,7 +655,8 @@ const resolvers = {
             .where('Moves_Charity_ID', Moves_Charity_ID)
             .update({
               Charity_URL: Charity.Charity_URL.replace(/ /g, ''),
-              Contact_Name: Charity.Contact_Name,
+              Contact_Forename: Charity.Contact_Forename,
+              Contact_Surname: Charity.Contact_Surname,
               Contact_Email: Charity.Contact_Email,
               Contact_Phone_Number: Charity.Contact_Phone_Number,
               Charity_Date_Founded: Charity.Charity_Date_Founded,
@@ -733,7 +744,8 @@ const resolvers = {
             .where('Moves_Company_ID', Moves_Company_ID)
             .update({
               Company_URL: Company.Company_URL,
-              Contact_Name: Company.Contact_Name,
+              Contact_Forename: Company.Contact_Forename,
+              Contact_Surname: Company.Contact_Surname,
               Contact_Email: Company.Contact_Email,
               Contact_Phone_Number: Company.Contact_Phone_Number,
               Company_CSR_Statement: Company.Company_CSR_Statement,

@@ -33,7 +33,7 @@ const changeStatus = {
             Appeal_Status_ID: 16
           });
 
-        //Tạo news khi có campaign chuyển trạng thái => Live
+        //Tạo news khi có appeal chuyển trạng thái => Live
         if (listAppealIdLive.length) {
           for (let i = 0; i < listAppealIdLive.length; i++) {
             let _appeal_ID = listAppealIdLive[i];
@@ -47,13 +47,19 @@ const changeStatus = {
 
             await trx.table('News_Item')
               .insert({
-                News_Image: _appeal.Appeal_Icon,
+                News_Image: _appeal.Appeal_Icon ?? _charity.Charity_icon,
                 News_Title: `NEW APPEAL. ${_charity.Charity_Name} has launched the ${_appeal.Appeal_Name}`,
                 News_Content: `<p>${_appeal.Appeal_Description ?? ''}</p>
                 <p>Launch date: ${commonSystem.convertDateToString(_appeal.Appeal_Start_Date)}</p>
-                <p>End date: ${commonSystem.convertDateToString(_appeal.Appeal_End_Date)}</p>
-                <p>Target donation amount: £${_appeal.Appeal_Target_Amount}</p>`,
+                ${_appeal.Appeal_End_Date ? '<p>End date: ' + commonSystem.convertDateToString(_appeal.Appeal_End_Date) + '</p>' : '' }
+                ${_appeal.Appeal_Target_Amount ? '<p>Target donation amount: ' + new Intl.NumberFormat('en-GB', {
+                  style: 'currency',
+                  currency: 'GBP',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(_appeal.Appeal_Target_Amount) + '</p>' : ''}`,
                 Appeal_ID: _appeal_ID,
+                Moves_Charity_ID: _appeal.Moves_Charity_ID,
                 News_Status_ID: 26,
                 News_Url: _appeal.Appeal_URL,
                 Is_Manual: false,
@@ -115,16 +121,26 @@ const changeStatus = {
               .where('Moves_Company_ID', _campaign.Moves_Company_ID)
               .first();
 
+            let icon_new = _campaign.Campaign_Icon ?? _charity.Charity_icon;
+
             await trx.table('News_Item')
               .insert({
-                News_Image: _campaign.Campaign_Icon,
+                News_Image: icon_new,
                 News_Title: `NEW CAMPAIGN. ${_charity.Charity_Name} and ${_company.Company_Name} have launched the ${_campaign.Campaign_Name} Campaign`,
                 News_Content: `<p>${_campaign.Campaign_Description ?? ''}</p>
                 <p>Launch date: ${commonSystem.convertDateToString(_campaign.Campaign_Launch_Date)}</p>
-                <p>End date: ${commonSystem.convertDateToString(_campaign.Campaign_End_Date)}</p>
-                ${_campaign.End_Date_Target == false ? '<p>Target donation amount: £' + _campaign.Campaign_Target_Value + '</p>' : ''}
-                <p>Price per move: £${_campaign.Campaign_Price_Per_Move}</p>`,
+                ${_campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(_campaign.Campaign_End_Date) + '</p>'}
+                ${_campaign.End_Date_Target == false ? '<p>Target donation amount: ' + new Intl.NumberFormat('en-GB', {
+                  style: 'currency',
+                  currency: 'GBP',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(_campaign.Campaign_Target_Value) + '</p>' : ''}
+                <p>Price per move: £${_campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
                 Campaign_ID: _campaign_ID,
+                Moves_Charity_ID: _campaign.Moves_Charity_ID,
+                Moves_Company_ID: _campaign.Moves_Company_ID,
+                Appeal_ID: _campaign.Appeal_ID,
                 News_Status_ID: 26,
                 News_Url: _campaign.Campaign_URL,
                 Is_Manual: false,
@@ -190,8 +206,45 @@ const changeStatus = {
               Campaign_Status_ID: 24
             });
         }
-
         listCampaignIdComplete = [...listCampaignIdComplete1, ...listCampaignIdComplete2];
+
+        //Tạo news khi có campaign chuyển trạng thái => Complete
+        if (listCampaignIdComplete.length) {
+          for (let i = 0; i < listCampaignIdComplete.length; i++) {
+            let _campaign_ID = listCampaignIdComplete[i];
+            let _campaign = await trx.table('Campaign')
+              .where('Campaign_ID', _campaign_ID)
+              .first();
+
+              let _charity = await trx.table('Charity')
+              .where('Moves_Charity_ID', _campaign.Moves_Charity_ID)
+              .first();
+
+            await trx.table('News_Item')
+              .insert({
+                News_Image: _campaign.Campaign_Icon ?? _charity.Charity_icon,
+                News_Title: `OVER THE LINE! The ${_campaign.Campaign_Name} campaign is fully funded!`,
+                News_Content: `<p>${_campaign.Campaign_Description ?? ''}</p>
+                <p>Launch date: ${commonSystem.convertDateToString(_campaign.Campaign_Launch_Date)}</p>
+                ${_campaign.End_Date_Target == false ? '' : '<p>End date: ' + commonSystem.convertDateToString(_campaign.Campaign_End_Date) + '</p>'}
+                ${_campaign.End_Date_Target == false ? '<p>Target donation amount: ' + new Intl.NumberFormat('en-GB', {
+                  style: 'currency',
+                  currency: 'GBP',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(_campaign.Campaign_Target_Value) + '</p>' : ''}
+                <p>Price per move: £${_campaign.Campaign_Price_Per_Move.toFixed(2)}</p>`,
+                Campaign_ID: _campaign_ID,
+                Moves_Charity_ID: _campaign.Moves_Charity_ID,
+                Moves_Company_ID: _campaign.Moves_Company_ID,
+                Appeal_ID: _campaign.Appeal_ID,
+                News_Status_ID: 26,
+                News_Url: _campaign.Campaign_URL,
+                Is_Manual: false,
+                News_Publish_Date: new Date()
+              });
+          }
+        }
       });
       
       return listCampaignIdComplete;

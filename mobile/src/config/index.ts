@@ -1,9 +1,11 @@
 // export const API_URL = 'http://127.0.0.1:4000/graphql'; // local
-// export const API_URL = 'http://10.0.2.2:4000/graphql'; // local
-export const API_URL = 'http://103.138.113.52:4192/graphql'; // test
-
-export const WEB_URL = 'http://103.138.113.52:4194';
-
+// export const API_URL = 'http://10.0.2.2:4100/graphql'; // local
+export const API_URL = 'http://103.138.113.52:4192/graphql'; //
+// export const API_URL = 'https://moves.tringhiatech.vn:443/graphql'; // 
+export const WEB_URL = 'https://moves.tringhiatech.vn:4194';
+export const HTTPS_URL = 'https://moves.tringhiatech.vn:443';
+// export const HTTP_URL = 'http://moves.tringhiatech.vn:4192';
+export const HTTP_URL = 'http://103.138.113.52:4192';
 // STRAVA
 const STRAVA_clientId = '87981';
 const STRAVA_clientSecret = '3fee171f7fcc38b8a206380810c5f23962000a2e';
@@ -20,3 +22,5 @@ export const GARMIN_request_token = 'https://connectapi.garmin.com/oauth-service
 export const GARMIN_oauthConfirm = `https://connect.garmin.com/oauthConfirm?oauth_callback=${GARMIN_callback}&action=step3&oauth_token=`
 export const GARMIN_accsess_token = 'https://connectapi.garmin.com/oauth-service/oauth/access_token'
 export const GARMIN_activities = 'https://apis.garmin.com/wellness-api/rest/activities?'
+
+export const Limit_Second = 60

@@ -5,7 +5,7 @@
       <div class="list-btn-add">
         <div class="row">
           <div class="col-md-12">
-            <div class="btn-add btn-count-appeal">
+            <div class="btn-add btn-count-appeal"(click)="goToListAppeal()">
               <span class="total-number">{{totalAppeal}}</span><br>
               <span class="name">Appeals</span>
             </div>
@@ -18,9 +18,23 @@
     <div class="list-btn-add">
       <div class="row">
         <div class="col-md-12">
-          <div class="btn-add btn-count-campaign">
+          <div class="btn-add btn-count-campaign" (click)="goToListCampaign()">
             <span class="total-number">{{totalCampaign}}</span><br>
             <span class="name">Campaigns</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="type == 5">
+      <div class="title-name text-bold mt-5 mb-3">MATCHES</div>
+      <div class="list-btn-add">
+        <div class="row">
+          <div [class]="'col-md-12'">
+            <div class="btn-add btn-count-campaign" (click)="goToListMatches()">
+              <span class="total-number">{{totalMatchOfCompany}}</span><br>
+              <span class="name">Matches</span>
+            </div>
           </div>
         </div>
       </div>
@@ -28,7 +42,11 @@
   </ng-container>
   
   <div class="title-name text-bold mt-5 mb-3">DONATIONS</div>
-  <div class="total-donate">
+  <div class="total-donate" (click)="goToListDonation()">
     <span>£{{totalDonation | number}}</span>
+  </div>
+  <div class="total-donate mt-2" *ngIf="totalMove > 0 && type == 4">
+    <span>{{totalMove | number: '1.0-0'}}</span>
+    <p class="text">Moves donated directly</p>
   </div>
 </div>

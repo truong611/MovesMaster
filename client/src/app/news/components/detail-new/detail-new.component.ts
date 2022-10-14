@@ -111,6 +111,7 @@ export class DetailNewComponent implements OnInit {
 
     if (this.news.News_Image) {
       this.currentLogoUrl = this.news.News_Image;
+      this.newLogoUrl = this.news.News_Image;
     }
 
     this.listCompany = data.getDetailNews.ListCompany.map((item) =>
@@ -205,6 +206,7 @@ export class DetailNewComponent implements OnInit {
     }
     else {
       this.currentLogoUrl = '/assets/img/Default Image.png';
+      this.newLogoUrl = null;
     }
   }
 
@@ -225,7 +227,7 @@ export class DetailNewComponent implements OnInit {
     this.submitted = true;
     if (!this.formGroup.valid) {
       if (this.formGroup.get('News_Url').errors?.required || this.formGroup.get('News_Url').errors?.forbiddenSpaceText) {
-        this.error['News_Url'] = 'This is mandatory field';
+        this.error['News_Url'] = 'This field is mandatory';
       } else if (this.formGroup.get('News_Url').errors?.invalidUrl) {
         this.error['News_Url'] = 'Incorrect url format';
       } else if (this.formGroup.get('News_Url').errors?.maxlength) {
@@ -233,13 +235,13 @@ export class DetailNewComponent implements OnInit {
       }
 
       if (this.formGroup.get('News_Title').errors?.required || this.formGroup.get('News_Title').errors?.forbiddenSpaceText) {
-        this.error['News_Title'] = 'This is mandatory field';
+        this.error['News_Title'] = 'This field is mandatory';
       } else if (this.formGroup.get('News_Title').errors?.maxlength) {
         this.error['News_Title'] = 'Maximum 255 characters exceeded';
       }
 
       if (this.formGroup.get('News_Content').errors?.required) {
-        this.error['News_Content'] = 'This is mandatory field';
+        this.error['News_Content'] = 'This field is mandatory';
       }
 
       return;
@@ -283,18 +285,20 @@ export class DetailNewComponent implements OnInit {
     let formData = this.formGroup.getRawValue();
 
     this.previewForm = {
-      News_Image: this.currentLogoUrl,
+      News_Image: this.newLogoUrl,
       News_Title: formData.News_Title?.trim(),
       News_Url: formData.News_Url?.trim(),
       News_Content: formData.News_Content?.trim(),
       Moves_Company_ID: formData.Moves_Company_ID?.Moves_Company_ID,
-      Company_Icon: (formData.Moves_Company_ID && formData.Moves_Company_ID.Company_Icon ) ? formData.Moves_Company_ID.Company_Icon : '/assets/img/Default Image.png',
+      Charity_icon: this.news.Charity_icon,
+      Charity_URL: this.news.Charity_URL,
+      Company_Icon: (formData.Moves_Company_ID && formData.Moves_Company_ID.Company_Icon ) ? formData.Moves_Company_ID.Company_Icon : null,
       Company_URL: formData.Moves_Company_ID?.Company_URL,
       Appeal_ID: formData.Appeal_ID?.Appeal_ID,
-      Appeal_Icon: (formData.Appeal_ID && formData.Appeal_ID.Appeal_Icon) ? formData.Appeal_ID.Appeal_Icon : '/assets/img/Default Image.png',
+      Appeal_Icon: (formData.Appeal_ID && formData.Appeal_ID.Appeal_Icon) ? formData.Appeal_ID.Appeal_Icon : null,
       Appeal_URL: formData.Appeal_ID?.Appeal_URL,
       Campaign_ID: formData.Campaign_ID?.Campaign_ID,
-      Campaign_Icon: (formData.Campaign_ID && formData.Campaign_ID.Campaign_Icon)? formData.Campaign_ID.Campaign_Icon : '/assets/img/Default Image.png',
+      Campaign_Icon: (formData.Campaign_ID && formData.Campaign_ID.Campaign_Icon)? formData.Campaign_ID.Campaign_Icon : null,
       Campaign_URL: formData.Campaign_ID?.Campaign_URL,
       News_Publish_Date: this.news?.News_Publish_Date,
       CreateBy: this.news?.CreateBy

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {observer} from 'mobx-react-lite';
-import {Dimensions, FlatList, Image, StyleSheet, TouchableOpacity, View, ViewStyle, Modal} from 'react-native';
+import {Dimensions, FlatList, Image, StyleSheet, TouchableOpacity, View, ViewStyle, Modal, Platform, ScrollView} from 'react-native';
 import {BtnBack, Header, MButton, Screen, Text, DetailActivity} from '../../components';
 import {useIsFocused, useNavigation, useRoute} from "@react-navigation/native"
 import {useStores} from "../../models"
@@ -8,10 +8,11 @@ import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getHouse, dateToTimestamp, formatDate, formatNumber, showToast, timestampToDate} from "../../services";
+import {getHouse, dateToTimestamp, formatDate, formatNumber, showToast, timestampToDate, replaceHTTP} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getViewActivity} from "./activity-service";
 import {LineChart} from "react-native-chart-kit";
+import { FETCH_getFitnessAppUsage } from '../fitness-apps/fitness-apps-service';
 
 const layout = Dimensions.get('window');
 
@@ -45,6 +46,13 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         detail: false
     });
     const [dataChart, setDataChart] = useState<any>(null);
+    const [isActivities, setIsActivities] = useState(false)
+    const [isChangeDay, setIsChangeDay] = useState(false)
+    const [dotColor, setDotColor] = useState<any>([]);
+    const [dotNoDisplay, setDotNoDisplay] = useState<any>([]);
+    const [dataFitness, setDataFitness] = useState<any>([]);
+    const [lechGio,setLechGio] = useState(0)
+    const query = useQuery(FETCH_getFitnessAppUsage)
 
     const {refetch} = useQuery(FETCH_getViewActivity);
 
@@ -52,47 +60,85 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         fetchData();
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
+        let _lechGio = 0
+        let center_time = new Date("2022-04-13T00:00:00.000+00:00").getTime()
+        let time_device = new Date(2022,3,13).getTime()
+        let time_server = new Date("2022-04-13T00:00:00.000+07:00").getTime()
+        _lechGio = ((center_time - time_server)/(60*60*1000)) + ((center_time - time_device)/(60*60*1000))
+        // _lechGio = ((time_server - time_device)/(60*60*1000))
+        setLechGio(_lechGio)
+        console.log("lech gio: ",_lechGio)
         setRefresh(false);
         if (isFocused && !isRefresh && refetch) {
             setLoading(true);
             try {
-                let _date: any = new Date();
-                if (params && params?.date) {
-                    _date = timestampToDate(params?.date, 'YYYY-MM-dd');
-                    _date = new Date(_date);
+                let {data: {getFitnessAppUsage: {FitnessApp}}} = await query.refetch()
+                setDataFitness(FitnessApp)
+                let newDate = new Date();
+                newDate.setHours(0)
+                newDate.setMinutes(0)
+                newDate.setSeconds(0)
+                newDate.setMilliseconds(0) 
+                
+                let _date: any = newDate.getTime();
+                if (params && params?.date && !isChangeDay) {
+                    _date = new Date(params?.date).getTime() 
                 }
-                setDate(_date);
-                // console.log(_date);
+                if(params && params?.reset) {
+                    _date = newDate.getTime()
+                } 
+                setDate(_date)
+                console.log("_date", new Date(_date + _lechGio*60*60*1000))
+                console.log("_date 2", new Date(_date))
+                console.log(10 + -1)
                 let {data: {getViewActivity: {Activity_Entry, message, messageCode}}} = await refetch({
-                    "date": _date
+                    "date": _lechGio < 0 ? _date + 24*60*60*1000 : _date + _lechGio*60*60*1000
                 });
                 setLoading(false);
                 if (messageCode == 200) {
-                    setListActivityEntry(Activity_Entry)
+                    let _Activity_Entry = [...Activity_Entry]
+                    _Activity_Entry.sort((a,b) => {
+                        // return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
+                        return (parseInt(b?.Activity_End_Time) - parseInt(a?.Activity_End_Time))
+                    })
+                    let _Activity_Entry_final = []
+                    _Activity_Entry.map((item,index) => {
+                        let obj = {...item}
+                        for(let i = 0; i < FitnessApp?.length ; i++){
+                            if(obj?.Fitness_App?.Fitness_App_Name == FitnessApp[i]?.Fitness_App_Name){
+                                obj.Fitness_App = {...obj.Fitness_App, Fitness_App_Icon: FitnessApp[i]?.Fitness_App_Icon}
+                            }
+                        }
+                        _Activity_Entry_final.push(obj)
+                    })          
+                    setListActivityEntry(_Activity_Entry_final)
+                    Activity_Entry?.length > 0 ? setIsActivities(true) : setIsActivities(false)
+
                     let dataActivity_entry = [];
                     dataActivity_entry = Activity_Entry?.filter(item => item?.Include_YN)
                     dataActivity_entry.sort((a,b) => {
                        return a?.Activity_End_Time - b?.Activity_End_Time
                     })
-                    let _data = {
-                        labels: [],
-                        datasets: [
-                            {
-                                data: [],
-                            }
-                        ],
-                    };
-                    for(let i = 0; i < dataActivity_entry?.length ; i++ ){
-                        let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
+                    HandleDataChart(dataActivity_entry)
+                    // let _data = {
+                    //     labels: [],
+                    //     datasets: [
+                    //         {
+                    //             data: [],
+                    //         }
+                    //     ],
+                    // };        
+                    // for(let i = 0; i < dataActivity_entry?.length ; i++ ){
+                    //     let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
 
-                        if(i % 2 == 0 || dataActivity_entry?.length <= 7){
-                            _data.labels.push(label)
-                        }else{
-                            _data.labels.push('')
-                        }
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Moves_Arising)
-                    }
-                    setDataChart(_data)
+                    //     if(i % 2 == 0 || dataActivity_entry?.length <= 7){
+                    //         _data.labels.push(label)
+                    //     }else{
+                    //         _data.labels.push('')
+                    //     }
+                    //     _data.datasets[0].data.push(dataActivity_entry[i]?.Moves_Arising)
+                    // }            
+                    // setDataChart(_data)
 
                 } else {
                     showToast('error', message)
@@ -103,6 +149,811 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
             }
         }
     };
+
+    const getActivityDays = async (date) => {   
+        let {data: {getViewActivity: {Activity_Entry, message, messageCode}}} = await refetch({
+            "date": date
+        });
+        setLoading(false);
+        if (messageCode == 200) {
+            let _Activity_Entry = [...Activity_Entry]
+            _Activity_Entry.sort((a,b) => {
+                return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
+            })  
+            setListActivityEntry(_Activity_Entry)
+            Activity_Entry?.length > 0 ? setIsActivities(true) : setIsActivities(false)
+
+            let dataActivity_entry = [];
+            dataActivity_entry = Activity_Entry?.filter(item => item?.Include_YN)
+            dataActivity_entry.sort((a,b) => {
+               return a?.Activity_End_Time - b?.Activity_End_Time
+            })
+            let _dataActivity_entry = []
+            dataActivity_entry.map((item,index) => {
+                let obj = {...item}
+                for(let i = 0; i < dataFitness?.length ; i++){
+                    if(obj?.Fitness_App?.Fitness_App_Name == dataFitness[i]?.Fitness_App_Name){
+                        obj.Fitness_App = {...obj.Fitness_App, Fitness_App_Icon: dataFitness[i]?.Fitness_App_Icon}
+                    }
+                }
+                _dataActivity_entry.push(obj)
+            })
+            setListActivityEntry(_dataActivity_entry)
+            HandleDataChart(_dataActivity_entry)
+            // let _data = {
+            //     labels: [],
+            //     datasets: [
+            //         {
+            //             data: [],
+            //         }
+            //     ],
+            // };
+            // for(let i = 0; i < dataActivity_entry?.length ; i++ ){
+            //     let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
+
+            //     if(i % 2 == 0 || dataActivity_entry?.length <= 7){
+            //         _data.labels.push(label)
+            //     }else{
+            //         _data.labels.push('')
+            //     }
+            //     _data.datasets[0].data.push(dataActivity_entry[i]?.Moves_Arising)
+            // }
+            // setDataChart(_data);
+        }
+    }
+
+    const HandleDataChart = (Activity_Entry = []) => {
+        let _data = {
+            labels: [],
+            datasets: [
+                {
+                    data: [],
+                }
+            ],
+        };
+        let _dotColor = []
+        let _dotNoDisplay : any = []
+        let dataActivity_entry = [...Activity_Entry]
+        let datetime_03_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_03_00.setHours(3)
+        datetime_03_00.setMinutes(0)
+        datetime_03_00.setSeconds(59)
+        datetime_03_00.setMilliseconds(0)
+
+        let datetime_06_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_06_00.setHours(6)
+        datetime_06_00.setMinutes(0)
+        datetime_06_00.setSeconds(59)
+        datetime_06_00.setMilliseconds(0)
+
+        let datetime_09_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_09_00.setHours(9)
+        datetime_09_00.setMinutes(0)
+        datetime_09_00.setSeconds(59)
+        datetime_09_00.setMilliseconds(0)
+
+        let datetime_12_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_12_00.setHours(12)
+        datetime_12_00.setMinutes(0)
+        datetime_12_00.setSeconds(59)
+        datetime_12_00.setMilliseconds(0)
+
+        let datetime_15_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_15_00.setHours(15)
+        datetime_15_00.setMinutes(0)
+        datetime_15_00.setSeconds(59)
+        datetime_15_00.setMilliseconds(0)
+
+        let datetime_18_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_18_00.setHours(18)
+        datetime_18_00.setMinutes(0)
+        datetime_18_00.setSeconds(59)
+        datetime_18_00.setMilliseconds(0)
+
+        let datetime_21_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_21_00.setHours(21)
+        datetime_21_00.setMinutes(0)
+        datetime_21_00.setSeconds(59)
+        datetime_21_00.setMilliseconds(0)
+
+        let datetime_0_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_0_00.setHours(0)
+        datetime_0_00.setMinutes(0)
+        datetime_0_00.setSeconds(59)
+        datetime_0_00.setMilliseconds(0)
+        for(let i = 0; i < dataActivity_entry?.length ; i++ ){
+            let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
+            let label_Start = getHouse(dataActivity_entry[i]?.Activity_Start_Time)
+            let item_time = new Date(dataActivity_entry[i]?.Activity_End_Time).getTime()
+            let item_time_start = new Date(dataActivity_entry[i]?.Activity_Start_Time).getTime()
+
+            let distance = Math.floor((item_time - item_time_start) / 3600000)
+
+            if(getHouse(datetime_0_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_0_00.getTime() < item_time && item_time < datetime_03_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }else if(getHouse(datetime_03_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_03_00.getTime() < item_time && item_time < datetime_06_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+            else if(getHouse(datetime_06_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_06_00.getTime() < item_time && item_time < datetime_09_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+            else if(getHouse(datetime_09_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_09_00.getTime() < item_time && item_time < datetime_12_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('09:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }else if (getHouse(datetime_12_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_12_00.getTime() < item_time && item_time < datetime_15_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('09:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('12:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+            else if(getHouse(datetime_15_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_15_00.getTime() < item_time && item_time < datetime_18_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('09:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('12:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('15:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+            else if(getHouse(datetime_18_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_18_00.getTime() < item_time && item_time < datetime_21_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('09:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('12:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('15:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('18:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('18:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('18:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_18_00.getTime() < item_time_start && item_time_start < datetime_21_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+            else if(getHouse(datetime_21_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else {
+                if(!_data.labels.includes('00:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('03:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('06:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('06:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('09:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('09:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('12:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('12:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('15:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('15:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('18:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('18:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('18:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && datetime_18_00.getTime() < item_time_start && item_time_start < datetime_21_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                if(!_data.labels.includes('21:00')){
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('21:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                        _dotColor.push(_data.labels?.length - 1)
+                    }else{
+                        _data.labels.push('21:00')
+                        _data.datasets[0].data.push(0)
+                    }
+                }
+                if(distance > 0 && item_time_start > datetime_21_00.getTime()){
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    _dotColor.push(_data.labels?.length - 1)
+                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
+            }
+
+            if(distance > 0){
+                if(item_time_start < datetime_03_00.getTime() && datetime_03_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('03:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_06_00.getTime() && datetime_06_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('06:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_09_00.getTime() && datetime_09_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('09:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_12_00.getTime() && datetime_12_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('12:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_15_00.getTime() && datetime_15_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('15:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_18_00.getTime() && datetime_18_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('18:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+                if(item_time_start < datetime_21_00.getTime() && datetime_21_00.getTime() < item_time){
+                    let index = _data.labels.indexOf('21:00')
+                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
+                    _dotNoDisplay.push(index)
+                }
+            }            
+        }
+        if(!_data.labels.includes('00:00')){
+            _data.labels.push('00:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('03:00')){
+            _data.labels.push('03:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('06:00')){
+            _data.labels.push('06:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('09:00')){
+            _data.labels.push('09:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('12:00')){
+            _data.labels.push('12:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('15:00')){
+            _data.labels.push('15:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('18:00')){
+            _data.labels.push('18:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('21:00')){
+            _data.labels.push('21:00')
+            _data.datasets[0].data.push(0)
+        }
+        setDataChart(_data)
+        setDotColor(_dotColor)   
+        setDotNoDisplay(_dotNoDisplay)   
+    }
 
     const goToPage = (page) => {
         navigation.navigate('MainScreen', {screen: page});
@@ -125,59 +976,52 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         setModalVisible(_modalVisible);
     };
 
+    const ChangeDay = (type) => {
+        let new_date = new Date()
+        new_date.setDate(new_date.getDate() + 1)
+        new_date.setHours(0)
+        new_date.setMinutes(0)
+        new_date.setSeconds(0)
+        new_date.setMilliseconds(0) 
+        if(type == 'next') {
+            let _date = new Date(date).getTime() + 3600 * 1000 * 24;
+            if(_date < new_date.getTime()){
+                setDate(new Date(_date))
+                getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+            }   
+        }
+        if(type == 'back') {
+            let _date = new Date(date).getTime() - 3600 * 1000 * 24;
+            setDate(new Date(_date))    
+            getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+        }
+        setIsChangeDay(true)
+    }
+
     const ItemView = ({item, index}) => {
         return (
-            <TouchableOpacity
+            <View
                 style={[styles.activityLog,
                     index == 0 ? {marginLeft: 16} : {}
-                ]}>
+            ]}> 
+                    <View style={styles.appsItemImageWrapper}>
+                           {item?.Fitness_App?.Fitness_App_Icon ? 
+                                <Image resizeMode={"contain"} style={styles.appsItemImage}
+                                    source={{ uri: replaceHTTP(item?.Fitness_App?.Fitness_App_Icon) }} />
+                            : null }
+                    </View>
+
                 <View style={{zIndex: 1}}>
-                    <Text style={{fontSize: 14}}>{item?.ActivityType?.Activity_Type_Name}</Text>
-                    <Text style={{fontSize: 18}} fonts={'DemiBold'}>{formatNumber(item?.Moves_Arising)}</Text>
-                    <Text style={{fontSize: 13}}>{item?.ActivityUnit?.Activity_Unit_Name}</Text>
+                    <Text style={{fontSize: 16}} numberOfLines={1} adjustsFontSizeToFit={true}>{item?.ActivityType?.Activity_Type_Name}</Text>
+                    <Text style={{fontSize: 13,marginTop: 10}}>{item?.Number_Units} minutes</Text>
+                    <Text style={{fontSize: 13}} fonts={'DemiBold'}>{formatNumber(item?.Moves_Arising)} moves</Text>
                 </View>
                 {item?.Activity_Type_Icon ?
                     <Image style={{width: layout.width / 3, height: layout.width / 3, borderRadius: 16, position: 'absolute'}} source={{uri: item?.Activity_Type_Icon}}/>
                     : null}
-            </TouchableOpacity>
+            </View>
         )
     };
-
-    // const topComponent2 = () => {
-    //     return (
-    //         <TouchableOpacity
-    //             onPress={() => goToPage('UploadActivityScreen')}
-    //             style={[styles.activityLog, {marginLeft: 16, backgroundColor: color.tabbar, borderWidth: 1, borderColor: color.blue, marginRight: 0}]}>
-    //             <View style={{zIndex: 1}}>
-    //                 <View style={{justifyContent: 'center', alignItems: 'center', width: layout.width / 3 - 32}}>
-    //                     <Ionicons name={'add-outline'} color="white" size={32}/>
-    //                 </View>
-    //                 <Text style={{textAlign: 'center', fontSize: 13}}>add manual moves</Text>
-    //             </View>
-    //         </TouchableOpacity>
-    //     )
-    // };
-
-    const topComponent_modal = () => {
-        return (
-          <View>
-            <TouchableOpacity
-                onPress={() => setChangeModal('detail', false)}
-                style={{flexDirection: 'row', position:'absolute'}}>
-                <Ionicons
-                    name='return-up-back-outline'
-                    color={color.green}
-                    size={20}/>
-                <Text style={styles.backText}>back</Text>
-            </TouchableOpacity>
-            <View style={styles.modalHeader}>
-                <Text fonts={'DemiBold'} style={{textAlign: 'center', fontSize: 15}}>Details Activity</Text>
-            </View>
-          </View>
-
-        )
-    }
-
     const topComponent = () => {
         let totalMoves = 0;
         for (let i = 0; i < listActivityEntry.length; i++) {
@@ -186,11 +1030,19 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         return (
             <View style={styles.container}>
                 <BtnBack title={formatDate(date) == formatDate(new Date) ? "MY MOVES TODAY": formatDate(date, 'dd MM YYYY')} goBack={goBack}/>
+                <TouchableOpacity style={styles.btnBackDay} onPress={() => ChangeDay('back')}>
+                    <Ionicons name={'chevron-back-outline'} color="white" size={28} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.btnNextDay} onPress={() => ChangeDay('next')}>
+                    <Ionicons name={'chevron-forward-outline'} color="white" size={28} />
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.calendar} onPress={() => {
+                    setIsChangeDay(false)
                     navigation.navigate('MainScreen', {
                         screen: 'CalendarActivityScreen',
                         params: {
-                            date: dateToTimestamp(date)
+                            date: new Date(date).getTime(),
+                            isActivities: isActivities
                         },
                     });
                 }}>
@@ -214,28 +1066,48 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                         keyExtractor={(item, index) => 'activity-log-' + item.toString() + index}
                     />
                 </View>
-                <TouchableOpacity style={styles.banner}>
+                <View style={[styles.banner]}>
 
                     {dataChart?.labels?.length ? (
-                        <LineChart
-                        style={{marginLeft: -32}}
-                        // withVerticalLabels={false}
-                        withHorizontalLabels={false}
-                        fromZero={true}
-                        withInnerLines={false}
-                        withShadow={false}
-                        withOuterLines={false}
-
-                        data={dataChart}
-                        width={layout.width}
-                        height={layout.width * 4.5 / 10}
-                        chartConfig={chartConfig}
-                        bezier
-                    />
+                        <> 
+                            <ScrollView
+                            horizontal={true}
+                            >   
+                                <View>
+                                    {/* <Text style={{fontSize: 11,marginBottom: 5}}>Moves/minute</Text> */}
+                                    <LineChart
+                                        style={styles.lineChart}
+                                        // withVerticalLabels={false}
+                                        withHorizontalLabels={false}
+                                        // segments={4}
+                                        fromZero={true}
+                                        withInnerLines={false}
+                                        withShadow={false}
+                                        withOuterLines={false}
+                                        data={dataChart}
+                                        width={layout.width + (dataChart?.labels?.length - 8) / 3 * 80}
+                                        // width={layout.width - 30}
+                                        height={layout.width * 4.5 / 10}
+                                        chartConfig={chartConfig}
+                                        bezier
+                                        // hidePointsAtIndex={dotNoDisplay}
+                                        getDotColor={(dataPoint, dataPointIndex) => {
+                                            if (dotColor.includes(dataPointIndex) || dotNoDisplay.includes(dataPointIndex)) {
+                                              return color.error;
+                                            }
+                                            return color.white;
+                                            }}
+                                    />
+                                </View>
+                                
+                            </ScrollView>
+                            
+                        </>
+                        
 
                     ) : null}
                     {/* <Text style={{zIndex: 1}}>{formatDate(date) == formatDate(new Date) ? "today activity": formatDate(date, 'dd MM YYYY') + " activity"} </Text> */}
-                </TouchableOpacity>
+                </View>
                 {listActivityEntry?.length ?
                     <View style={{alignItems: 'center'}}>
                         <MButton
@@ -244,14 +1116,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                             styleText={styles.textWhite}
                             text={'view detail'}/>
                     </View>
-                    : null}
-                <View style={{alignItems: 'center'}}>
-                    <MButton
-                        onPress={() => goToPage('UploadActivityScreen')}
-                        style={styles.btnOrange}
-                        styleText={styles.textWhite}
-                        text={'submit activity'}/>
-                </View>
+                    : null}         
             </View>
         );
     };
@@ -285,14 +1150,15 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                         {isLoading && <CenterSpinner/>}
                         <View style={styles.centeredView}>
                             <View style={styles.modalView3}>
-
+                                <View style={Platform?.OS == 'ios' ? {marginTop: 40} : {marginTop: 0}}>
+                                   <BtnBack title={"Activity Details"} goBack={() => setChangeModal('detail', false)} />
+                                </View>
                                 <FlatList
                                   showsVerticalScrollIndicator={false}
                                   showsHorizontalScrollIndicator={false}
                                   style={{flex: 1}}
                                   renderItem={({item,index}) =>  <DetailActivity item={item} />}
                                   data={listActivityEntry}
-                                  ListHeaderComponent={topComponent_modal()}
                                   keyExtractor={(item, index) => 'view-activity-modal-' + index + String(item)}
                                 />
 
@@ -307,6 +1173,18 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
 });
 
 const styles = StyleSheet.create({
+    appsItemImageWrapper: {
+        width: 25,
+        height: 25,
+        borderRadius: 5,
+        backgroundColor: color.primary,
+        marginBottom: 20
+    },
+    appsItemImage: {
+        width: 25,
+        height: 25,
+        borderRadius: 5,
+    },
     btnBlue: {
         backgroundColor: color.blue,
         maxWidth: layout.width / 2,
@@ -333,6 +1211,23 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         alignItems: 'center',
     },
+    btnBackDay: {
+        position: 'absolute',
+        width: 20,
+        height: 50,
+        alignItems: 'center',
+        paddingTop: 12,
+        marginLeft: '17%'
+    },
+    btnNextDay: {
+        position: 'absolute',
+        width: 20,
+        height: 50,
+        alignItems: 'center',
+        paddingTop: 12,
+        right: 0,
+        marginRight: '17%'
+    },
     banner: {
         minHeight: layout.width * 4.5 / 10,
         width: layout.width - 32,
@@ -350,9 +1245,9 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         backgroundColor: color.primary,
         marginRight: 16,
-        justifyContent: 'flex-end',
         alignItems: 'flex-start',
-        padding: 16
+        paddingTop: 5,
+        paddingLeft: 10
     },
     centeredView: {
         flex: 1,
@@ -371,4 +1266,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         marginBottom: 20
     },
+    lineChart: {
+        marginLeft: -45,
+    }
 });

@@ -14,7 +14,7 @@
       <div class="col-md-7">
         <div class="title-name text-bold mb-3">DONATION HISTORY</div>
         <div class="btn-count-donation">
-          <span class="total-number">£{{totalDonation | number}}</span>
+          <span class="total-number">£{{totalDonation | number: '0.2-2'}}</span>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
       <div class="card-content table-gridview mt-4">
         <p-table #myTable [columns]="colHeader" [value]="listDonation" 
           class="table-center scrollbar-table scrollbar-table-appeal" 
-          [scrollable]="true" scrollHeight="70vh" scrollDirection="both">
+          [scrollable]="true" scrollHeight="60vh" scrollDirection="both">
           <ng-template pTemplate="header" let-columns>
             <tr>
               <th *ngFor="let col of columns; let i = index" [pSortableColumn]="col.field"
@@ -88,7 +88,7 @@
               <td *ngFor="let col of columns" [ngSwitch]="col.field"
                 [ngStyle]="{'justify-content': col.textAlign, 'width': col.colWith}">
                 <span class="p-column-title">{{col.header}}</span>
-                <span *ngSwitchCase="'Moves_Donated'">{{rowData[col.field] | number}}</span>
+                <span *ngSwitchCase="'Moves_Donated'">{{rowData[col.field] | number: '0.0-0'}}</span>
                 <span *ngSwitchCase="'Sterling_Amount'">{{rowData[col.field] | number}}</span>
                 <span *ngSwitchCase="'Created_Date'">{{rowData[col.field] | date: 'dd/MM/yyyy HH:mm'}}</span>
                 <span *ngSwitchDefault>
