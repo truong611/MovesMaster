@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {observer} from 'mobx-react-lite';
-import {Animated, Dimensions, Image, StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
+import {Animated, Dimensions, Image, Keyboard, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle} from 'react-native';
 import {Input, MButton, Screen, Text} from '../../components';
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
@@ -79,9 +79,11 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
     return (
         <>
             {isLoading && <CenterSpinner/>}
+           
             <Screen style={ROOT} preset="fixed">
-                <View style={styles.container}>
+                <TouchableOpacity style={styles.container} activeOpacity={1} onPress={() => Keyboard.dismiss()}>
                     <Animated.Image source={images.login_1} style={[styles.login_1, {height: imageHeight}]}/>
+                    
                     <View style={{alignItems: 'center'}}>
                         <Text style={{marginBottom: 24}}>enter your email to reset your password.</Text>
                         <Input
@@ -100,9 +102,11 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
                             <Text style={styles.signUpText}>login</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </TouchableOpacity>
                 <Image resizeMode={'contain'} style={styles.login_2} source={images.login_2}/>
+                
             </Screen>
+       
         </>
     );
 });

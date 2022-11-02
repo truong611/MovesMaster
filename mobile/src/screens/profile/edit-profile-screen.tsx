@@ -64,6 +64,11 @@ export const EditProfileScreen = observer(function EditProfileScreen() {
         setSubmit(false);
     };
 
+    const goToPage = (page) => {
+        navigation.navigate('MainScreen', {screen: page});
+    };
+
+
     const setChangeText = (type, value) => {
         let _formData = {...formData};
 
@@ -130,6 +135,7 @@ export const EditProfileScreen = observer(function EditProfileScreen() {
                     resetData();
 
                     showToast('success', message);
+                    goToPage('ProfileScreen')
 
                     await movesModel.setUserInfo({
                         forename: user?.Forename,
@@ -140,6 +146,7 @@ export const EditProfileScreen = observer(function EditProfileScreen() {
                     });
                 } else {
                     showToast('error', message)
+                    
                 }
             } catch (e) {
                 setLoading(false);

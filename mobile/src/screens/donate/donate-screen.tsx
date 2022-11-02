@@ -113,7 +113,6 @@ export const DonateScreen = observer(function DonateScreen() {
                     );
 
                     let _listData = [..._Campaign, ..._Appeal, ..._Charity];
-
                     _listData.sort(function (a, b) {
                         // @ts-ignore
                         return new Date(b.date) - new Date(a.date);
@@ -170,7 +169,7 @@ export const DonateScreen = observer(function DonateScreen() {
         );
     };
 
-    const ItemView = ({item, index}) => {
+    const ItemView = ({item, index}) => {          
         return (
             <TouchableOpacity
                 style={[{width: '100%', marginVertical: 8,marginLeft: 10},
@@ -193,9 +192,8 @@ export const DonateScreen = observer(function DonateScreen() {
                         <Text style={{fontSize: 13, color: color.danger, textAlign: 'center',}}>£ {numberFormat(parseFloat(item?.per))} per move</Text>
                         : null}
                     </View>
-                    
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity>     
         );
     };
 
@@ -229,8 +227,6 @@ export const DonateScreen = observer(function DonateScreen() {
                             <View style={{backgroundColor: color.tabbar, marginHorizontal: 16, borderRadius: 16}}>
                                 {/* <ScrollView horizontal={true} scrollEnabled={false} style={{width: '100%'}} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}> */}
                                     <FlatList
-                                        columnWrapperStyle={{justifyContent: 'space-between'}}
-                                        numColumns={2}
                                         style={{width: layout.width - 32}}
                                         renderItem={ItemView}
                                         data={listData}

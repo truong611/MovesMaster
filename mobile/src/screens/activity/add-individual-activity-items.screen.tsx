@@ -98,7 +98,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
 
                 let data_Select_Activity = []
                 data?.ActivityType?.map((item,index) => {
-                    data_Select_Activity.push(item?.Activity_Type_Name)
+                    if(item?.Activity_Type_Name != 'JOINING BONUS') data_Select_Activity.push(item?.Activity_Type_Name)
                 })
                 setDataSelectActivity(data_Select_Activity)
 
@@ -239,7 +239,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
         }
         if(parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Limit_Minute) < parseFloat(units))
         {
-            showToast('error', `Activity time does not exceed ${parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Limit_Minute)} minutes`);
+            showToast('error', `Maximum time for this Action is ${parseInt(masterData?.ActivityType[selectedIndex?.activity_type?.row]?.ActivityUnit[0]?.ActivityTypeUnit?.Limit_Minute)} minutes`);
             return false;
         }
         return true;
@@ -386,6 +386,11 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                     return (
                         <Text>{selectedItem}</Text>
                     )
+                    }}
+                    renderCustomizedRowChild={(selectedItem, index) => {
+                        return (
+                            <Text style={{color: color.black, textAlign: 'center', fontSize: 17}}>{selectedItem}</Text>
+                        )
                     }}
                 />
 

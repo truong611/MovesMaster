@@ -1,7 +1,7 @@
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
-import {Animated, Dimensions, Platform, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import {Animated, Dimensions, Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
 import {color} from '../../theme';
 
 const layout = Dimensions.get('window');
@@ -28,55 +28,58 @@ export function Input(props: any) {
     let keyboardType = type || 'default';
 
     return (
-        <View style={styles.container}>
-            {Platform?.OS == 'ios' ? 
-            <TextInput
-                ref={innerRef}
-                // secureTextEntry={valueInput?.length > 0 ? secureTextEntry : false}
-                secureTextEntry={secureTextEntry}
-                autoCapitalize='none'
-                keyboardType={keyboardType}
-                placeholderTextColor={color.white}
-                style={[styles.input,
-                    style,
-                    status ? (
-                        status == 'danger' ?
-                            {borderColor: color.danger} :
-                            status == 'none' ?
-                                {borderWidth: 0} : {}
-                    ) : {borderColor: color.white},
-                    {fontFamily: 'UrbaneRounded-Medium'},
-                    // secureTextEntry != null ? {paddingRight: 12 + 20 + 10} : {}
-                ]}
-                {...rest}
-            />
-            : 
-            <TextInput
-                ref={innerRef}
-                secureTextEntry={valueInput?.length > 0 ? secureTextEntry : false}
-                // secureTextEntry={secureTextEntry}
-                autoCapitalize='none'
-                keyboardType={keyboardType}
-                placeholderTextColor={color.white}
-                style={[styles.input,
-                    style,
-                    status ? (
-                        status == 'danger' ?
-                            {borderColor: color.danger} :
-                            status == 'none' ?
-                                {borderWidth: 0} : {}
-                    ) : {borderColor: color.white},
-                    {fontFamily: 'UrbaneRounded-Medium'},
-                    // secureTextEntry != null ? {paddingRight: 12 + 20 + 10} : {}
-                ]}
-                {...rest}
-            />}
-            {secureTextEntry != null ?
-                <TouchableOpacity style={styles.eye} onPress={onChangeSecure}>
-                    {hideIcon ? null : <Ionicons name={secureTextEntry ? 'eye-outline' : 'eye-off-outline'} color="white" size={20}/>}  
-                </TouchableOpacity>
-                : null}
-        </View>
+        <TouchableOpacity onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.container}>
+                {Platform?.OS == 'ios' ? 
+                <TextInput
+                    ref={innerRef}
+                    // secureTextEntry={valueInput?.length > 0 ? secureTextEntry : false}
+                    secureTextEntry={secureTextEntry}
+                    autoCapitalize='none'
+                    keyboardType={keyboardType}
+                    placeholderTextColor={color.white}
+                    style={[styles.input,
+                        style,
+                        status ? (
+                            status == 'danger' ?
+                                {borderColor: color.danger} :
+                                status == 'none' ?
+                                    {borderWidth: 0} : {}
+                        ) : {borderColor: color.white},
+                        {fontFamily: 'UrbaneRounded-Medium'},
+                        // secureTextEntry != null ? {paddingRight: 12 + 20 + 10} : {}
+                    ]}
+                    {...rest}
+                />
+                : 
+                <TextInput
+                    ref={innerRef}
+                    secureTextEntry={valueInput?.length > 0 ? secureTextEntry : false}
+                    // secureTextEntry={secureTextEntry}
+                    autoCapitalize='none'
+                    keyboardType={keyboardType}
+                    placeholderTextColor={color.white}
+                    style={[styles.input,
+                        style,
+                        status ? (
+                            status == 'danger' ?
+                                {borderColor: color.danger} :
+                                status == 'none' ?
+                                    {borderWidth: 0} : {}
+                        ) : {borderColor: color.white},
+                        {fontFamily: 'UrbaneRounded-Medium'},
+                        // secureTextEntry != null ? {paddingRight: 12 + 20 + 10} : {}
+                    ]}
+                    {...rest}
+                />}
+                {secureTextEntry != null ?
+                    <TouchableOpacity style={styles.eye} onPress={onChangeSecure}>
+                        {hideIcon ? null : <Ionicons name={secureTextEntry ? 'eye-outline' : 'eye-off-outline'} color="white" size={20}/>}  
+                    </TouchableOpacity>
+                    : null}
+            </View>
+        </TouchableOpacity>
+      
     );
 }
 

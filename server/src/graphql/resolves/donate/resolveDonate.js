@@ -930,8 +930,14 @@ const resolvers = {
                     .orderBy('Campaign_Launch_Date', 'desc');
             }
             let Campaign = [...CampaignPublic, ...CampaignPrivate];
+
+            let Appeal_Id = Campaign.map(item => item.Appeal_ID);
+            let listApeal = await db.table('Appeal').whereIn('Appeal_ID', Appeal_Id);
+
             Campaign?.length && Campaign.map(item => {
                 item.Campaign_Icon = item.Campaign_Icon ? URL_FOLDER + item.Campaign_Icon : null;
+                let appeal = listApeal.find(x => x.Appeal_ID == item.Appeal_ID);
+                item.Appeal_Icon = appeal ? (appeal.Appeal_Icon ? URL_FOLDER + appeal.Appeal_Icon : null ) : null; 
             });
             return Campaign;
         }

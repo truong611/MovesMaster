@@ -26,11 +26,12 @@ const chartConfig = {
     backgroundColor: color.tabbar,
     backgroundGradientFrom:color.tabbar,
     backgroundGradientTo: color.tabbar,
-    color: (opacity = 1) => color.white,
+    color: (opacity = 1) => color.tabbar,
     strokeWidth: 1,
     barPercentage: 0.5,
     useShadowColorFromDataset: false,
     decimalPlaces: 0,
+    labelColor: (opacity = 1) => color.white,
 };
 
 export const ViewActivityScreen = observer(function ViewActivityScreen() {
@@ -48,7 +49,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
     const [dataChart, setDataChart] = useState<any>(null);
     const [isActivities, setIsActivities] = useState(false)
     const [isChangeDay, setIsChangeDay] = useState(false)
-    const [dotColor, setDotColor] = useState<any>([]);
     const [dotNoDisplay, setDotNoDisplay] = useState<any>([]);
     const [dataFitness, setDataFitness] = useState<any>([]);
     const [lechGio,setLechGio] = useState(0)
@@ -67,7 +67,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         _lechGio = ((center_time - time_server)/(60*60*1000)) + ((center_time - time_device)/(60*60*1000))
         // _lechGio = ((time_server - time_device)/(60*60*1000))
         setLechGio(_lechGio)
-        console.log("lech gio: ",_lechGio)
         setRefresh(false);
         if (isFocused && !isRefresh && refetch) {
             setLoading(true);
@@ -88,9 +87,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                     _date = newDate.getTime()
                 } 
                 setDate(_date)
-                console.log("_date", new Date(_date + _lechGio*60*60*1000))
-                console.log("_date 2", new Date(_date))
-                console.log(10 + -1)
                 let {data: {getViewActivity: {Activity_Entry, message, messageCode}}} = await refetch({
                     "date": _lechGio < 0 ? _date + 24*60*60*1000 : _date + _lechGio*60*60*1000
                 });
@@ -99,7 +95,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                     let _Activity_Entry = [...Activity_Entry]
                     _Activity_Entry.sort((a,b) => {
                         // return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
-                        return (parseInt(b?.Activity_End_Time) - parseInt(a?.Activity_End_Time))
+                        return (parseInt(a?.Activity_End_Time) - parseInt(b?.Activity_End_Time))
                     })
                     let _Activity_Entry_final = []
                     _Activity_Entry.map((item,index) => {
@@ -119,6 +115,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                     dataActivity_entry.sort((a,b) => {
                        return a?.Activity_End_Time - b?.Activity_End_Time
                     })
+                    
                     HandleDataChart(dataActivity_entry)
                     // let _data = {
                     //     labels: [],
@@ -211,8 +208,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                 }
             ],
         };
-        let _dotColor = []
-        let _dotNoDisplay : any = []
+        let checkTime = []
         let dataActivity_entry = [...Activity_Entry]
         let datetime_03_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
         datetime_03_00.setHours(3)
@@ -261,13 +257,22 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         datetime_0_00.setMinutes(0)
         datetime_0_00.setSeconds(59)
         datetime_0_00.setMilliseconds(0)
-        for(let i = 0; i < dataActivity_entry?.length ; i++ ){
-            let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
-            let label_Start = getHouse(dataActivity_entry[i]?.Activity_Start_Time)
-            let item_time = new Date(dataActivity_entry[i]?.Activity_End_Time).getTime()
-            let item_time_start = new Date(dataActivity_entry[i]?.Activity_Start_Time).getTime()
 
-            let distance = Math.floor((item_time - item_time_start) / 3600000)
+        let startTime = 0
+        for(let i = 0; i < dataActivity_entry?.length ; i++ ){
+            let _startTime = new Date(dataActivity_entry[0]?.Activity_End_Time).getHours()
+            if(0 <= _startTime && _startTime < 3) startTime = 0
+            if(3 <= _startTime && _startTime < 6) startTime = 3
+            if(6 <= _startTime && _startTime < 9) startTime = 6
+            if(9 <= _startTime && _startTime < 12) startTime = 9
+            if(12 <= _startTime && _startTime < 15) startTime = 12
+            if(15 <= _startTime && _startTime < 18) startTime = 15
+            if(18 <= _startTime && _startTime < 21) startTime = 18
+            if(21 <= _startTime ) startTime = 21
+            
+            let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
+            let item_time = new Date(dataActivity_entry[i]?.Activity_End_Time).getTime()
+
 
             if(getHouse(datetime_0_00) == label){
                 _data.labels.push(label)
@@ -275,684 +280,254 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
             }
             else if(datetime_0_00.getTime() < item_time && item_time < datetime_03_00.getTime()){
                 if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('00:00')
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(getHouse(datetime_03_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
+                    _data.labels.push('')
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }
+                
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('03:00')){       
+                        _data.labels.push('03:00')
                         _data.datasets[0].data.push(0)
                     }
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }else if(getHouse(datetime_03_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
+            // else if(getHouse(datetime_03_00) == label){
+            //     _data.labels.push(label)
+            //     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            // }
             else if(datetime_03_00.getTime() < item_time && item_time < datetime_06_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('03:00')
+                for(let j = startTime; j < 3; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                if(!_data.labels.includes('03:00')){                 
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(getHouse(datetime_06_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
+                
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('06:00')){       
+                            _data.labels.push('06:00')
+                            _data.datasets[0].data.push(0)
                     }
                 }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-            else if(getHouse(datetime_06_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_06_00.getTime() < item_time && item_time < datetime_09_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('06:00')
+                for(let j = startTime; j < 6; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
                 if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
                 }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
+                if(getHouse(datetime_09_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-            else if(getHouse(datetime_09_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('09:00')){       
+                            _data.labels.push('09:00')
+                            _data.datasets[0].data.push(0)
+                    }
+                }
             }
             else if(datetime_09_00.getTime() < item_time && item_time < datetime_12_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('09:00')
+                for(let j = startTime; j < 9; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('09:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
+                if(!_data.labels.includes('09:00')){                
                         _data.labels.push('09:00')
                         _data.datasets[0].data.push(0)
-                    }
                 }
-                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
+
+                if(getHouse(datetime_12_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }else if (getHouse(datetime_12_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('12:00')){       
+                            _data.labels.push('12:00')
+                            _data.datasets[0].data.push(0)
+                    }
+                }
             }
             else if(datetime_12_00.getTime() < item_time && item_time < datetime_15_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('12:00')
+                for(let j = startTime; j < 12; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('09:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
                 if(!_data.labels.includes('12:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
                         _data.labels.push('12:00')
                         _data.datasets[0].data.push(0)
-                    }
                 }
-                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
+                if(getHouse(datetime_15_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-            else if(getHouse(datetime_15_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('15:00')){       
+                            _data.labels.push('15:00')
+                            _data.datasets[0].data.push(0)
+                    }
+                }
             }
             else if(datetime_15_00.getTime() < item_time && item_time < datetime_18_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('15:00')
+                for(let j = startTime; j < 15; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+       
+                if(!_data.labels.includes('15:00')){               
+                    _data.labels.push('15:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(getHouse(datetime_18_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('18:00')){       
+                            _data.labels.push('18:00')
+                            _data.datasets[0].data.push(0)
                     }
                 }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('09:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('12:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('15:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-            else if(getHouse(datetime_18_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_18_00.getTime() < item_time && item_time < datetime_21_00.getTime()){
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('18:00')
+                for(let j = startTime; j < 18; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                         if(!_data.labels.includes(`${j}:00`)){             
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
+                if(!_data.labels.includes('18:00')){            
+                    _data.labels.push('18:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(getHouse(datetime_21_00) == label){
+                    _data.labels.push(label)
+                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                }else{
                     _data.labels.push('')
                     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
                 }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
+                if( i == dataActivity_entry?.length - 1) {
+                    if(!_data.labels.includes('21:00')){       
+                            _data.labels.push('21:00')
+                            _data.datasets[0].data.push(0)
                     }
                 }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('09:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('12:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('15:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('18:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('18:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('18:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_18_00.getTime() < item_time_start && item_time_start < datetime_21_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                _data.labels.push('')
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-            else if(getHouse(datetime_21_00) == label){
-                _data.labels.push(label)
-                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else {
-                if(!_data.labels.includes('00:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
+                checkTime.push('21:00')
+                for(let j = startTime; j < 21; j = j + 3){
+                    if(j < 10) {
+                        if(!_data.labels.includes(`0${j}:00`)){               
+                            _data.labels.push(`0${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
                     }else{
-                        _data.labels.push('00:00')
-                        _data.datasets[0].data.push(0)
-                    }
+                         if(!_data.labels.includes(`${j}:00`)){               
+                            _data.labels.push(`${j}:00`)
+                            _data.datasets[0].data.push(0)
+                        }
+                    }  
                 }
-                if(distance > 0 && datetime_0_00.getTime() < item_time_start && item_time_start < datetime_03_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('03:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('03:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_03_00.getTime() < item_time_start && item_time_start < datetime_06_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('06:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('06:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_06_00.getTime() < item_time_start && item_time_start < datetime_09_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('09:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_09_00.getTime() < item_time_start && item_time_start < datetime_12_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('12:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('12:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_12_00.getTime() < item_time_start && item_time_start < datetime_15_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('15:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('15:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_15_00.getTime() < item_time_start && item_time_start < datetime_18_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('18:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('18:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
-                        _data.labels.push('18:00')
-                        _data.datasets[0].data.push(0)
-                    }
-                }
-                if(distance > 0 && datetime_18_00.getTime() < item_time_start && item_time_start < datetime_21_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                if(!_data.labels.includes('21:00')){
-                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
-                        _data.labels.push('21:00')
-                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                        _dotColor.push(_data.labels?.length - 1)
-                    }else{
+                if(!_data.labels.includes('21:00')){            
                         _data.labels.push('21:00')
                         _data.datasets[0].data.push(0)
-                    }
                 }
-                if(distance > 0 && item_time_start > datetime_21_00.getTime()){
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                    _dotColor.push(_data.labels?.length - 1)
-                }
-                _data.labels.push('')
+                if(i == dataActivity_entry?.length - 1) _data.labels.push(label)
+                else _data.labels.push('')
                 _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                if(distance > 0) _dotColor.push(_data.labels?.length - 1)
-            }
-
-            if(distance > 0){
-                if(item_time_start < datetime_03_00.getTime() && datetime_03_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('03:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_06_00.getTime() && datetime_06_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('06:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_09_00.getTime() && datetime_09_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('09:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_12_00.getTime() && datetime_12_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('12:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_15_00.getTime() && datetime_15_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('15:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_18_00.getTime() && datetime_18_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('18:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-                if(item_time_start < datetime_21_00.getTime() && datetime_21_00.getTime() < item_time){
-                    let index = _data.labels.indexOf('21:00')
-                    _data.datasets[0].data[index] = dataActivity_entry[i]?.Conversion_Rate
-                    _dotNoDisplay.push(index)
-                }
-            }            
+            }     
         }
-        if(!_data.labels.includes('00:00')){
-            _data.labels.push('00:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('03:00')){
-            _data.labels.push('03:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('06:00')){
-            _data.labels.push('06:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('09:00')){
-            _data.labels.push('09:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('12:00')){
-            _data.labels.push('12:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('15:00')){
-            _data.labels.push('15:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('18:00')){
-            _data.labels.push('18:00')
-            _data.datasets[0].data.push(0)
-        }
-        if(!_data.labels.includes('21:00')){
-            _data.labels.push('21:00')
-            _data.datasets[0].data.push(0)
-        }
-        setDataChart(_data)
-        setDotColor(_dotColor)   
-        setDotNoDisplay(_dotNoDisplay)   
+        setDataChart(_data) 
     }
 
     const goToPage = (page) => {
@@ -1077,7 +652,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                                     {/* <Text style={{fontSize: 11,marginBottom: 5}}>Moves/minute</Text> */}
                                     <LineChart
                                         style={styles.lineChart}
-                                        // withVerticalLabels={false}
+                                        // withVerticalLabels={true}
                                         withHorizontalLabels={false}
                                         // segments={4}
                                         fromZero={true}
@@ -1090,11 +665,8 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                                         height={layout.width * 4.5 / 10}
                                         chartConfig={chartConfig}
                                         bezier
-                                        // hidePointsAtIndex={dotNoDisplay}
                                         getDotColor={(dataPoint, dataPointIndex) => {
-                                            if (dotColor.includes(dataPointIndex) || dotNoDisplay.includes(dataPointIndex)) {
-                                              return color.error;
-                                            }
+                                            if(dataPoint == 0) return color.tabbar
                                             return color.white;
                                             }}
                                     />
@@ -1178,7 +750,8 @@ const styles = StyleSheet.create({
         height: 25,
         borderRadius: 5,
         backgroundColor: color.primary,
-        marginBottom: 20
+        marginBottom: 15,
+        marginTop: 5
     },
     appsItemImage: {
         width: 25,
@@ -1229,7 +802,7 @@ const styles = StyleSheet.create({
         marginRight: '17%'
     },
     banner: {
-        minHeight: layout.width * 4.5 / 10,
+        minHeight: layout.width * 2.5 / 10,
         width: layout.width - 32,
         backgroundColor: color.tabbar,
         marginHorizontal: 16,
@@ -1268,5 +841,9 @@ const styles = StyleSheet.create({
     },
     lineChart: {
         marginLeft: -45,
+    },
+    lineChart_2: {
+        marginLeft: -45,
+        // position: 'absolute'
     }
 });

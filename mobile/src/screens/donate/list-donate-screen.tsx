@@ -53,9 +53,7 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
                 let {data: {getListDonationMobile: {ListDonation, messageCode, message}}} = await refetch();
                 setLoading(false);
                 if (messageCode == 200) {        
-                    setListDonate(ListDonation);
-                    console.log(params);
-                    
+                    setListDonate(ListDonation);                   
                     if(params?.type == 'Date'){
                         sortHistoryByDate(params?.value, ListDonation)
                     }

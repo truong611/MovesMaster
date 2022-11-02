@@ -23,4 +23,4 @@ export const GARMIN_oauthConfirm = `https://connect.garmin.com/oauthConfirm?oaut
 export const GARMIN_accsess_token = 'https://connectapi.garmin.com/oauth-service/oauth/access_token'
 export const GARMIN_activities = 'https://apis.garmin.com/wellness-api/rest/activities?'
 
-export const Limit_Second = 60
+export const Limit_Second = 120
