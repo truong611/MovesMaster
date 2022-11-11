@@ -534,22 +534,27 @@ const resolvers = {
         let User = await db.table('User')
           .where('User_ID', User_ID)
           .where('Is_Mobile_App_User', true)
-          .first();
-        let LastUpload = User['Created_Date'];
-
-        // let Activity_Upload = await db.table('Activity_Upload')
+          .first(); 
+          
+        // if(User){
+        //   await db.table('User')
         //   .where('User_ID', User_ID)
-        //   .orderBy('Upload_Period_End_Time', 'desc');
+        //   .where('Is_Mobile_App_User', true)
+        //   .update({
+        //       GMT_Mobile: args?.GMT_Mobile
+        //   });
+        // } 
+
+        let LastUpload = commonSystem.formatDate2(new Date(User['Created_Date']), "YYYY/MM/DD-hh:mm:ss") ;
         
         let Activity_Upload = await db.table('Activity_Upload')
           .where('User_ID', User_ID)
           .orderBy('Activity_Upload_Datetime', 'desc');
 
         if (Activity_Upload?.length) {
-          LastUpload = Activity_Upload[0]['Activity_Upload_Datetime'];
+          LastUpload = commonSystem.formatDate2(new Date(Activity_Upload[0]['Activity_Upload_Datetime']),"YYYY/MM/DD-hh:mm:ss")   ;
         }
         let { Donated_Moves, Amount_Donated, Moves_Avaiable } = await commonSystem.getDonate(User_ID);
-
         return {
           data: {
             Donated_Moves,

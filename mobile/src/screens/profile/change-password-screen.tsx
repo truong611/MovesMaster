@@ -26,10 +26,10 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
     const [isLoading, setLoading] = useState(false);
     const [isSubmit, setSubmit] = useState(false);
     const [formData, setFormData] = useState<any>({
-        passwordOld: '',
+        // passwordOld: '',
         passwordNew: '',
         passwordConfirm: '',
-        passwordOldSecure: true,
+        // passwordOldSecure: true,
         passwordNewSecure: true,
         passwordConfirmSecure: true,
     });
@@ -50,10 +50,10 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
 
     const resetData = () => {
         setFormData({
-            passwordOld: '',
+            // passwordOld: '',
             passwordNew: '',
             passwordConfirm: '',
-            passwordOldSecure: true,
+            // passwordOldSecure: true,
             passwordNewSecure: true,
             passwordConfirmSecure: true,
         });
@@ -68,10 +68,10 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
 
     const checkSubmit = () => {
         setSubmit(true);
-        if (regexString(formData?.passwordOld)) {
-            showToast('error', 'current password cannot be empty');
-            return false;
-        }
+        // if (regexString(formData?.passwordOld)) {
+        //     showToast('error', 'current password cannot be empty');
+        //     return false;
+        // }
         if (regexString(formData?.passwordNew)) {
             showToast('error', 'new password cannot be empty');
             return false;
@@ -103,7 +103,7 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
             try {
                 let {data: {changePassword: {messageCode, message}}} = await changePassword({
                     variables: {
-                        "passwordOld": formData?.passwordOld,
+                        // "passwordOld": formData?.passwordOld,
                         "passwordNew": formData?.passwordNew
                     },
                 });
@@ -111,6 +111,8 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
                 if (messageCode == 200) {
                     resetData();
                     showToast('success', message);
+                    navigation.navigate('MainScreen', {screen: 'ProfileScreen'})
+                    // navigation.navigate('ProfileScreen')
                     // await movesModel.setUserInfo({
                     //     password: formData?.passwordNew
                     // })
@@ -131,7 +133,7 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
                     <Text style={{fontSize: 15}} fonts={'DemiBold'}>CHANGE PASSWORD</Text>
                 </View>
                 <View style={{justifyContent: 'center', alignItems: 'center', marginVertical: 16}}>
-                    <Text style={styles.infoText}>current password</Text>
+                    {/* <Text style={styles.infoText}>current password</Text>
                     <Input
                         onSubmitEditing={() => ref_input_new_password.current?.focus()}
                         blurOnSubmit={false}
@@ -142,7 +144,7 @@ export const ChangePasswordScreen = observer(function ChangePasswordScreen() {
                         status={isSubmit && regexString(formData?.passwordOld) ? 'danger' : 'none'}
                         value={formData?.passwordOld}
                         onChangeText={(value) => setChangeText('passwordOld', value)}
-                    />
+                    /> */}
                     <Text style={styles.infoText}>new password</Text>
                     <Input
                         innerRef={ref_input_new_password}

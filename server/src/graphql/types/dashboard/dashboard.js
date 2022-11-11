@@ -93,7 +93,7 @@ const typeDefs = gql`
     Donated_Moves: Float,
     Amount_Donated: Float,
     Moves_Avaiable: Float,
-    LastUpload: Timestamp,
+    LastUpload: String,
   }
   
   type GetDashboardMobileResponse {
@@ -118,7 +118,7 @@ const typeDefs = gql`
     getDashboardAccountInfo(type: Int!, objectId: Int): GetDashboardAccountInfoResponse,
     getDashboardNews(type: Int!, objectId: Int): GetDashboardNewsResponse,
     getDashboardReport(type: Int!, objectId: Int): GetDashboardReportResponse,
-    getDashboardMobile: GetDashboardMobileResponse,
+    getDashboardMobile(GMT_Mobile: Int): GetDashboardMobileResponse,
     getDirectory: GetDirectoryResponse,
   }
 

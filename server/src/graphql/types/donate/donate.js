@@ -12,7 +12,7 @@ const typeDefs = gql`
         Appeal_ID: Int,
         Moves_Charity_ID: Int,
         Campaign_ID: Int,
-        Created_Date: Timestamp,
+        Created_Date: String,
         User_ID: Int,
 
         #virtual field
@@ -128,7 +128,7 @@ const typeDefs = gql`
 
     type Mutation {
         favouriteMobile(id: Int!, type: String): GetFavouriteMobileResponse,
-        storeDonate(bodyData: StoreDonateInput!): GetStoreDonateResponse,
+        storeDonate(bodyData: StoreDonateInput!, GMT_Mobile: Int!): GetStoreDonateResponse,
         recommendCharity(bodyData: RecommendCharityInput!): GetRecommendCharityResponse
     }
 

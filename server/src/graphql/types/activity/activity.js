@@ -26,8 +26,8 @@ const typeDefs = gql`
 
     type Activity_Type_Entry {
         Activity_Entry_ID: Int,
-        Activity_Start_Time: Timestamp,
-        Activity_End_Time: Timestamp,
+        Activity_Start_Time: String,
+        Activity_End_Time: String,
         Object_Source_ID: Int,
         Object_Source_Type: Int,
         Activity_Type_Unit_ID: Int,
@@ -59,7 +59,7 @@ const typeDefs = gql`
 
     type ResponseActivityType {
         ActivityType: [ActivityType],
-        LastUpload: Timestamp,
+        LastUpload: String,
         Activity_Type_Entry: [Activity_Type_Entry],
         Upload_Count: Int,
         Upload_End_Date: Timestamp,
@@ -74,6 +74,7 @@ const typeDefs = gql`
     }
 
     input AppleHealthActivityInput {
+        ID: String!,
         Type_Name: String!,
         StartTime: Timestamp!,
         EndTime: Timestamp!,
@@ -120,15 +121,15 @@ const typeDefs = gql`
     # ROOT TYPE
     type Query {
         getMasterDataUploadActivity: ResponseGetMasterUploadActivity,
-        getViewActivity(date: Timestamp!): ResponseGetViewActivity,
+        getViewActivity(month: Int!, year: Int!, day: Int!): ResponseGetViewActivity,
         getOverviewActivity(date: Timestamp!, type: String!): ResponseGetOverviewActivity,
-        getOverviewActivityMobile(date: Timestamp!, type: String!, lechGio:Int!): ResponseGetOverviewActivityMobile,
+        getOverviewActivityMobile(date: Timestamp!, type: String!): ResponseGetOverviewActivityMobile,
     }
 
     type Mutation {
-        uploadActivity(bodyData: [ActivityUploadInput]): ResponseUploadActivity,
-        updateGarminActivity: BaseResponse,
-        updateAppleHealthActivity(bodyData: [AppleHealthActivityInput]): BaseResponse,
+        uploadActivity(bodyData: [ActivityUploadInput], newDate: String!, GMT_Mobile: Float!): ResponseUploadActivity,
+        updateGarminActivity(GMT_Mobile: Int!): BaseResponse,
+        updateAppleHealthActivity(bodyData: [AppleHealthActivityInput], GMT_Mobile: Float!): BaseResponse,
     }
 `;
 

@@ -13,6 +13,7 @@ import DatePicker from 'react-native-date-picker'
 import SelectDropdown from 'react-native-select-dropdown'
 import {
     calculateDate,
+    converStrToDate,
     dateToTimestamp,
     displaySelect,
     formatDate,
@@ -81,7 +82,9 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                     })
                 });
 
-                let LastUpload = new Date(data?.LastUpload);
+                
+
+                let LastUpload = converStrToDate(data?.LastUpload);
                 setLastUpload(LastUpload);
 
                 let _datetime = {...datetime};
@@ -410,6 +413,7 @@ export const AddIndividualActivityItemsScreen = observer(function AddIndividualA
                             open={isShow?.fromDate}
                             date={datetime?.fromDate}
                             onConfirm={(date) => {
+                                setUnits('')
                                 let _datetime = {...datetime};
                                 _datetime['fromDate'] = date;
                                 _datetime['toDate'] = date;

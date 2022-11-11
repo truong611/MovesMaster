@@ -114,6 +114,7 @@ export const isIphoneWithNotch = () => {
 
 export const StatusBarHeight = Platform.select({
     ios: isIphoneWithNotch() ? 44 : 20,
+    // ios: isIphoneWithNotch() ? -44 : -20,
     // android: StatusBar.currentHeight,
     android: 0,
     default: 0
@@ -168,6 +169,22 @@ export const timestampToDate = (timestamp, type = null) => {
     ].join("/")
 };
 
+export const converStrToDate = (str) => {
+    if(!str) return
+    const [dateValues, timeValues] = str.split('-');
+    const [year,month,day] = dateValues.split('/');
+    const [hours, minutes, seconds] = timeValues.split(':');
+
+    return new Date(year, month - 1, day, hours, minutes, seconds);
+}
+
+export const creartNewDateGMT00 = (date) => {
+    let _date = new Date(date).getTime()
+    let GMT_device = new Date().getTimezoneOffset()/60
+
+    return new Date(_date + GMT_device*60*60*1000);
+}
+
 export const formatDate = (date, type = null) => {
     if (date == null) {
         return ''
@@ -193,6 +210,9 @@ export const formatDate = (date, type = null) => {
     }
     else if (type == "dd/MM/YYYY hh:mm:ss") {
         return `${padTo2Digits(date.getDate())}/${padTo2Digits(date.getMonth() + 1)}/${date.getFullYear()} ${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
+    }
+    else if (type == "YYYY/MM/DD-hh:mm:ss") {
+        return `${date.getFullYear()}/${padTo2Digits(date.getMonth() + 1)}/${padTo2Digits(date.getDate())}-${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
     }
     
     return [

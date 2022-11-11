@@ -54,8 +54,8 @@ export const FETCH_getMasterDataUploadActivity = gql`
 `;
 
 export const FETCH_uploadActivity = gql`
-  mutation ActivityUploadInput($bodyData: [ActivityUploadInput]) {
-    uploadActivity(bodyData: $bodyData) {
+  mutation ActivityUploadInput($bodyData: [ActivityUploadInput], $newDate: String!, $GMT_Mobile: Float!) {
+    uploadActivity(bodyData: $bodyData, newDate: $newDate, GMT_Mobile: $GMT_Mobile) {
       messageCode
       message
     }
@@ -63,8 +63,8 @@ export const FETCH_uploadActivity = gql`
 `;
 
 export const FETCH_uploadActiviyGarmin = gql`
-  mutation Mutation {
-    updateGarminActivity {
+  mutation Mutation($GMT_Mobile: Int!) {
+    updateGarminActivity(GMT_Mobile: $GMT_Mobile) {
       messageCode
       message
     }
@@ -72,8 +72,8 @@ export const FETCH_uploadActiviyGarmin = gql`
 `;
 
 export const FETCH_uploadActivityApple = gql`
-mutation UpdateAppleHealthActivity($bodyData: [AppleHealthActivityInput]) {
-  updateAppleHealthActivity(bodyData: $bodyData) {
+mutation UpdateAppleHealthActivity($bodyData: [AppleHealthActivityInput], $GMT_Mobile: Float!) {
+  updateAppleHealthActivity(bodyData: $bodyData, GMT_Mobile: $GMT_Mobile) {
     messageCode
     message
   }
@@ -81,8 +81,8 @@ mutation UpdateAppleHealthActivity($bodyData: [AppleHealthActivityInput]) {
 `;
 
 export const FETCH_getViewActivity = gql`
-  query GetViewActivity($date: Timestamp!) {
-    getViewActivity(date: $date) {
+  query GetViewActivity($month: Int!, $year: Int!, $day: Int! ) {
+    getViewActivity( month: $month, year: $year, day : $day) {
       messageCode
       message
       Activity_Entry {
@@ -125,8 +125,8 @@ export const FETCH_getOverViewActivity = gql`
 `;
 
 export const FETCH_getOverViewActivityMobile = gql`
-  query getOverviewActivityMobile($date: Timestamp!, $type: String!, $lechGio: Int!) {
-    getOverviewActivityMobile(date: $date, type: $type, lechGio: $lechGio) {
+  query getOverviewActivityMobile($date: Timestamp!, $type: String!) {
+    getOverviewActivityMobile(date: $date, type: $type) {
       message
       messageCode
       data{

@@ -63,8 +63,8 @@ const _getUserInfor = gql`
 `
 
 const _changeUserPassword = gql`
-  mutation Mutation($User_ID: Int!, $Current_Password: String, $New_Password: String) {
-    changeUserPassword(User_ID: $User_ID, Current_Password: $Current_Password, New_Password: $New_Password) {
+  mutation Mutation($User_ID: Int!, $New_Password: String) {
+    changeUserPassword(User_ID: $User_ID, New_Password: $New_Password) {
       messageCode
       message
     }
@@ -128,13 +128,13 @@ export class UserService {
     });
   }
 
-  changeUserPassword(User_ID: Number, Current_Password: String, New_Password: String) {
+  changeUserPassword(User_ID: Number, New_Password: String) {
     return new Promise((resolve, reject) => {
       return this.apollo.mutate({
         mutation: _changeUserPassword,
         variables: {
           User_ID,
-          Current_Password,
+          // Current_Password,
           New_Password
         }
       }).toPromise()

@@ -17,6 +17,7 @@ import {
 import DatePicker from "react-native-date-picker";
 import {FETCH_getOverViewActivityMobile} from "./activity-service";
 import {useQuery} from "@apollo/react-hooks";
+import { GMT_SERVER } from '../../config';
 
 
 const layout = Dimensions.get('window');
@@ -52,12 +53,11 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
         getActivityMonth(params?.date)
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
-        let test_date1 = new Date("2020-04-13T00:00:00.000+07:00").getTime()
-        let test_date2 = new Date(2020,3,13).getTime()
-        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) > 0){
+        
+        if( (new Date(2020,3,13).getTime() - new Date(`2020-04-13T00:00:00.000${GMT_SERVER}`).getTime() ) > 0){
             setLechGio(1)
         }
-        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) < 0){
+        if( (new Date(2020,3,13).getTime() - new Date(`2020-04-13T00:00:00.000${GMT_SERVER}`).getTime() ) < 0){
             setLechGio(-1)
         }
         setRefresh(false);
@@ -75,19 +75,9 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
     };
 
     const getActivityMonth = async (date) => {
-        let _lechGio = 0
-        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) > 0){
-            _lechGio = 1
-            setLechGio(_lechGio)
-        }
-        if( (new Date(2020,3,13).getTime() - new Date("2020-04-13T00:00:00.000+07:00").getTime() ) < 0){
-            _lechGio = -1
-            setLechGio(_lechGio)
-        }
         let {data : {getOverviewActivityMobile : {data},message, messageCode}} = await refetch({
             "date": new Date(date).getTime(),
             "type": "month",
-            "lechGio" : _lechGio
         })
         setArrDay(data)   
     }
@@ -138,14 +128,13 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
     };
 
     const goToDate = (date, screen = 'ViewActivityScreen') => {
-
         let future_date = new Date()
         future_date.setDate(future_date.getDate() + 1)
         future_date.setHours(0)
         future_date.setMinutes(0)
         future_date.setSeconds(0)
         future_date.setMilliseconds(0)
-        if(date.getDate() < future_date.getDate() && date.getMonth() <= future_date.getMonth() && date.getFullYear() <= future_date.getFullYear()){
+        if(date.getTime() < future_date.getTime()){
             setChangeShow('date', false); 
             // _date.setHours(7, 0, 0);
             navigation.navigate('MainScreen', {
@@ -204,8 +193,8 @@ export const CalendarActivityScreen = observer(function CalendarActivityScreen()
                                         <View key={'day-' + item?.day?.toString() + index} style={[{width: '25%'}, {paddingHorizontal: 8, paddingVertical: 8, justifyContent: 'center', alignItems: 'center'}]}>
                                             <TouchableOpacity style={[{borderWidth: 1, borderColor: color.white, paddingVertical: 16, paddingHorizontal: 18, borderRadius: 16},
                                                 item?.day == newDate.getDate() && item?.month == (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear() ? {borderColor: color.green} : {},
-                                                item?.activity && (item?.day) < newDate.getDate() && item?.month <= (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear() ? {borderColor: color.error} : {},
-                                                !item?.activity && (item?.day) < newDate.getDate() && item?.month <= (newDate.getMonth() + 1) && item?.year <= newDate.getFullYear()  ? {borderColor: color.blue} : {},
+                                                item?.activity && new Date(newDate.getFullYear(), item?.month - 1, item?.day).getTime() <  newDate.getTime() ? {borderColor: color.error} : {},
+                                                !item?.activity && new Date(newDate.getFullYear(), item?.month - 1, item?.day).getTime() <  newDate.getTime()  ? {borderColor: color.blue} : {},
                                             ]} onPress={() => {
                                                 let _date = new Date(item.year,item.month - 1,item.day).getTime()
                                                 goToDate(new Date(_date))}}>

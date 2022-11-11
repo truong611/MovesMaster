@@ -44,10 +44,10 @@ export const FETCH_getListCharity = gql`
                     Campaign_ID
                     Campaign_Name
                     Campaign_Icon
+                    Appeal_Icon
                     Campaign_Price_Per_Move
                     End_Date_Target
                     Campaign_Target_Value
-                    Amount_Raised
                     Campaign_Description
                     Campaign_Launch_Date
                 }

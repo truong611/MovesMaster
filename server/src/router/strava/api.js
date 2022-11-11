@@ -44,9 +44,21 @@ module.exports = function (app) {
       if (result.statusCode == 200) {
         let _result = JSON.parse(result.body);
 
+        let start_date_local_str = _result.start_date_local.toString()
+        // "2022-11-09T09:58:22Z"
+        console.log("start_date_local_str: ", start_date_local_str )
+
+        const [dateValues, timeValues] = start_date_local_str.split('T');
+        const [year ,month ,day] = dateValues.split('-');
+        const [hours, minutes, secondsZ] = timeValues.split(':');
+        let seconds = secondsZ.replace('Z','')
+
+        let start_date_local = new Date(year, month -  1 , day, hours, minutes, seconds)
+
         let end_date_local_time = _result.moving_time * 1000;
 
-        let end_date_local = new Date(new Date(_result.start_date).getTime() + end_date_local_time);
+        // let end_date_local = new Date(new Date(_result.start_date).getTime() + end_date_local_time);
+        let end_date_local = new Date(start_date_local.getTime() + end_date_local_time);
 
         let listType = await db.table('Activity_Type');
         let type = listType.find(x => x.Strava_Activity_Type_Name.toLocaleLowerCase().trim().includes(_result.type.toLocaleLowerCase().trim()));
@@ -54,7 +66,7 @@ module.exports = function (app) {
         if (aspect_type == 'create') {
           //Nếu khoảng thời gian qua hơn 1 ngày
           if (commonSystem.formatDate(end_date_local) != commonSystem.formatDate(new Date(_result.start_date))) {
-            let listRangeDate = commonSystem.getListRangeDate(new Date(_result.start_date), end_date_local);
+            let listRangeDate = commonSystem.getListRangeDate(start_date_local, end_date_local);
 
             for (let i = 0; i < listRangeDate.length; i++) {
               let item = listRangeDate[i];
@@ -84,8 +96,8 @@ module.exports = function (app) {
                 Fitness_App_Activities_Usage_ID: Fitness_App_Usage_ID,
                 Fitness_App_Activities_Object_ID: object_id,
                 Fitness_App_Activities_Apply_Moves: false,
-                Fitness_App_Activities_Start_Date: _result.start_date ? new Date(_result.start_date) : null,
-                Fitness_App_Activities_Start_Date_Local: _result.start_date ? new Date(_result.start_date) : null,
+                Fitness_App_Activities_Start_Date: _result.start_date ? start_date_local : null,
+                Fitness_App_Activities_Start_Date_Local: _result.start_date ? start_date_local : null,
                 Fitness_App_Activities_End_Date_Local: end_date_local,
                 Activity_Type_ID: type?.Activity_Type_ID
               });

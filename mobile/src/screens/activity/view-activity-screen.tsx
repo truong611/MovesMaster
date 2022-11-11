@@ -8,11 +8,12 @@ import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 // @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getHouse, dateToTimestamp, formatDate, formatNumber, showToast, timestampToDate, replaceHTTP} from "../../services";
+import {getHouse, dateToTimestamp, formatDate, formatNumber, showToast, timestampToDate, replaceHTTP, converStrToDate} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getViewActivity} from "./activity-service";
 import {LineChart} from "react-native-chart-kit";
 import { FETCH_getFitnessAppUsage } from '../fitness-apps/fitness-apps-service';
+import { GMT_SERVER } from '../../config';
 
 const layout = Dimensions.get('window');
 
@@ -51,7 +52,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
     const [isChangeDay, setIsChangeDay] = useState(false)
     const [dotNoDisplay, setDotNoDisplay] = useState<any>([]);
     const [dataFitness, setDataFitness] = useState<any>([]);
-    const [lechGio,setLechGio] = useState(0)
     const query = useQuery(FETCH_getFitnessAppUsage)
 
     const {refetch} = useQuery(FETCH_getViewActivity);
@@ -60,13 +60,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         fetchData();
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
-        let _lechGio = 0
-        let center_time = new Date("2022-04-13T00:00:00.000+00:00").getTime()
-        let time_device = new Date(2022,3,13).getTime()
-        let time_server = new Date("2022-04-13T00:00:00.000+07:00").getTime()
-        _lechGio = ((center_time - time_server)/(60*60*1000)) + ((center_time - time_device)/(60*60*1000))
-        // _lechGio = ((time_server - time_device)/(60*60*1000))
-        setLechGio(_lechGio)
         setRefresh(false);
         if (isFocused && !isRefresh && refetch) {
             setLoading(true);
@@ -88,26 +81,37 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                 } 
                 setDate(_date)
                 let {data: {getViewActivity: {Activity_Entry, message, messageCode}}} = await refetch({
-                    "date": _lechGio < 0 ? _date + 24*60*60*1000 : _date + _lechGio*60*60*1000
+                    "month": new Date(_date).getMonth(),
+                    "year":  new Date(_date).getFullYear(),
+                    "day": new Date(_date).getDate()
                 });
                 setLoading(false);
                 if (messageCode == 200) {
                     let _Activity_Entry = [...Activity_Entry]
-                    _Activity_Entry.sort((a,b) => {
-                        // return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
-                        return (parseInt(a?.Activity_End_Time) - parseInt(b?.Activity_End_Time))
-                    })
+                    // _Activity_Entry.sort((a,b) => {
+                    //     // return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
+                    //     return (parseInt(a?.Activity_End_Time) - parseInt(b?.Activity_End_Time))
+                    // })
                     let _Activity_Entry_final = []
                     _Activity_Entry.map((item,index) => {
                         let obj = {...item}
+                        obj.Activity_Start_Time = converStrToDate(obj.Activity_Start_Time)
+                        obj.Activity_End_Time = converStrToDate(obj.Activity_End_Time)
                         for(let i = 0; i < FitnessApp?.length ; i++){
                             if(obj?.Fitness_App?.Fitness_App_Name == FitnessApp[i]?.Fitness_App_Name){
                                 obj.Fitness_App = {...obj.Fitness_App, Fitness_App_Icon: FitnessApp[i]?.Fitness_App_Icon}
                             }
                         }
                         _Activity_Entry_final.push(obj)
-                    })          
+                    })
+
+                    _Activity_Entry_final.sort((a,b) => {
+                        // return (parseInt(b?.Upload_Count) - parseInt(a?.Upload_Count))
+                        return new Date(a?.Activity_End_Time).getTime() - new Date(b?.Activity_End_Time).getTime()
+                    })
+
                     setListActivityEntry(_Activity_Entry_final)
+
                     Activity_Entry?.length > 0 ? setIsActivities(true) : setIsActivities(false)
 
                     let dataActivity_entry = [];
@@ -115,8 +119,18 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                     dataActivity_entry.sort((a,b) => {
                        return a?.Activity_End_Time - b?.Activity_End_Time
                     })
+
+                    console.log("dataActivity_entry 1:", dataActivity_entry);
+
+                    let _dataActivity_entry = []
                     
-                    HandleDataChart(dataActivity_entry)
+                    dataActivity_entry.map((item, index) => {
+                        let obj = {...item}
+                        obj.Activity_Start_Time = converStrToDate(obj.Activity_Start_Time)
+                        obj.Activity_End_Time = converStrToDate(obj.Activity_End_Time)
+                        _dataActivity_entry.push(obj)
+                    })
+                    HandleDataChart(_dataActivity_entry)
                     // let _data = {
                     //     labels: [],
                     //     datasets: [
@@ -149,7 +163,10 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
 
     const getActivityDays = async (date) => {   
         let {data: {getViewActivity: {Activity_Entry, message, messageCode}}} = await refetch({
-            "date": date
+            // "date": date,
+            "month": new Date(date).getMonth(),
+            "year":  new Date(date).getFullYear(),
+            "day": new Date(date).getDate()
         });
         setLoading(false);
         if (messageCode == 200) {
@@ -168,6 +185,8 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
             let _dataActivity_entry = []
             dataActivity_entry.map((item,index) => {
                 let obj = {...item}
+                obj.Activity_Start_Time = converStrToDate(obj.Activity_Start_Time)
+                obj.Activity_End_Time = converStrToDate(obj.Activity_End_Time)
                 for(let i = 0; i < dataFitness?.length ; i++){
                     if(obj?.Fitness_App?.Fitness_App_Name == dataFitness[i]?.Fitness_App_Name){
                         obj.Fitness_App = {...obj.Fitness_App, Fitness_App_Icon: dataFitness[i]?.Fitness_App_Icon}
@@ -175,6 +194,9 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                 }
                 _dataActivity_entry.push(obj)
             })
+            _dataActivity_entry.sort((a,b) => {
+                return new Date(a?.Activity_End_Time).getTime() - new Date(b?.Activity_End_Time).getTime()
+             })
             setListActivityEntry(_dataActivity_entry)
             HandleDataChart(_dataActivity_entry)
             // let _data = {
@@ -200,6 +222,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
     }
 
     const HandleDataChart = (Activity_Entry = []) => {
+        console.log("Activity_Entry: ", Activity_Entry)
         let _data = {
             labels: [],
             datasets: [
@@ -208,7 +231,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                 }
             ],
         };
-        let checkTime = []
+        let _dotNoDisplay : any = []
         let dataActivity_entry = [...Activity_Entry]
         let datetime_03_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
         datetime_03_00.setHours(3)
@@ -252,283 +275,298 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
         datetime_21_00.setSeconds(59)
         datetime_21_00.setMilliseconds(0)
 
+        let datetime_23_59 = new Date(dataActivity_entry[0]?.Activity_End_Time)
+        datetime_23_59.setHours(23)
+        datetime_23_59.setMinutes(59)
+        datetime_23_59.setSeconds(59)
+        datetime_23_59.setMilliseconds(0)
+
         let datetime_0_00 = new Date(dataActivity_entry[0]?.Activity_End_Time)
         datetime_0_00.setHours(0)
         datetime_0_00.setMinutes(0)
         datetime_0_00.setSeconds(59)
         datetime_0_00.setMilliseconds(0)
-
-        let startTime = 0
         for(let i = 0; i < dataActivity_entry?.length ; i++ ){
-            let _startTime = new Date(dataActivity_entry[0]?.Activity_End_Time).getHours()
-            if(0 <= _startTime && _startTime < 3) startTime = 0
-            if(3 <= _startTime && _startTime < 6) startTime = 3
-            if(6 <= _startTime && _startTime < 9) startTime = 6
-            if(9 <= _startTime && _startTime < 12) startTime = 9
-            if(12 <= _startTime && _startTime < 15) startTime = 12
-            if(15 <= _startTime && _startTime < 18) startTime = 15
-            if(18 <= _startTime && _startTime < 21) startTime = 18
-            if(21 <= _startTime ) startTime = 21
-            
             let label = getHouse(dataActivity_entry[i]?.Activity_End_Time)
+            let label_Start = getHouse(dataActivity_entry[i]?.Activity_Start_Time)
             let item_time = new Date(dataActivity_entry[i]?.Activity_End_Time).getTime()
+            let item_time_start = new Date(dataActivity_entry[i]?.Activity_Start_Time).getTime()
 
-
+            let distance = Math.floor((item_time - item_time_start) / 3600000)
             if(getHouse(datetime_0_00) == label){
                 _data.labels.push(label)
                 _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_0_00.getTime() < item_time && item_time < datetime_03_00.getTime()){
                 if(!_data.labels.includes('00:00')){
-                    _data.labels.push('00:00')
-                    _data.datasets[0].data.push(0)
-                }
-                if(getHouse(datetime_03_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }
-                
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('03:00')){       
-                        _data.labels.push('03:00')
+                    if(distance > 0 && getHouse(datetime_0_00) == label_Start){
+                        _data.labels.push('00:00')
+                        _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                    }else{
+                        _data.labels.push('00:00')
                         _data.datasets[0].data.push(0)
                     }
                 }
-            }
-            // else if(getHouse(datetime_03_00) == label){
-            //     _data.labels.push(label)
-            //     _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-            // }
-            else if(datetime_03_00.getTime() < item_time && item_time < datetime_06_00.getTime()){
-                checkTime.push('03:00')
-                for(let j = startTime; j < 3; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
-                }
-                if(!_data.labels.includes('03:00')){                 
-                    _data.labels.push('03:00')
-                    _data.datasets[0].data.push(0)
-                }
-                if(getHouse(datetime_06_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
                 
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('06:00')){       
-                            _data.labels.push('06:00')
-                            _data.datasets[0].data.push(0)
-                    }
+            }else if(getHouse(datetime_03_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_03_00.getTime() < item_time && item_time < datetime_06_00.getTime()){
+                if(!_data.labels.includes('00:00')){
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)  
                 }
+                if(!_data.labels.includes('03:00')){       
+                        _data.labels.push('03:00')
+                        _data.datasets[0].data.push(0)
+                }     
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(getHouse(datetime_06_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_06_00.getTime() < item_time && item_time < datetime_09_00.getTime()){
-                checkTime.push('06:00')
-                for(let j = startTime; j < 6; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
+                if(!_data.labels.includes('00:00')){            
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
+                }
+                
+                if(!_data.labels.includes('03:00')){                
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
                 }
                 if(!_data.labels.includes('06:00')){
                     _data.labels.push('06:00')
                     _data.datasets[0].data.push(0)
                 }
-                if(getHouse(datetime_09_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('09:00')){       
-                            _data.labels.push('09:00')
-                            _data.datasets[0].data.push(0)
-                    }
-                }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(getHouse(datetime_09_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_09_00.getTime() < item_time && item_time < datetime_12_00.getTime()){
-                checkTime.push('09:00')
-                for(let j = startTime; j < 9; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
+                if(!_data.labels.includes('00:00')){       
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
                 }
-                if(!_data.labels.includes('09:00')){                
-                        _data.labels.push('09:00')
-                        _data.datasets[0].data.push(0)
+                
+                if(!_data.labels.includes('03:00')){              
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
                 }
-
-                if(getHouse(datetime_12_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+                
+                if(!_data.labels.includes('06:00')){          
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
                 }
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('12:00')){       
-                            _data.labels.push('12:00')
-                            _data.datasets[0].data.push(0)
-                    }
+                
+                if(!_data.labels.includes('09:00')){
+                    _data.labels.push('09:00')
+                    _data.datasets[0].data.push(0)
                 }
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+               
+            }else if (getHouse(datetime_12_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_12_00.getTime() < item_time && item_time < datetime_15_00.getTime()){
-                checkTime.push('12:00')
-                for(let j = startTime; j < 12; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
-                }
-                if(!_data.labels.includes('12:00')){
-                        _data.labels.push('12:00')
+                if(!_data.labels.includes('00:00')){         
+                        _data.labels.push('00:00')
                         _data.datasets[0].data.push(0)
                 }
-                if(getHouse(datetime_15_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+               
+                if(!_data.labels.includes('03:00')){        
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
+                }   
+                if(!_data.labels.includes('06:00')){             
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
                 }
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('15:00')){       
-                            _data.labels.push('15:00')
-                            _data.datasets[0].data.push(0)
-                    }
+               
+                if(!_data.labels.includes('09:00')){                 
+                    _data.labels.push('09:00')
+                    _data.datasets[0].data.push(0)
                 }
+                
+                if(!_data.labels.includes('12:00')){                 
+                    _data.labels.push('12:00')
+                    _data.datasets[0].data.push(0)
+                }  
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(getHouse(datetime_15_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_15_00.getTime() < item_time && item_time < datetime_18_00.getTime()){
-                checkTime.push('15:00')
-                for(let j = startTime; j < 15; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
+                if(!_data.labels.includes('00:00')){                
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
                 }
-       
-                if(!_data.labels.includes('15:00')){               
+                
+                if(!_data.labels.includes('03:00')){              
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
+                }
+                
+                if(!_data.labels.includes('06:00')){         
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(!_data.labels.includes('09:00')){
+                    _data.labels.push('09:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(!_data.labels.includes('12:00')){   
+                    _data.labels.push('12:00')
+                    _data.datasets[0].data.push(0)
+                }
+
+                if(!_data.labels.includes('15:00')){           
                     _data.labels.push('15:00')
                     _data.datasets[0].data.push(0)
                 }
-                if(getHouse(datetime_18_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('18:00')){       
-                            _data.labels.push('18:00')
-                            _data.datasets[0].data.push(0)
-                    }
-                }
+
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+              
+            }
+            else if(getHouse(datetime_18_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
             }
             else if(datetime_18_00.getTime() < item_time && item_time < datetime_21_00.getTime()){
-                checkTime.push('18:00')
-                for(let j = startTime; j < 18; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){             
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
+                if(!_data.labels.includes('00:00')){
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
+                }  
+                if(!_data.labels.includes('03:00')){              
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(!_data.labels.includes('06:00')){
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(!_data.labels.includes('09:00')){             
+                    _data.labels.push('09:00')
+                    _data.datasets[0].data.push(0)
+                }
+               
+                if(!_data.labels.includes('12:00')){                 
+                    _data.labels.push('12:00')
+                    _data.datasets[0].data.push(0)
+                }
+                if(!_data.labels.includes('15:00')){    
+                    _data.labels.push('15:00')
+                    _data.datasets[0].data.push(0)
+                }
+              
+                if(!_data.labels.includes('18:00')){                 
+                    _data.labels.push('18:00')
+                    _data.datasets[0].data.push(0)
+                }
+                
+                _data.labels.push('')
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(getHouse(datetime_21_00) == label){
+                _data.labels.push(label)
+                _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
+            }
+            else if(datetime_21_00.getTime() < item_time) {
+                if(!_data.labels.includes('00:00')){                 
+                    _data.labels.push('00:00')
+                    _data.datasets[0].data.push(0)
+                }          
+                if(!_data.labels.includes('03:00')){
+                    _data.labels.push('03:00')
+                    _data.datasets[0].data.push(0) 
+                }
+                
+                if(!_data.labels.includes('06:00')){             
+                    _data.labels.push('06:00')
+                    _data.datasets[0].data.push(0)
+                }
+  
+                if(!_data.labels.includes('09:00')){
+                    _data.labels.push('09:00')
+                    _data.datasets[0].data.push(0)
+                }
+    
+                if(!_data.labels.includes('12:00')){
+                    _data.labels.push('12:00')
+                    _data.datasets[0].data.push(0)
+                }
+                
+                if(!_data.labels.includes('15:00')){              
+                    _data.labels.push('15:00')
+                    _data.datasets[0].data.push(0)
                 }
                 if(!_data.labels.includes('18:00')){            
                     _data.labels.push('18:00')
                     _data.datasets[0].data.push(0)
                 }
-                if(getHouse(datetime_21_00) == label){
-                    _data.labels.push(label)
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }else{
-                    _data.labels.push('')
-                    _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-                }
-                if( i == dataActivity_entry?.length - 1) {
-                    if(!_data.labels.includes('21:00')){       
-                            _data.labels.push('21:00')
-                            _data.datasets[0].data.push(0)
-                    }
-                }
-            }
-            else {
-                checkTime.push('21:00')
-                for(let j = startTime; j < 21; j = j + 3){
-                    if(j < 10) {
-                        if(!_data.labels.includes(`0${j}:00`)){               
-                            _data.labels.push(`0${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }else{
-                         if(!_data.labels.includes(`${j}:00`)){               
-                            _data.labels.push(`${j}:00`)
-                            _data.datasets[0].data.push(0)
-                        }
-                    }  
-                }
-                if(!_data.labels.includes('21:00')){            
+                if(!_data.labels.includes('21:00')){                
                         _data.labels.push('21:00')
                         _data.datasets[0].data.push(0)
                 }
-                if(i == dataActivity_entry?.length - 1) _data.labels.push(label)
+                if(getHouse(datetime_23_59) == label) _data.labels.push(label)
                 else _data.labels.push('')
                 _data.datasets[0].data.push(dataActivity_entry[i]?.Conversion_Rate)
-            }     
+            }       
         }
-        setDataChart(_data) 
+        if(!_data.labels.includes('00:00')){
+            _data.labels.push('00:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('03:00')){
+            _data.labels.push('03:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('06:00')){
+            _data.labels.push('06:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('09:00')){
+            _data.labels.push('09:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('12:00')){
+            _data.labels.push('12:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('15:00')){
+            _data.labels.push('15:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('18:00')){
+            _data.labels.push('18:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('21:00')){
+            _data.labels.push('21:00')
+            _data.datasets[0].data.push(0)
+        }
+        if(!_data.labels.includes('23:59')){
+            _data.labels.push('23:59')
+            _data.datasets[0].data.push(0)
+        }
+        setDataChart(_data)  
+        setDotNoDisplay(_dotNoDisplay)   
     }
+
 
     const goToPage = (page) => {
         navigation.navigate('MainScreen', {screen: page});
@@ -562,13 +600,15 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
             let _date = new Date(date).getTime() + 3600 * 1000 * 24;
             if(_date < new_date.getTime()){
                 setDate(new Date(_date))
-                getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+                // getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+                getActivityDays(_date)
             }   
         }
         if(type == 'back') {
             let _date = new Date(date).getTime() - 3600 * 1000 * 24;
             setDate(new Date(_date))    
-            getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+            // getActivityDays( lechGio < 0 ? _date + 24*60*60*1000 : _date + lechGio*60*60*1000)
+            getActivityDays(_date)
         }
         setIsChangeDay(true)
     }
@@ -660,7 +700,8 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                                         withShadow={false}
                                         withOuterLines={false}
                                         data={dataChart}
-                                        width={layout.width + (dataChart?.labels?.length - 8) / 3 * 80}
+                                        // width={layout.width + (dataChart?.labels?.length - 8) / 3 * 80}
+                                        width={dataChart?.labels?.length*50 + 50}
                                         // width={layout.width - 30}
                                         height={layout.width * 4.5 / 10}
                                         chartConfig={chartConfig}
@@ -729,7 +770,7 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                                   showsVerticalScrollIndicator={false}
                                   showsHorizontalScrollIndicator={false}
                                   style={{flex: 1}}
-                                  renderItem={({item,index}) =>  <DetailActivity item={item} />}
+                                  renderItem={({item,index}) =>  <DetailActivity item={item}/>}
                                   data={listActivityEntry}
                                   keyExtractor={(item, index) => 'view-activity-modal-' + index + String(item)}
                                 />

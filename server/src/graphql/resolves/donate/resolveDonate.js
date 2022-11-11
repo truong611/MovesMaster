@@ -859,9 +859,16 @@ const resolvers = {
             try {
                 let User_ID = context?.currentUser?.User_ID;
 
-                let ListDonation = await db.table('Donation')
+                let _ListDonation = await db.table('Donation')
                     .where('User_ID', User_ID)
                     .orderBy('Created_Date', 'desc');
+                
+                let ListDonation = [];
+                _ListDonation.map(item => {
+                    let obj = {...item}
+                    obj.Created_Date = commonSystem.formatDate2(item?.Created_Date, "YYYY/MM/DD-hh:mm:ss")
+                    ListDonation.push(obj)
+                })
 
                 return {
                     ListDonation,
@@ -884,6 +891,10 @@ const resolvers = {
                     .where('User_ID', User_ID)
                     .where('Donation_ID', args?.id)
                     .first();
+                
+                Donation.Created_Date = commonSystem.formatDate2(Donation.Created_Date, "YYYY/MM/DD-hh:mm:ss")
+
+                console.log("Donation:", Donation )
 
                 return {
                     Donation,
@@ -1054,6 +1065,7 @@ const resolvers = {
             try {
                 let User_ID = context?.currentUser?.User_ID;
                 let bodyData = args?.bodyData;
+                let GMT_Mobile = args?.GMT_Mobile
 
                 let trx_result = await db.transaction(async trx => {
 
@@ -1077,7 +1089,8 @@ const resolvers = {
                                     Moves_Charity_ID: bodyData?.Moves_Charity_ID,
                                     Moves_Donated: bodyData?.Moves_Donated,
                                     Sterling_Amount: bodyData?.Sterling_Amount,
-                                    Amount_Donated:  bodyData?.Amount_Donated         
+                                    Amount_Donated:  bodyData?.Amount_Donated,
+                                    Created_Date: commonSystem.createNewDateDevice(new Date(), GMT_Mobile)       
                                 });
                             } 
                             else {
@@ -1096,7 +1109,8 @@ const resolvers = {
                                     Appeal_ID: bodyData?.Appeal_ID,
                                     Moves_Donated: bodyData?.Moves_Donated,
                                     Sterling_Amount: bodyData?.Sterling_Amount,
-                                    Amount_Donated:  bodyData?.Amount_Donated 
+                                    Amount_Donated:  bodyData?.Amount_Donated,
+                                    Created_Date: commonSystem.createNewDateDevice(new Date(), GMT_Mobile) 
                                 });
                             } 
                             else {
@@ -1115,7 +1129,8 @@ const resolvers = {
                                     Campaign_ID: bodyData?.Campaign_ID,
                                     Moves_Conversion_Rate: bodyData?.Moves_Conversion_Rate,
                                     Moves_Donated: bodyData?.Moves_Donated,
-                                    Sterling_Amount: bodyData?.Moves_Conversion_Rate * bodyData?.Moves_Donated
+                                    Sterling_Amount: bodyData?.Moves_Conversion_Rate * bodyData?.Moves_Donated,
+                                    Created_Date: commonSystem.createNewDateDevice(new Date(), GMT_Mobile) 
                                 });
 
                                 //Nếu Campaign tính theo số tiền

@@ -137,7 +137,7 @@ const getListDate = (start = new Date, end = new Date) => {
     return list;
 }
 
-const handleUploadGarmin = async (User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate = []) => {
+const handleUploadGarmin = async (User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate = [], GMT_Mobile) => {
     let trx_result = await db.transaction(async trx => {
         for (let i = 0; i < listRangeDate.length; i++) {
             let item_time = listRangeDate[i];
@@ -154,7 +154,6 @@ const handleUploadGarmin = async (User_ID, app_usage, oauth_token, oauth_token_s
                             .where('User_ID', User_ID)
                             .where('Fitness_App_Activities_Object_ID', item.summaryId)
                             .first();
-
                         //Nếu chưa tồn tại
                         if (!exists) {
                             await trx.table('Fitness_App_Activities')
@@ -166,9 +165,9 @@ const handleUploadGarmin = async (User_ID, app_usage, oauth_token, oauth_token_s
                                     Fitness_App_Activities_Usage_ID: app_usage.Fitness_App_Usage_ID,
                                     Fitness_App_Activities_Object_ID: item.summaryId,
                                     Fitness_App_Activities_Apply_Moves: false,
-                                    Fitness_App_Activities_Start_Date: new Date(item.startTimeInSeconds * 1000),
-                                    Fitness_App_Activities_Start_Date_Local: new Date(item.startTimeInSeconds * 1000),
-                                    Fitness_App_Activities_End_Date_Local: new Date((item.startTimeInSeconds + item.durationInSeconds) * 1000),
+                                    Fitness_App_Activities_Start_Date:commonSystem.createNewDateDevice(new Date(item.startTimeInSeconds * 1000), GMT_Mobile),
+                                    Fitness_App_Activities_Start_Date_Local: commonSystem.createNewDateDevice(new Date(item.startTimeInSeconds * 1000), GMT_Mobile),
+                                    Fitness_App_Activities_End_Date_Local: commonSystem.createNewDateDevice(new Date((item.startTimeInSeconds + item.durationInSeconds) * 1000), GMT_Mobile),
                                     Activity_Type_ID: activity_type.Activity_Type_ID
                                 });
                         }
@@ -180,9 +179,9 @@ const handleUploadGarmin = async (User_ID, app_usage, oauth_token, oauth_token_s
                                     Fitness_App_Distance: item.distanceInMeters,
                                     Fitness_App_Moving_Time: Math.ceil(item.durationInSeconds / 60),
                                     Fitness_App_Type: item.activityType,
-                                    Fitness_App_Activities_Start_Date: new Date(item.startTimeInSeconds * 1000),
-                                    Fitness_App_Activities_Start_Date_Local: new Date(item.startTimeInSeconds * 1000),
-                                    Fitness_App_Activities_End_Date_Local: new Date((item.startTimeInSeconds + item.durationInSeconds) * 1000),
+                                    Fitness_App_Activities_Start_Date:commonSystem.createNewDateDevice(new Date(item.startTimeInSeconds * 1000), GMT_Mobile),
+                                    Fitness_App_Activities_Start_Date_Local: commonSystem.createNewDateDevice(new Date(item.startTimeInSeconds * 1000), GMT_Mobile),
+                                    Fitness_App_Activities_End_Date_Local: commonSystem.createNewDateDevice(new Date((item.startTimeInSeconds + item.durationInSeconds) * 1000), GMT_Mobile),
                                     Activity_Type_ID: activity_type.Activity_Type_ID
                                 });
                         }
@@ -204,7 +203,7 @@ const _getMasterDataUploadActivity = async (User_ID) => {
         .first();
 
     let LastUpload = User['Created_Date'];
-
+    
     let ActivityType = await db.table('Activity_Type');
 
     ActivityType?.length && ActivityType.map(item => {
@@ -220,7 +219,8 @@ const _getMasterDataUploadActivity = async (User_ID) => {
 
     let Fitness_App_Activities = await db.table('Fitness_App_Activities')
         .where('User_ID', User_ID)
-        .where('Fitness_App_Activities_Start_Date_Local', '>=', LastUpload);
+        .where('Fitness_App_Activities_Start_Date_Local', '>=', LastUpload)
+        .where('Fitness_App_Activities_Apply_Moves', false);
 
     Fitness_App_Activities.sort(function (a, b) {
         return +(new Date(b.Fitness_App_Activities_Start_Date_Local)) - +(new Date(a.Fitness_App_Activities_Start_Date_Local));
@@ -353,8 +353,8 @@ const _getMasterDataUploadActivity = async (User_ID) => {
                 let entry = {
                     Fitness_App_Activities_ID: item.Fitness_App_Activities_ID,
                     Activity_Entry_ID: null,
-                    Activity_Start_Time: item.Fitness_App_Activities_Start_Date_Local,
-                    Activity_End_Time: item.Fitness_App_Activities_End_Date_Local,
+                    Activity_Start_Time: commonSystem.formatDate2(item.Fitness_App_Activities_Start_Date_Local, "YYYY/MM/DD-hh:mm:ss") ,
+                    Activity_End_Time: commonSystem.formatDate2(item.Fitness_App_Activities_End_Date_Local,"YYYY/MM/DD-hh:mm:ss") ,
                     Object_Source_ID: Object_Source_ID,
                     Object_Source_Type: item.Activity_Type_ID,
                     Activity_Type_Unit_ID: activity_Type_Unit.Activity_Type_Unit_ID,
@@ -391,6 +391,8 @@ const _getMasterDataUploadActivity = async (User_ID) => {
             });
         }
     });
+    console.log("list_entry: ", list_entry)
+    LastUpload = commonSystem.formatDate2(LastUpload, "YYYY/MM/DD-hh:mm:ss")
     return {
         ActivityType,
         LastUpload,
@@ -423,7 +425,6 @@ const resolvers = {
         }),
         getViewActivity: authenticated(async (parent, args, context) => {
             try {
-                console.log(new Date(args?.date) )
                 let User_ID = context.currentUser.User_ID;
                 let Activity_Entry = [];
                 Activity_Entry = await db.table('Activity_Entry')
@@ -443,11 +444,15 @@ const resolvers = {
                     )
                     .innerJoin('Activity_Upload', 'Activity_Upload.Activity_Upload_ID', 'Activity_Entry.Activity_Upload_ID')
                     .where(builder => {
-                        builder.whereRaw('??::date = ?::date', ['Activity_Entry.Activity_Start_Time', new Date(args?.date)]);
+                        builder.whereRaw('??::date = ?::date', ['Activity_Entry.Activity_Start_Time', new Date(args?.year, args?.month, args?.day)]);
                     })
                     .where(builder => {
                         builder.where('Activity_Upload.User_ID', User_ID);
                     });
+                for(let i = 0; i < Activity_Entry?.length; i++){
+                    Activity_Entry[i].Activity_Start_Time = commonSystem.formatDate2(Activity_Entry[i].Activity_Start_Time, "YYYY/MM/DD-hh:mm:ss")
+                    Activity_Entry[i].Activity_End_Time = commonSystem.formatDate2(Activity_Entry[i].Activity_End_Time, "YYYY/MM/DD-hh:mm:ss")
+                }
                 return {
                     Activity_Entry,
                     message: messages.success,
@@ -587,7 +592,7 @@ const resolvers = {
                 }
                 let data = [];
                 for (let i = 0; i < days?.length; i++) {
-                    let _date = new Date(days[i]).getTime()
+                    let _date = new Date(days[i])
                     let obj = {
                         day: new Date(days[i]).getDate(),
                         month: new Date(days[i]).getMonth() + 1,
@@ -612,7 +617,7 @@ const resolvers = {
                         )
                         .innerJoin('Activity_Upload', 'Activity_Upload.Activity_Upload_ID', 'Activity_Entry.Activity_Upload_ID')
                         .where(builder => {
-                            builder.whereRaw('??::date = ?::date', ['Activity_Entry.Activity_Start_Time', new Date((args?.lechGio < 0 ? (_date - 24*60*60*1000) : (_date + args?.lechGio*60*60*1000)))]);
+                            builder.whereRaw('??::date = ?::date', ['Activity_Entry.Activity_Start_Time', new Date(_date.getFullYear(), _date.getMonth(), _date.getDate())]);
                         })
                         .where(builder => {
                             builder.where('Activity_Upload.User_ID', User_ID);
@@ -620,7 +625,6 @@ const resolvers = {
                     if (Activity_Entry?.length > 0) obj.activity = true
                     data.push(obj)
                 }
-                console.log(data)
                 return {
                     data: data,
                     message: messages.success,
@@ -694,6 +698,7 @@ const resolvers = {
     },
     Mutation: {
         uploadActivity: authenticated(async (parent, args, context) => {
+            let GMT_server = new Date().getTimezoneOffset()/60
             try {
                 let trx_result = await db.transaction(async trx => {
                     let count = 1;
@@ -711,8 +716,7 @@ const resolvers = {
                     if (!User) {
                         throw new Error(messages.error);
                     }
-
-                    let { bodyData } = args;
+                    let { bodyData, newDate, GMT_Mobile } = args;
                     if (!bodyData?.length && !result?.Activity_Type_Entry?.length) {
                         throw new Error("No moves to submit!");
                     }
@@ -720,7 +724,9 @@ const resolvers = {
                     bodyData.sort(function (a, b) {
                         return +(new Date(b.Activity_Start_Time)) - +(new Date(a.Activity_Start_Time));
                     });
+
                     bodyData.reverse();
+
 
                     let activity_upload = await trx.table('Activity_Upload')
                         .where('User_ID', User_ID)
@@ -728,7 +734,6 @@ const resolvers = {
                         .first();
 
                     activity_upload ? count = activity_upload?.Upload_Count + 1 : count = 1
-
 
 
                     let payload = [];
@@ -743,8 +748,10 @@ const resolvers = {
                         Moves_Arising = Math.round(Moves_Arising * 100) / 100;
 
                         payload = [...payload, {
-                            Activity_Start_Time: item.Activity_Start_Time,
-                            Activity_End_Time: item.Activity_End_Time,
+                            // Activity_Start_Time: new Date(new Date(item.Activity_Start_Time).getTime() + (GMT_server - GMT_Mobile)*60*60*1000) ,
+                            // Activity_End_Time: new Date(new Date(item.Activity_End_Time).getTime() + (GMT_server - GMT_Mobile)*60*60*1000),
+                            Activity_Start_Time: commonSystem.createNewDateDevice(item.Activity_Start_Time, GMT_Mobile ),
+                            Activity_End_Time: commonSystem.createNewDateDevice(item.Activity_End_Time, GMT_Mobile),
                             Object_Source_ID: null,
                             Object_Source_Type: null,
                             Activity_Type_Unit_ID: item.Activity_Type_Unit_ID,
@@ -758,14 +765,26 @@ const resolvers = {
                         }];
                     }
 
-                    let list_Fitness_App_Activities_ID = result.Activity_Type_Entry.map(x => x.Fitness_App_Activities_ID);
 
-                    payload = [...payload, ...result.Activity_Type_Entry];
+                    let list_Fitness_App_Activities_ID = result.Activity_Type_Entry.map(x => x.Fitness_App_Activities_ID);
+                    console.log("list_Fitness_App_Activities_ID 1: ", list_Fitness_App_Activities_ID)
+
+                    let data_activity_entry = []
+                    result.Activity_Type_Entry.map(item => {
+                        let obj = {...item}
+                        obj.Activity_Start_Time = commonSystem.convertStrToDate(obj.Activity_Start_Time)
+                        obj.Activity_End_Time = commonSystem.convertStrToDate(obj.Activity_End_Time)
+                        data_activity_entry.push(obj)
+                    })
+
+                    // payload = [...payload, ...result.Activity_Type_Entry];
+                    payload = [...payload, ...data_activity_entry];
 
                     payload.sort(function (a, b) {
                         return +(new Date(b.Activity_Start_Time)) - +(new Date(a.Activity_Start_Time));
                     });
                     payload.reverse();
+
                     let datetime = {
                         Activity_Start_Time: null,
                         Activity_End_Time: null,
@@ -776,7 +795,6 @@ const resolvers = {
                         let item = payload[i];
 
                         let date_string = commonSystem.formatDate(item?.Activity_Start_Time);
-
                         if (payload.length == 1) {
                             list_date_string.push({
                                 key: date_string,
@@ -787,7 +805,7 @@ const resolvers = {
                                     }
                                 ]
                             })
-                        } else {
+                        }else{
                             if (list_date_string.find(x => x.key == date_string)) {
                                 let index = list_date_string.findIndex(x => x.key == date_string);
 
@@ -807,22 +825,23 @@ const resolvers = {
                                 });
                             }
                         }
+                        // console.log("New Date: ",commonSystem.convertStrToDate('2022/11/03-12:11:25'))
 
                         //Valid when Activity in day
                         // if (commonSystem.formatDate(item.Activity_Start_Time) != commonSystem.formatDate(item.Activity_End_Time)) {
                         //     throw new Error('invalid activity in day');
                         // }
 
-                        if (i == 0 && activity_upload && (item.Activity_Start_Time.getTime() < activity_upload.Upload_Period_End_Time.getTime())) {
-                            throw new Error('Activity_Start_Time < Upload_Period_End_Time');
-                        }
-                        else if (i == 0 && !activity_upload && (item.Activity_Start_Time.getTime() < User.Created_Date.getTime())) {
-                            throw new Error('Activity_Start_Time < User.Created_Date');
-                        }
+                        // if (i == 0 && activity_upload && (item.Activity_Start_Time.getTime() < activity_upload.Upload_Period_End_Time.getTime())) {
+                        //     throw new Error('Activity_Start_Time < Upload_Period_End_Time');
+                        // }
+                        // else if (i == 0 && !activity_upload && (item.Activity_Start_Time.getTime() < User.Created_Date.getTime())) {
+                        //     throw new Error('Activity_Start_Time < User.Created_Date');
+                        // }
 
-                        if (i == payload.length - 1 && (item.Activity_End_Time.getTime() > (new Date).getTime())) {
-                            throw new Error('Activity_End_Time > new Date');
-                        }
+                        // if (i == payload.length - 1 && (item.Activity_End_Time.getTime() > (new Date).getTime())) {
+                        //     throw new Error('Activity_End_Time > new Date');
+                        // }
 
                         // if (i != 0 && !item.Auto) {
                         //     let StartDate1 = dateToTimestamp(datetime?.Activity_Start_Time);
@@ -842,7 +861,7 @@ const resolvers = {
                         let exists_date = await trx.table('Activity_Upload')
                             .where('User_ID', User_ID)
                             .where(builder => {
-                                builder.whereRaw('??::date = ?::date', ['Activity_Upload_Datetime', new Date()]);
+                                builder.whereRaw('??::date = ?::date', ['Activity_Upload_Datetime', commonSystem.createNewDateDevice(new Date().getTime(), GMT_Mobile)]);
                             })
                             .first();
 
@@ -852,14 +871,16 @@ const resolvers = {
                                 .where('Activity_Upload_ID', exists_date.Activity_Upload_ID)
                                 .update({
                                     Upload_Period_End_Time: new Date(item.array_time[item.array_time.length - 1].end),
-                                    Activity_Upload_Datetime: new Date,
+                                    // Activity_Upload_Datetime: new Date(new Date().getTime() + (GMT_server - GMT_Mobile)*60*60*1000),
+                                    Activity_Upload_Datetime: commonSystem.createNewDateDevice(new Date().getTime(), GMT_Mobile),
                                     Upload_Count: count
                                 });
                         } else {
                             await trx.table('Activity_Upload')
                                 .insert({
                                     User_ID: User_ID,
-                                    Activity_Upload_Datetime: new Date(),
+                                    // Activity_Upload_Datetime: new Date(new Date().getTime() + (GMT_server - GMT_Mobile)*60*60*1000),
+                                    Activity_Upload_Datetime: commonSystem.createNewDateDevice(new Date().getTime(), GMT_Mobile),
                                     Upload_Period_Start_Time: new Date(item.array_time[0].start),
                                     Upload_Period_End_Time: new Date(item.array_time[item.array_time.length - 1].end),
                                     Upload_Count: count
@@ -874,7 +895,7 @@ const resolvers = {
                         let activity_upload = await trx.table('Activity_Upload')
                             .where('User_ID', User_ID)
                             .where(builder => {
-                                builder.whereRaw('??::date = ?::date', ['Activity_Upload_Datetime', new Date()]);
+                                builder.whereRaw('??::date = ?::date', ['Activity_Upload_Datetime',commonSystem.createNewDateDevice(new Date().getTime(), GMT_Mobile)]);
                             })
                             .first();
 
@@ -887,6 +908,7 @@ const resolvers = {
                         delete item.Fitness_App_Activities_ID;
                         delete item.Auto;
                     });
+
 
                     let list_Activity_Entry_ID = await trx.table('Activity_Entry')
                         .returning(['Activity_Entry_ID']).insert(payload);
@@ -989,6 +1011,8 @@ const resolvers = {
                             });
                     }
 
+                    console.log("list_Fitness_App_Activities_ID 2: ", list_Fitness_App_Activities_ID)
+
                     await trx.table('Fitness_App_Activities')
                         .whereIn('Fitness_App_Activities_ID', list_Fitness_App_Activities_ID)
                         .update({
@@ -1016,13 +1040,14 @@ const resolvers = {
                 let user = await db.table('User')
                     .where('User_ID', User_ID)
                     .first();
-
                 if (!user) {
                     return {
                         message: 'user not found',
                         messageCode: 404
                     }
                 }
+                let GMT_Mobile = args?.GMT_Mobile
+                let GMT_server = new Date().getTimezoneOffset()/60
 
                 let app_usage = await db.table('Fitness_App_Usage')
                     .where('User_ID', User_ID)
@@ -1047,25 +1072,29 @@ const resolvers = {
                     .orderBy('Activity_Upload_Datetime', 'desc')
                     .first();
 
-                let startDate = user.Created_Date ? new Date(user.Created_Date) : new Date();
-
+                // let startDate = user.Created_Date ? new Date(user.Created_Date) : new Date();
+                let startDate = user.Created_Date ? new Date(new Date(user.Created_Date).getTime() - (GMT_server - GMT_Mobile)*60*60*1000) : new Date(new Date().getTime() - (GMT_server - GMT_Mobile)*60*60*1000);
+                // let startDate = user.Created_Date ? commonSystem.createNewDateDevice(user.Created_Date, args?.GMT_Mobile) : commonSystem.createNewDateDevice(new Date().getTime(), GMT_Mobile);
                 if (last_Activity_Upload) {
-                    startDate = new Date(last_Activity_Upload.Activity_Upload_Datetime);
+                    // startDate = new Date(last_Activity_Upload.Activity_Upload_Datetime);
+                    startDate = new Date(new Date(last_Activity_Upload.Activity_Upload_Datetime).getTime() - (GMT_server - GMT_Mobile)*60*60*1000);
+                    //  startDate = commonSystem.createNewDateDevice(last_Activity_Upload.Activity_Upload_Datetime, args?.GMT_Mobile);
                 }
 
-                let nowDate = new Date();
+                // let nowDate = new Date(new Date().getTime() + (GMT_server - GMT_Mobile)*60*60*1000);
+                let nowDate = new Date(new Date().getTime() - (GMT_server - GMT_Mobile)*60*60*1000);
                 let listRangeDate = [];
 
                 //Nếu chỉ trong một ngày
                 if (commonSystem.formatDate(startDate) == commonSystem.formatDate(nowDate)) {
                     listRangeDate.push([startDate, nowDate]);
-                    await handleUploadGarmin(User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate);
+                    await handleUploadGarmin(User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate, GMT_Mobile);
                 }
-                //Nếu trong nhiều ngày
                 else {
                     let listRangeDate = getListDate(startDate, nowDate);
                     if (listRangeDate.length) {
-                        await handleUploadGarmin(User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate);
+                        // console.log("listRangeDate: ", listRangeDate)
+                        await handleUploadGarmin(User_ID, app_usage, oauth_token, oauth_token_secret, list_Activity_Type, listRangeDate,GMT_Mobile);
                     }
                 }
 
@@ -1089,7 +1118,6 @@ const resolvers = {
                 let user = await db.table('User')
                     .where('User_ID', User_ID)
                     .first();
-
                 if (!user) {
                     return {
                         message: 'user not found',
@@ -1111,7 +1139,6 @@ const resolvers = {
 
                 //Lấy id của type
                 let list_Activity_Type = await db.table('Activity_Type');
-
                 if (bodyData?.length) {
                     let trx_result = await db.transaction(async trx => {
                         for (let i = 0; i < bodyData.length; i++) {
@@ -1123,9 +1150,8 @@ const resolvers = {
                                 let exists = await trx.table('Fitness_App_Activities')
                                     .where('User_ID', User_ID)
                                     .where('Fitness_App_Activities_Usage_ID', 'MovesMatter_AppleHealth')
-                                    .where('Fitness_App_Activities_Object_ID', new Date(item.StartTime).getTime().toString())
-                                    .first();
-
+                                    .where('Fitness_App_Activities_Object_ID', item?.ID)
+                                    .first();                          
                                 //Create
                                 if (!exists) {
                                     await trx.table('Fitness_App_Activities')
@@ -1135,11 +1161,14 @@ const resolvers = {
                                             Fitness_App_Type: item.Type_Name,
                                             User_ID: User_ID,
                                             Fitness_App_Activities_Usage_ID: 'MovesMatter_AppleHealth',
-                                            Fitness_App_Activities_Object_ID: new Date(item.StartTime).getTime().toString(),
+                                            Fitness_App_Activities_Object_ID: item?.ID,
                                             Fitness_App_Activities_Apply_Moves: false,
-                                            Fitness_App_Activities_Start_Date: new Date(item.StartTime),
-                                            Fitness_App_Activities_Start_Date_Local: new Date(item.StartTime),
-                                            Fitness_App_Activities_End_Date_Local: new Date(item.EndTime),
+                                            // Fitness_App_Activities_Start_Date: new Date(item.StartTime),
+                                            // Fitness_App_Activities_Start_Date_Local: new Date(item.StartTime),
+                                            // Fitness_App_Activities_End_Date_Local: new Date(item.EndTime),
+                                            Fitness_App_Activities_Start_Date: commonSystem.createNewDateDevice(item.StartTime, args?.GMT_Mobile),
+                                            Fitness_App_Activities_Start_Date_Local: commonSystem.createNewDateDevice(item.StartTime, args?.GMT_Mobile),
+                                            Fitness_App_Activities_End_Date_Local: commonSystem.createNewDateDevice(item.EndTime, args?.GMT_Mobile),
                                             Activity_Type_ID: activity_type.Activity_Type_ID
                                         });
                                 }
@@ -1148,14 +1177,17 @@ const resolvers = {
                                     await trx.table('Fitness_App_Activities')
                                         .where('User_ID', User_ID)
                                         .where('Fitness_App_Activities_Usage_ID', 'MovesMatter_AppleHealth')
-                                        .where('Fitness_App_Activities_Object_ID', new Date(item.StartTime).getTime().toString())
+                                        .where('Fitness_App_Activities_Object_ID', item?.ID)
                                         .update({
                                             Fitness_App_Distance: item.Quantity,
                                             Fitness_App_Moving_Time: item.Unit_Minute,
                                             Fitness_App_Type: item.Type_Name,
-                                            Fitness_App_Activities_Start_Date: new Date(item.StartTime),
-                                            Fitness_App_Activities_Start_Date_Local: new Date(item.StartTime),
-                                            Fitness_App_Activities_End_Date_Local: new Date(item.EndTime),
+                                            // Fitness_App_Activities_Start_Date: new Date(item.StartTime),
+                                            // Fitness_App_Activities_Start_Date_Local: new Date(item.StartTime),
+                                            // Fitness_App_Activities_End_Date_Local: new Date(item.EndTime),
+                                            Fitness_App_Activities_Start_Date: commonSystem.createNewDateDevice(item.StartTime, args?.GMT_Mobile),
+                                            Fitness_App_Activities_Start_Date_Local: commonSystem.createNewDateDevice(item.StartTime, args?.GMT_Mobile),
+                                            Fitness_App_Activities_End_Date_Local: commonSystem.createNewDateDevice(item.EndTime, args?.GMT_Mobile),
                                             Activity_Type_ID: activity_type.Activity_Type_ID
                                         });
                                 }
@@ -1185,6 +1217,10 @@ const resolvers = {
 function doRequest(oauth_token, oauth_token_secret, startTime, endTime) {
     startTime = Math.floor(startTime / 1000);
     endTime = Math.floor(endTime / 1000);
+    console.log("-------------------")
+    console.log("start_time:", startTime)
+    console.log("end_time:", endTime)
+    console.log("-------------------")
     let oauth_timestamp = Math.floor(new Date().getTime() / 1000);
     let oauth_nonce = Math.floor(new Date().getTime() / 1000);
     let key = Buffer.from(GARMIN_Consumer_Secret + '&' + oauth_token_secret).toString();
@@ -1193,6 +1229,8 @@ function doRequest(oauth_token, oauth_token_secret, startTime, endTime) {
     let base64encoded = CryptoJS.enc.Base64.stringify(hash)
     const uriEncodedHash = encodeURIComponent(base64encoded);
 
+    console.log("uri: ", GARMIN_Domain + "uploadStartTimeInSeconds=" + startTime + "&uploadEndTimeInSeconds=" + endTime)
+    console.log("Authorization: ", `OAuth oauth_nonce=${oauth_nonce}, oauth_signature=${uriEncodedHash}, oauth_token=${oauth_token}, oauth_consumer_key=${GARMIN_Consumer_Key}, oauth_timestamp=${oauth_timestamp}, oauth_signature_method="HMAC-SHA1", oauth_version="1.0"`)
     let options = {
         method: 'GET',
         url: GARMIN_Domain + "uploadStartTimeInSeconds=" + startTime + "&uploadEndTimeInSeconds=" + endTime,

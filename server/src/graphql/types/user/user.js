@@ -101,7 +101,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    changeUserPassword(User_ID: Int!, Current_Password: String, New_Password: String): BaseResponse,
+    changeUserPassword(User_ID: Int!, New_Password: String): BaseResponse,
     updateUserInfor(UpdateUserInforInput: UpdateUserInforInput): BaseResponse,
     createUser(CreateUserInput: CreateUserInput): CreateUser
   }

@@ -1,6 +1,11 @@
 const db = require('../data/knex-db');
 
 const commonSystem = {
+  createNewDateDevice: (date, GMT_Mobile) => {
+    let _date = new Date(date).getTime()
+    let GMT_Server = new Date().getTimezoneOffset()/60
+    return new Date(_date + (GMT_Server - GMT_Mobile)*60*60*1000)
+  },
   convertDateToString: (date) => {
     try {
       let _date = new Date(date);
@@ -23,6 +28,37 @@ const commonSystem = {
       throw new Error(e);
     }
   },
+  formatDate2 : (date, type = null) => {
+
+    const padTo2Digits = (num) => {
+      return num.toString().padStart(2, "0")
+    };
+    if (date == null) {
+        return ''
+    }
+    date = new Date(date);
+    if (type == "dd/MM/YYYY hh:mm") {
+        return `${padTo2Digits(date.getDate())}/${padTo2Digits(date.getMonth() + 1)}/${date.getFullYear()} ${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`
+    } else if (type == "hh:mm") {
+        return `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`
+    } else if (type == "dd MM YYYY") {
+        return `${padTo2Digits(date.getDate())} ${monthNames[date.getMonth()]} ${date.getFullYear()}`
+    } else if (type == "MM YYYY") {
+        return `${monthNames[date.getMonth()]} ${date.getFullYear()}`
+    }else if (type == "dd/MM/YY hh:mm") {
+        return `${padTo2Digits(date.getDate())}/${padTo2Digits(date.getMonth() + 1)}/${date.getFullYear()?.toString().substr(-2)} ${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`
+    }else if (type == "hh:mm:ss") {
+        return `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
+    }
+    else if (type == "dd/MM/YYYY hh:mm:ss") {
+        return `${padTo2Digits(date.getDate())}/${padTo2Digits(date.getMonth() + 1)}/${date.getFullYear()} ${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
+    }
+    else if (type == "YYYY/MM/DD-hh:mm:ss") {
+        return `${date.getFullYear()}/${padTo2Digits(date.getMonth() + 1)}/${padTo2Digits(date.getDate())}-${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}:${padTo2Digits(date.getSeconds())}`
+    }
+    return ''
+  },
+    
   roundNumber: function (number = 0, unit = -1) {
     let result = number;
     switch (unit) {
@@ -82,6 +118,13 @@ const commonSystem = {
       commonSystem.padTo2Digits(date.getMonth() + 1),
       commonSystem.padTo2Digits(date.getDate()),
     ].join("-")
+  },
+  convertStrToDate: (str) => {
+    const [dateValues, timeValues] = str.split('-');
+    const [year,month,day] = dateValues.split('/');
+    const [hours, minutes, seconds] = timeValues.split(':');
+
+    return new Date(year, month - 1, day, hours, minutes, seconds);
   },
   setTimeToDate: (date = new Date) => {
     date.setHours(0);

@@ -145,13 +145,13 @@ const resolvers = {
           }
         }
 
-        const isEqual = await bcrypt.compare(args.Current_Password, User.User_Password);
-        if (!isEqual) {
-          return {
-            message: 'Current password is incorrect',
-            messageCode: 404
-          }
-        }
+        // const isEqual = await bcrypt.compare(args.Current_Password, User.User_Password);
+        // if (!isEqual) {
+        //   return {
+        //     message: 'Current password is incorrect',
+        //     messageCode: 404
+        //   }
+        // }
 
         const hashedPassword = await bcrypt.hash(args.New_Password, 12);
 

@@ -19,7 +19,7 @@ import {useIsFocused, useNavigation} from "@react-navigation/native"
 import {useStores} from "../../models"
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
-import {calculateDate, formatDate, formatNumber, showToast, StatusBarHeight, timestampToDate} from "../../services";
+import {calculateDate, converStrToDate, formatDate, formatNumber, showToast, StatusBarHeight, timestampToDate} from "../../services";
 import {useMutation, useQuery} from "@apollo/react-hooks";
 import {FETCH_getMasterDataUploadActivity, FETCH_uploadActivity, FETCH_uploadActiviyGarmin, FETCH_uploadActivityApple} from "./activity-service";
 import {images} from "../../images";
@@ -28,6 +28,7 @@ import ViewShot, {captureRef} from "react-native-view-shot";
 import AppleHealthKit, { HealthKitPermissions, } from 'react-native-health'
 import { FETCH_getFitnessAppUsage } from '../fitness-apps/fitness-apps-service';
 import { Limit_Second } from '../../config';
+import { FETCH_getDashboardMobile } from '../dashboard/dashboard-service';
 
 const layout = Dimensions.get('window');
 
@@ -59,19 +60,20 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
     const [totalMovesDevice, setTotalMovesDevice] = useState(0)
     const [totalMovesFitness, setTotalMovesFitness] = useState(0)
     const [totalMovesManual, setTotalMovesManual] = useState(0)
-
     const {refetch} = useQuery(FETCH_getMasterDataUploadActivity);
 
     const [uploadActivity, {}] = useMutation(FETCH_uploadActivity);
     const [uploadActivityGarmin, {}] = useMutation(FETCH_uploadActiviyGarmin);
     const [uploadActivityApple, {}] = useMutation(FETCH_uploadActivityApple);
     const query = useQuery(FETCH_getFitnessAppUsage)
+    const query_lastUpload = useQuery(FETCH_getDashboardMobile);
 
 
     useEffect(() => {
         fetchMasterData();
     }, [isFocused, isRefresh]);
     const fetchMasterData = async () => {
+        
         setTotalMovesDevice(-1)
         setTotalMovesFitness(-1)
         setTotalMovesManual(-1)
@@ -86,16 +88,21 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                 let {data: {getFitnessAppUsage: {FitnessApp, FitnessAppUsage}}} = await query.refetch()
                 for(let i = 0; i < FitnessAppUsage?.length; i++){             
                     if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Garmin") {
-                       let res = await uploadActivityGarmin()  
+                       let GMT_Mobile = new Date().getTimezoneOffset() / 60
+                       let res = await uploadActivityGarmin({
+                        variables: {
+                            GMT_Mobile
+                        },
+                    })  
                     }
                     if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Apple Health") {
                       getData()
                  }
                 }
-                let {data: {getMasterDataUploadActivity: {data, message, messageCode}}} = await refetch();               
-                // setLoading(false);          
+                let {data: {getMasterDataUploadActivity: {data, message, messageCode}}} = await refetch();                     
+                
                 if (messageCode == 200) {
-                    setLastUpload(new Date(data?.LastUpload));
+                    setLastUpload(converStrToDate(data.LastUpload));
                     setUpload_Count(data?.Upload_Count + 1)
                     setMasterData(data);
                     if(data?.Upload_Count == 0) {
@@ -129,8 +136,8 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                             Activity_Type_Unit_ID: 112,
                             Conversation_To_Moves_Rate: 1,
                             Units: data?.JOINING_BONUS,
-                            FromDate: new Date(data?.LastUpload) ,
-                            ToDate: new Date(data?.LastUpload),
+                            FromDate: converStrToDate(data?.LastUpload) ,
+                            ToDate: converStrToDate(data?.LastUpload),
                         });
                     }        
                     }
@@ -160,7 +167,14 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     };     
                     _data_activities.push(obj)                               
                 }
-                let dataFitness = [...data?.Activity_Type_Entry]
+                let _dataFitness = [...data?.Activity_Type_Entry]
+                let dataFitness : any = [] 
+                _dataFitness.map((item) => {
+                     let obj = {...item}
+                     obj.Activity_Start_Time = converStrToDate(obj.Activity_Start_Time)
+                     obj.Activity_End_Time = converStrToDate(obj.Activity_End_Time)
+                     dataFitness.push(obj)
+                }) 
                 let notActivityManual : any = []
                 let notActivityAuto : any = []
                 for(let i = 0; i < _data_activities?.length; i++){
@@ -201,6 +215,18 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     return item
                 })
                 let _listDataSubmit = [...new_dataManual,...new_dataFitness]
+                _listDataSubmit.sort((a,b) => {
+                    return new Date(a?.Activity_End_Time).getTime() - new Date(b?.Activity_End_Time).getTime()
+                })
+                for(let j = 0; j < _listDataSubmit?.length ; j++){
+                    let item = {..._listDataSubmit[j].Fitness_App}
+                    FitnessApp.map((itemFitness,index) => {
+                        if(_listDataSubmit[j].Fitness_App?.Fitness_App_Name == itemFitness?.Fitness_App_Name){
+                            item.Fitness_App_Icon = itemFitness?.Fitness_App_Icon
+                        } 
+                    })
+                    _listDataSubmit[j].Fitness_App = item
+                }     
                 setListDataSubmitFinal(_listDataSubmit)
                 let totalMovesApple = 0
                 let totalMovesFitness = 0
@@ -234,8 +260,11 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
     };
 
     const getData = async () => {
-        let {data: {getMasterDataUploadActivity: {data : {LastUpload}}}} = await refetch();
-        let _startDate = new Date(LastUpload)
+        // let {data: {getMasterDataUploadActivity: {data : {LastUpload}}}} = await refetch();
+        // // let _startDate = new Date(LastUpload)
+        // let  _startDate = converStrToDate(LastUpload)
+        let {data: {getDashboardMobile : {data: {LastUpload}}}} = await query_lastUpload.refetch()
+        let  _startDate = converStrToDate(LastUpload)
         const permissions = {
         permissions: {
             read: [
@@ -254,7 +283,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     return
                 }
                 // let startDate = new Date(2022, 7, 24);
-                let startDate = new Date(_startDate?.getFullYear(), _startDate?.getMonth(), _startDate?.getDate())
+                let startDate = new Date(_startDate?.getFullYear() , _startDate?.getMonth(), _startDate?.getDate())
                 const activityApplelheath = ['Walking']
                 for(let i = 0; i < activityApplelheath?.length; i++){
                     let res = getAppleHealthData(startDate, activityApplelheath[i]);
@@ -278,6 +307,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
             let start = new Date(item.start).toString()
             let end = new Date(item.end).toString()
             let obj = {
+                "ID": new Date(start).getTime().toString(),
                 "Type_Name": type,
                 "StartTime": new Date(start).getTime(),
                 "EndTime": new Date(end).getTime(),
@@ -305,9 +335,11 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
             }
         }
         if(dataActivity_final?.length > 0) {
+            let GMT_Mobile = new Date().getTimezoneOffset()/60
             let res = uploadActivityApple({
                 variables: {
-                    bodyData: dataActivity_final
+                    bodyData: dataActivity_final,
+                    GMT_Mobile
                 },
             });  
         }    
@@ -345,14 +377,15 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
             showToast('error', "Don't upload zero moves!")
             return
         }
+        let GMT_Mobile = new Date().getTimezoneOffset()/60
         setLoading(true);
         try {
             let bodyData: any = [];
             for (let i = 0; i < listData.length; i++) {
                 let item = listData[i];
                     bodyData = [...bodyData, {
-                        "Activity_Start_Time": new Date(item?.FromDate).getTime() ,
-                        "Activity_End_Time": new Date(item?.ToDate).getTime() ,
+                        "Activity_Start_Time":new Date(item?.FromDate)  ,
+                        "Activity_End_Time": new Date(item?.ToDate)  ,
                         "Activity_Type_Unit_ID": item?.Activity_Type_Unit_ID,
                         "Number_Units": item?.Units
                     }];
@@ -360,7 +393,9 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
       
             let {data: {uploadActivity: {messageCode, message}}} = await uploadActivity({
                 variables: {
-                    bodyData: bodyData
+                    bodyData: bodyData,
+                    newDate: formatDate(new Date(), "YYYY/MM/DD-hh:mm:ss"),
+                    GMT_Mobile 
                 },
             });          
             setLoading(false);
@@ -371,7 +406,6 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
             if (messageCode == 200) {
                 _modalVisible['success'] = true;
                 setModalVisible(_modalVisible);
-
                 let _donation = await movesModel.getDonateInfo();
                 await movesModel.setDonateInfo({
                     movesAvailable: _donation?.movesAvailable + totalMoves
@@ -540,7 +574,11 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                                                         setRefresh(true);
                                                         await movesModel.clearActivity()
                                                         setChangeModal('success', false)
-                                                        goToPage("DashboardScreen")
+                                                        // goToPage("DashboardScreen")
+                                                        navigation.navigate('HomeScreen')
+                                                        await movesModel.setAppInfo({
+                                                            tabIndex: 1,
+                                                        });
                                                     }
                                                     }>
                                                     <Ionicons
@@ -625,7 +663,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                                                             showsVerticalScrollIndicator={false}
                                                             showsHorizontalScrollIndicator={false}
                                                             style={{flex: 1}}
-                                                            renderItem={({item,index}) =>  <DetailActivity item={item} />}
+                                                            renderItem={({item,index}) =>  <DetailActivity item={item} submit={true} />}
                                                             data={listDataSubmitFinal}
                                                             keyExtractor={(item, index) => 'view-activity-success-modal-' + index + String(item)}
                                                             />

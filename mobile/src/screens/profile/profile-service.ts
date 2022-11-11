@@ -33,8 +33,8 @@ export const FETCH_updateProfile = gql`
 `;
 
 export const FETCH_changePassword = gql`
-    mutation changePassword($passwordOld: String!, $passwordNew: String) {
-        changePassword(passwordOld: $passwordOld, passwordNew: $passwordNew) {
+    mutation changePassword($passwordNew: String) {
+        changePassword(passwordNew: $passwordNew) {
             messageCode
             message
         }

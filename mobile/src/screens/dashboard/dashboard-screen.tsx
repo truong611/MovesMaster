@@ -12,7 +12,7 @@ import {Header, MButton, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from "../../components/center-spinner/center-spinner";
-import {calculateDate, formatDate, formatNumber, numberFormat, showToast, StatusBarHeight, timestampToDate} from "../../services";
+import {calculateDate, converStrToDate, formatDate, formatNumber, numberFormat, showToast, StatusBarHeight, timestampToDate} from "../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {FETCH_getDashboardMobile} from "./dashboard-service";
 import {useStores} from "../../models";
@@ -38,12 +38,16 @@ export const DashboardScreen = observer(function DashboardScreen() {
         fetchData();
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
+
         setRefresh(false);
         if (isFocused && !isRefresh && refetch) {
             try {           
-                let {data: {getDashboardMobile}} = await refetch(); 
+                let {data: {getDashboardMobile}} = await refetch({
+                    // GMT_Mobile
+                }); 
                 if (getDashboardMobile?.messageCode == 200) {   
                     setDashboard(getDashboardMobile?.data);
+                    
                     await movesModel.setDonateInfo({
                         donatedMoves: getDashboardMobile?.data?.Donated_Moves,
                         amountDonated: getDashboardMobile?.data?.Amount_Donated,
@@ -70,10 +74,6 @@ export const DashboardScreen = observer(function DashboardScreen() {
         let date = new Date().getTime();
         return (
             <View>
-                {/*<View style={{alignItems:'center', marginTop: 8, marginBottom: 12}}>*/}
-                {/*<Text style={{fontSize: 13,color:color.white, marginBottom: 4, opacity: 0.2}}>swipe down to sync</Text>*/}
-                {/*<Image source={images.icon_down}/>*/}
-                {/*</View>*/}
                 <View>
                     <View style={styles.appsWrapper}>
                         <View style={{marginBottom: 16}}>
@@ -85,8 +85,8 @@ export const DashboardScreen = observer(function DashboardScreen() {
                                       fonts={'DemiBold'}>{formatNumber(Math.round(dashboard?.Donated_Moves + dashboard?.Moves_Avaiable))}</Text>
                                 <Text fonts={'DemiBold'}> total moves</Text>
                             </View>
-                            <Text style={{marginBottom: 8}}>last uploaded: {timestampToDate(dashboard?.LastUpload, 'dd/MM/YYYY hh:mm')}</Text>
-                            <Text fonts={'DemiBold'}>({calculateDate(dashboard?.LastUpload, date)} ago)</Text>
+                            <Text style={{marginBottom: 8}}>last uploaded: {timestampToDate(converStrToDate(dashboard?.LastUpload) , 'dd/MM/YYYY hh:mm')}</Text>
+                            <Text fonts={'DemiBold'}>({calculateDate(converStrToDate(dashboard?.LastUpload), date)} ago)</Text>
                         </TouchableOpacity>
                         <View style={{justifyContent: 'center', alignItems: 'center'}}>
                             <MButton

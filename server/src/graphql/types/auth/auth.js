@@ -84,9 +84,9 @@ const typeDefs = gql`
     signResetPassWord(Email:String!, url:String, type:String):BaseResponse,
     checkCodeResetPassword(hashCode:String):BaseResponse,
     changeResetPassword(hashCode:String,Password:String!):ChangeResetPasswordResponse,
-    register(forename: String!, surname: String!, email: String!, phone: String, password: String!): ResponseRegister,
+    register(forename: String!, surname: String!, email: String!, phone: String, password: String!, createDate: String!): ResponseRegister,
     updateProfile(forename: String!, surname: String!, email: String!, phone: String, avatar: String, fileName: String): ResponseUpdateProfile,
-    changePassword(passwordOld: String!, passwordNew: String): ResponseChangePassword,
+    changePassword(passwordNew: String): ResponseChangePassword,
   }
 `;
 

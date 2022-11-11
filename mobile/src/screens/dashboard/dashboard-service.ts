@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const FETCH_getDashboardMobile = gql`
-    query getDashboardMobile {
+    query getDashboardMobile  {
         getDashboardMobile {
             message
             messageCode

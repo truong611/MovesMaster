@@ -18,7 +18,7 @@ export class ChangePasswordComponent implements OnInit {
   formGroup: FormGroup;
   submitted: boolean;
   error: any = {
-    Current_Password: '',
+    // Current_Password: '',
     New_Password: '',
     Renew_Password: ''
   }
@@ -38,7 +38,7 @@ export class ChangePasswordComponent implements OnInit {
 
   initForm() {
     this.formGroup = this.formBuilder.group({
-      Current_Password: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(24)]],
+      // Current_Password: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(24)]],
       New_Password: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(24), Validators.pattern(this.validaytorsService.regex.password)]],
       Renew_Password: [null, [Validators.required]],
     });
@@ -47,11 +47,11 @@ export class ChangePasswordComponent implements OnInit {
   async save() {
     this.submitted = true;
     if (this.formGroup.invalid) {
-      if (this.formGroup.get('Current_Password').errors?.required) {
-        this.error['Current_Password'] = 'This field is mandatory';
-      } else if (this.formGroup.get('Current_Password').errors?.minLength|| this.formGroup.get('Current_Password').errors?.maxlength) {
-        this.error['Current_Password'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
-      }
+      // if (this.formGroup.get('Current_Password').errors?.required) {
+      //   this.error['Current_Password'] = 'This field is mandatory';
+      // } else if (this.formGroup.get('Current_Password').errors?.minLength|| this.formGroup.get('Current_Password').errors?.maxlength) {
+      //   this.error['Current_Password'] = 'Password must be greater than or equal to 6 and less than or equal to 24 characters';
+      // }
 
       if (this.formGroup.get('New_Password').errors?.required) {
         this.error['New_Password'] = 'This field is mandatory';
@@ -78,7 +78,7 @@ export class ChangePasswordComponent implements OnInit {
     try {
       this.loading = true;
 
-      let { data, loading }: any = await this.userService.changeUserPassword(this.userId, formData.Current_Password, formData.New_Password);
+      let { data, loading }: any = await this.userService.changeUserPassword(this.userId, formData.New_Password);
       this.loading = loading;
       if (data.changeUserPassword.messageCode != 200) {
         this.showMessage('error', data.changeUserPassword.message);

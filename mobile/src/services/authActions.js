@@ -1,3 +1,4 @@
+import { formatDate } from ".";
 import {API_URL, WEB_URL} from "../config";
 
 export const login = (email, password, successCb, errorCb, isActiveMobile) => {
@@ -65,14 +66,15 @@ export const login = (email, password, successCb, errorCb, isActiveMobile) => {
 };
 
 export const signup = (forename, surname, email, phone, password, successCb, errorCb) => {
+    let createDate = formatDate(new Date(), "YYYY/MM/DD-hh:mm:ss")
     fetch(API_URL, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
         body: JSON.stringify({
-            query: `mutation Mutation($forename: String!, $surname: String!, $email: String!, $phone: String, $password: String!) {
-                          register(forename: $forename, surname: $surname, email: $email, phone: $phone, password: $password) {
+            query: `mutation Mutation($forename: String!, $surname: String!, $email: String!, $phone: String, $password: String!, $createDate: String!) {
+                          register(forename: $forename, surname: $surname, email: $email, phone: $phone, password: $password, createDate: $createDate ) {
                             user {
                               User_ID
                               User_Email
@@ -100,7 +102,8 @@ export const signup = (forename, surname, email, phone, password, successCb, err
                 surname,
                 email,
                 password,
-                phone
+                phone,
+                createDate
             },
         }),
     })

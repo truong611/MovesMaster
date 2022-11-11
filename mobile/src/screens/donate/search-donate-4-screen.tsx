@@ -448,9 +448,32 @@ export const SearchDonate4Screen = observer(function SearchDonate4Screen() {
                 <View style={{paddingHorizontal: 16,}}>
                     <View style={{flexDirection: 'row', marginBottom: 16}}>
                         <View style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar}}>
-                            {params?.detail?.icon ?
+                            {/* {params?.detail?.icon ?
                                 <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={params?.detail?.icon ? {uri: replaceHTTP(params?.detail?.icon)} : {}}/>
-                                :null}
+                                :null} */}
+                            {params?.type == 'charity' ? 
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={{uri: replaceHTTP(data?.icon)}}/>
+                            : null}
+                            {params?.type == 'appeal' ? 
+                               data?.icon ?
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={{uri: replaceHTTP(data?.icon)}}/>
+                               : 
+                               data?.charity_icon ?
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={{uri: replaceHTTP(data?.charity_icon)}}/>
+                               : null
+                            : null}
+                            {params?.type == 'campaign' ? 
+                               data?.icon ?
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={{uri: replaceHTTP(data?.icon)}}/>
+                               : 
+                               data?.Appeal_Icon ?
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={ {uri: replaceHTTP(data?.Appeal_Icon)}}/>
+                               :
+                               data?.Charity_icon ?
+                               <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8, marginRight: 16, backgroundColor: color.tabbar, overlayColor:color.tabbar }} source={{uri: replaceHTTP(data?.Charity_icon)}}/>
+                               : null
+                            : null}
+
                         </View>
                         <View style={{justifyContent: "center",}}>
                             <Text style={{fontSize: 15, marginBottom: 8, textAlign: 'center', width: layout.width - 32 - (layout.width / 3) - 16}} numberOfLines={2} fonts={'DemiBold'}>{data?.name}

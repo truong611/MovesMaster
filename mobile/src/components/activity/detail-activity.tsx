@@ -3,7 +3,7 @@ import * as React from "react"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {TouchableOpacity, View, StyleSheet, Image} from "react-native";
 import {Text} from '../index';
-import {formatDate, formatNumber, replaceHTTP,} from "../../services";
+import {converStrToDate, formatDate, formatNumber, replaceHTTP,} from "../../services";
 import {color} from '../../theme';
 
 /**
@@ -29,7 +29,7 @@ export function DetailActivity(props: any) {
                     <Text style={{marginLeft: 4, fontSize: 13}}>{item?.Fitness_App?.Fitness_App_Name ? item?.Fitness_App?.Fitness_App_Name : 'Manual record'}</Text>
                 </View>
             </View>
-            <Text style={{fontSize: 14}}>{formatDate(item?.Activity_Start_Time, "dd/MM/YYYY hh:mm:ss")} - {formatDate(item?.Activity_End_Time, "dd/MM/YYYY hh:mm:ss")}</Text>
+            <Text style={{fontSize: 14}}>{formatDate(item?.Activity_Start_Time, "dd/MM/YYYY hh:mm:ss")} - {formatDate(item?.Activity_End_Time , "dd/MM/YYYY hh:mm:ss")}</Text>
             <View style={styles.row2}>
                 <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >{item?.ActivityType?.Activity_Type_Name}</Text>
                 <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >Units: {formatNumber(item?.Number_Units)} {item?.ActivityUnit?.Activity_Unit_Name}</Text>

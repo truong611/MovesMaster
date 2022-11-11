@@ -5,7 +5,7 @@ import {BtnBack, Header, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation, useRoute} from "@react-navigation/native"
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
-import {formatNumber, replaceHTTP} from "../../services";
+import {formatNumber, numberFormat, replaceHTTP} from "../../services";
 import {useStores} from "../../models";
 import {Donate} from "../../components/donate/donate";
 
@@ -75,13 +75,13 @@ export const SearchDonate3Screen = observer(function SearchDonate3Screen() {
                     <View style={{marginBottom: 16}}>
                         <Text fonts={'DemiBold'}>CHARITY</Text>
                     </View>
-                    <TouchableOpacity onPress={() => goToSearchDonate4Screen(params?.data, 'charity')}>
+                    <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => goToSearchDonate4Screen(params?.data, 'charity')}>
                         <View style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}}>
                             {params?.data?.Charity_icon?
                                 <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}} source={{uri:replaceHTTP(params?.data?.Charity_icon)}}/>
                                 :null}
                         </View>
-                        <Text style={{width: layout.width / 3, textAlign: 'center'}} numberOfLines={2}>{params?.data?.Charity_Name}</Text>
+                        <Text numberOfLines={2} style={{textAlign: 'center', width: layout.width / 2.5, fontSize: 14}}>{params?.data?.Charity_Name}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.appsWrapper, {paddingBottom: 0}]}>
@@ -89,17 +89,17 @@ export const SearchDonate3Screen = observer(function SearchDonate3Screen() {
                         <Text fonts={'DemiBold'}>APPEALS</Text>
                     </View>
                     <FlatList
-                        horizontal
                         data={params?.data?.Appeals}
                         renderItem={({item, index}) => {
                             return (
-                                <TouchableOpacity style={{marginRight: 16, marginBottom: 16}} onPress={() => goToSearchDonate4Screen(item, 'appeal')}>
+                                <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => goToSearchDonate4Screen(item, 'appeal')}>
                                     <View style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}}>
                                         {item?.Appeal_Icon?
                                             <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}} source={{uri: replaceHTTP(item?.Appeal_Icon) }}/>
-                                            :null}
+                                            : 
+                                            <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}} source={{uri: replaceHTTP(params?.data?.Charity_icon) }}/>}
                                     </View>
-                                    <Text style={{width: layout.width / 3, textAlign: 'center'}} numberOfLines={2}>{item?.Appeal_Name}</Text>
+                                    <Text numberOfLines={2} style={{textAlign: 'center', width: layout.width / 2.5, fontSize: 14,marginLeft: 10}}>{item?.Appeal_Name}</Text>
                                 </TouchableOpacity>
                             )
                         }}
@@ -111,17 +111,22 @@ export const SearchDonate3Screen = observer(function SearchDonate3Screen() {
                         <Text fonts={'DemiBold'}>CAMPAIGNS</Text>
                     </View>
                     <FlatList
-                        horizontal
                         data={params?.data?.Campaigns}
                         renderItem={({item, index}) => {
                             return (
-                                <TouchableOpacity style={{marginRight: 16, marginBottom: 16}} onPress={() => goToSearchDonate4Screen(item, 'campaign')}>
-                                    <View style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}}>
-                                        {item?.Campaign_Icon?
-                                            <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}} source={{uri: replaceHTTP(item?.Campaign_Icon) }}/>
-                                            :null}
+                                <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={() => goToSearchDonate4Screen(item, 'campaign')}>
+                                    <View style={{width: layout.width / 3, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary}}>
+                                        {item?.Campaign_Icon ?
+                                            <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary, overlayColor: color.tabbar }} source={{uri: replaceHTTP(item?.Campaign_Icon) }}/>
+                                        : item?.Appeal_Icon ? 
+                                        <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 2.5) * 2 / 3, marginBottom: 8, borderRadius: 16, backgroundColor: color.primary, overlayColor: color.tabbar }} source={{uri: replaceHTTP(item?.Appeal_Icon) }}/>
+                                        : <Image resizeMode={"contain"} style={{width: layout.width / 3, height: (layout.width / 3) * 2 / 3, borderRadius: 8, marginBottom: 8,backgroundColor:color.primary}} source={{uri: replaceHTTP(params?.data?.Charity_icon) }}/>}
                                     </View>
-                                    <Text style={{width: layout.width / 3, textAlign: 'center'}} numberOfLines={2}>{item?.Campaign_Name}</Text>
+                                    <View style={{marginLeft: 10}}>
+                                        <Text numberOfLines={2} style={{textAlign: 'center', width: layout.width / 2.5, fontSize: 14}}>{item?.Campaign_Name}</Text>
+                                        <Text style={{fontSize: 13, color: color.danger, textAlign: 'center',}}>£ {numberFormat(parseFloat(item?.Campaign_Price_Per_Move))} per move</Text>
+                                    </View>
+                                    
                                 </TouchableOpacity>
                             )
                         }}

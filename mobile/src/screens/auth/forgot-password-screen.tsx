@@ -27,6 +27,7 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
     const navigation = useNavigation();
     const isFocused = useIsFocused();
     const [imageHeight, setImageHeight] = useState(new Animated.Value(IMAGE_HEIGHT));
+    const [showKeyBoard, setShowKeyBoard] = useState(false)
 
     useEffect(() => {
         fetchData();
@@ -43,20 +44,27 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
     };
 
     const submit = async () => {
-        if (checkSubmit()) {
-            setLoading(true);
-            const successCallback = async (response) => {
-                setLoading(false);
-                // goToPage('LoginScreen');
-                showToast('success', response.message); 
-            };
-            const errorCallback = (e) => {
-                setLoading(false);
-                showToast('error', e.message);
-                
-            };
-            forgotPassword(email, successCallback, errorCallback);
+        if(showKeyBoard){
+            setShowKeyBoard(false)
+            Keyboard.dismiss()
+        }else{
+            if (checkSubmit()) {
+                setLoading(true);
+                const successCallback = async (response) => {
+                    setLoading(false);
+                    // goToPage('LoginScreen');
+                    showToast('success', response.message); 
+                };
+                const errorCallback = (e) => {
+                    setLoading(false);
+                    showToast('error', e.message);
+                    
+                };
+                forgotPassword(email, successCallback, errorCallback);
+            }
         }
+        
+        
     };
 
     const checkSubmit = () => {
@@ -81,16 +89,26 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
             {isLoading && <CenterSpinner/>}
            
             <Screen style={ROOT} preset="fixed">
-                <TouchableOpacity style={styles.container} activeOpacity={1} onPress={() => Keyboard.dismiss()}>
+                <TouchableOpacity style={styles.container} activeOpacity={1} onPress={() => {
+                    setShowKeyBoard(false)
+                    Keyboard.dismiss()
+                } }>
                     <Animated.Image source={images.login_1} style={[styles.login_1, {height: imageHeight}]}/>
                     
                     <View style={{alignItems: 'center'}}>
                         <Text style={{marginBottom: 24}}>enter your email to reset your password.</Text>
                         <Input
-                            onSubmitEditing={() => submit()}
+                            // onSubmitEditing={() => submit()}
+                            onSubmitEditing={() =>{
+                                setShowKeyBoard(false) 
+                                Keyboard.dismiss()
+                            } }
                             blurOnSubmit={false}
                             placeholder={placeholderEmail}
-                            onFocus={() => setPlaceholderEmail('')}
+                            onFocus={() => {
+                                console.log("Focus");
+                                setShowKeyBoard(true) 
+                                setPlaceholderEmail('')}}
                             onBlur={() => setPlaceholderEmail('email')}
                             type='email-address'
                             status={isSubmit && (regexString(email) || regexEmail(email)) ? 'danger' : ''}
@@ -98,7 +116,14 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
                             onChangeText={(value) => setEmail(value)}
                         />
                         <MButton onPress={submit} text='reset'/>
-                        <TouchableOpacity style={styles.forgotPasswordWrapper} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity style={styles.forgotPasswordWrapper} onPress={() =>{
+                            if(showKeyBoard){
+                                Keyboard.dismiss()
+                            }else{
+                                navigation.goBack()
+                            }
+                            
+                        }}>
                             <Text style={styles.signUpText}>login</Text>
                         </TouchableOpacity>
                     </View>

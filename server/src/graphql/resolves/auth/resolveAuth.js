@@ -13,6 +13,7 @@ const PORT = process.env.PORT;
 const STATIC_FOLDER = process.env.STATIC_FOLDER;
 const URL_FOLDER = (HOSTNAME + ':' + PORT) + '/' + STATIC_FOLDER;
 const emailTemp = require('../../../common/emailTemp');
+const commonSystem = require('../../../common/commonSystem');
 
 const generate = (user, refresh = false) => {
   let expiresIn = refresh ? (60 * (60 * 24) * 7) : (60 * (60 * 24));
@@ -560,7 +561,6 @@ const resolvers = {
             messageCode: 400
           }
         }
-
         // check update or create
         let isUpdate = false;
 
@@ -635,7 +635,8 @@ const resolvers = {
             User_Phone_Number: args.phone,
             User_Password: hashedPassword,
             Is_Web_App_User: false,
-            Is_Mobile_App_User: true
+            Is_Mobile_App_User: true,
+            Created_Date: commonSystem.convertStrToDate(args?.createDate)
           });
         }
 
@@ -752,7 +753,7 @@ const resolvers = {
     changePassword: authenticated(async (parent, args, context) => {
       try {
         // validate body
-        if (!args.passwordOld || !args.passwordNew) {
+        if (!args.passwordNew) {
           return {
             message: messages.error,
             messageCode: 400
@@ -773,13 +774,13 @@ const resolvers = {
         }
 
         // check current password
-        const isEqual = await bcrypt.compare(args.passwordOld, user.User_Password);
-        if (!isEqual) {
-          return {
-            messageCode: 400,
-            message: messages.profile.password_is_incorrect,
-          };
-        }
+        // const isEqual = await bcrypt.compare(args.passwordOld, user.User_Password);
+        // if (!isEqual) {
+        //   return {
+        //     messageCode: 400,
+        //     message: messages.profile.password_is_incorrect,
+        //   };
+        // }
 
         // hash password
         const hashedPassword = await bcrypt.hash(args.passwordNew, 12);
