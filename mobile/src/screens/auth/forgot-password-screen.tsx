@@ -106,7 +106,6 @@ export const ForgotPasswordScreen = observer(function ForgotPasswordScreen() {
                             blurOnSubmit={false}
                             placeholder={placeholderEmail}
                             onFocus={() => {
-                                console.log("Focus");
                                 setShowKeyBoard(true) 
                                 setPlaceholderEmail('')}}
                             onBlur={() => setPlaceholderEmail('email')}

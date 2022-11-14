@@ -96,7 +96,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     })  
                     }
                     if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Apple Health") {
-                      getData()
+                      await getData()
                  }
                 }
                 let {data: {getMasterDataUploadActivity: {data, message, messageCode}}} = await refetch();                     
@@ -312,7 +312,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                 "StartTime": new Date(start).getTime(),
                 "EndTime": new Date(end).getTime(),
                 "Quantity": item.quantity,
-                "Unit_Minute": Math.ceil(new Date(end).getMinutes() - new Date(start).getMinutes())
+                "Unit_Minute": Math.ceil( (new Date(end).getTime() - new Date(start).getTime()) / 60000)
             }
             return obj
 
@@ -328,12 +328,19 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                 if((startDate2 - endDate1) <= Limit_Second*1000){
                     dataActivity_final[dataActivity_final?.length - 1].EndTime = dataActivity[j].EndTime;
                     dataActivity_final[dataActivity_final?.length - 1].Quantity = item.Quantity + dataActivity[j].Quantity;
-                    dataActivity_final[dataActivity_final?.length - 1].Unit_Minute = Math.ceil(new Date(dataActivity[j].EndTime).getMinutes() - new Date(item.StartTime).getMinutes())
+                    dataActivity_final[dataActivity_final?.length - 1].Unit_Minute = Math.ceil((new Date(dataActivity[j].EndTime).getTime() - new Date(item.StartTime).getTime())/60000)
                 }else{
                     dataActivity_final.push(dataActivity[j])
                 }
             }
         }
+        let data_dataActivity_final : any = []
+        dataActivity_final.map(item => {
+            let obj = {...item}
+            obj.StartTime = formatDate(obj.StartTime , "YYYY/MM/DD-hh:mm:ss")
+            obj.EndTime = formatDate(obj.EndTime , "YYYY/MM/DD-hh:mm:ss")
+            data_dataActivity_final.push(obj)
+        })
         if(dataActivity_final?.length > 0) {
             let GMT_Mobile = new Date().getTimezoneOffset()/60
             let res = uploadActivityApple({
@@ -341,7 +348,7 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     bodyData: dataActivity_final,
                     GMT_Mobile
                 },
-            });  
+            }); 
         }    
         return
         })

@@ -359,6 +359,7 @@ export const SearchDonate4Screen = observer(function SearchDonate4Screen() {
     };
 
     const donate = async () => {
+        let GMT_Mobile = new Date().getTimezoneOffset()/60
         setLoading(true);
         try {
             let payload = {
@@ -371,7 +372,8 @@ export const SearchDonate4Screen = observer(function SearchDonate4Screen() {
                     "Moves_Charity_ID": params?.type == 'charity' ? data?.id : null,
                     "Campaign_ID": params?.type == 'campaign' ? data?.id : null,
                     "type": params?.type
-                }
+                },
+                GMT_Mobile
             };
             let {data: {storeDonate: {Donated_Moves, Amount_Donated, Moves_Avaiable, Badge_Awarded, messageCode, message}}} = await storeDonate({
                 variables: payload

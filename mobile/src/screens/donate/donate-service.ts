@@ -219,8 +219,8 @@ export const FETCH_favouriteMobile = gql`
 `;
 
 export const FETCH_storeDonate = gql`
-    mutation Mutation($bodyData: StoreDonateInput!) {
-        storeDonate(bodyData: $bodyData) {
+    mutation Mutation($bodyData: StoreDonateInput!, $GMT_Mobile: Int!) {
+        storeDonate(bodyData: $bodyData,GMT_Mobile: $GMT_Mobile ) {
             message
             messageCode
             Donated_Moves

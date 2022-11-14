@@ -212,13 +212,15 @@ export const AchievementsScreen = observer(function AchievementsScreen() {
 const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
+        backgroundColor: color.tabbar
     },
     modalView: {
         flex: 1,
         backgroundColor: color.tabbar,
         paddingVertical: layout.width / 4,
         paddingHorizontal: layout.width / 8,
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 30
     },
     title: {
         fontSize: 15, marginBottom: 12, color: color.warning, textAlign: 'center'

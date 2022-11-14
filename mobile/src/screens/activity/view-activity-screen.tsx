@@ -120,8 +120,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
                        return a?.Activity_End_Time - b?.Activity_End_Time
                     })
 
-                    console.log("dataActivity_entry 1:", dataActivity_entry);
-
                     let _dataActivity_entry = []
                     
                     dataActivity_entry.map((item, index) => {
@@ -222,7 +220,6 @@ export const ViewActivityScreen = observer(function ViewActivityScreen() {
     }
 
     const HandleDataChart = (Activity_Entry = []) => {
-        console.log("Activity_Entry: ", Activity_Entry)
         let _data = {
             labels: [],
             datasets: [

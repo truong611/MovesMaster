@@ -12,7 +12,7 @@ import {BtnBack, Header, Screen, Text} from '../../components';
 import {useNavigation, useIsFocused, useRoute} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
-import {formatNumber, formatDate, showToast, numberFormat} from '../../services';
+import {formatNumber, formatDate, showToast, numberFormat, converStrToDate} from '../../services';
 import {FETCH_getListDonationMobile} from './donate-service';
 import {useQuery} from '@apollo/react-hooks';
 import {Donate} from "../../components/donate/donate";
@@ -52,16 +52,23 @@ export const ListDonateScreen = observer(function ListDonateScreen() {
             try {
                 let {data: {getListDonationMobile: {ListDonation, messageCode, message}}} = await refetch();
                 setLoading(false);
-                if (messageCode == 200) {        
-                    setListDonate(ListDonation);                   
+                if (messageCode == 200) {
+                    let data_ListDonation : any = []
+                    ListDonation.map(item => {
+                        let obj = {...item}
+                        obj.Created_Date = converStrToDate(item?.Created_Date)
+                        data_ListDonation.push(obj)
+                    })
+
+                    setListDonate(data_ListDonation);                   
                     if(params?.type == 'Date'){
-                        sortHistoryByDate(params?.value, ListDonation)
+                        sortHistoryByDate(params?.value, data_ListDonation)
                     }
                     if(params?.type == 'Name'){
-                        sortHistoryByName(params?.value, ListDonation)
+                        sortHistoryByName(params?.value, data_ListDonation)
                     }
                     if(params?.type == 'Price'){
-                        sortHistoryByPrice(params?.value, ListDonation)
+                        sortHistoryByPrice(params?.value, data_ListDonation)
                     }
                 } else {
                     showToast('error', message)

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Header, Screen, Text, MButton, BtnBack} from '../../components';
 import {useNavigation, useRoute, useIsFocused} from '@react-navigation/native';
-import {formatNumber, formatDate, showToast, numberFormat} from '../../services';
+import {formatNumber, formatDate, showToast, numberFormat, converStrToDate} from '../../services';
 import {color} from '../../theme';
 import CenterSpinner from '../../components/center-spinner/center-spinner';
 import {FETCH_getDetailDonationMobile} from './donate-service';
@@ -47,7 +47,9 @@ export const DetailDonateScreen = observer(function DetailDonateScreen() {
                 let {data: {getDetailDonationMobile: {Donation, message, messageCode}}} = await refetch();
                 setLoading(false);
                 if (messageCode == 200) {
-                    setDetailDonate(Donation);
+                    let data_donation = {...Donation}
+                    data_donation.Created_Date = converStrToDate(Donation.Created_Date)
+                    setDetailDonate(data_donation);
                 } else {
                     showToast('error', message)
                 }
