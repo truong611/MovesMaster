@@ -28,7 +28,7 @@ const ROOT: ViewStyle = {
     flex: 1,
 };
 
-export const NewsScreen = observer(function NewsScreen() {
+export const NewsScreen = observer(function NewsScreen(props: any) {
     const [isLoading, setLoading] = useState(false);
     const [isRefresh, setRefresh] = useState(false);
     const isFocused = useIsFocused();
@@ -40,11 +40,14 @@ export const NewsScreen = observer(function NewsScreen() {
     });
     const {refetch} = useQuery(FETCH_getListNews);
 
+    let {HandleSelectTypeNews, type} = props
+
     useEffect(() => {
         fetchData();
     }, [isFocused, isRefresh]);
     const fetchData = async () => {
         setRefresh(false);
+        if(type) setTabIndex(type)
         if (isFocused && !isRefresh && refetch) {
             setLoading(true);
             try {
@@ -107,12 +110,16 @@ export const NewsScreen = observer(function NewsScreen() {
                 <View style={styles.itemTabWrapper}>
                     <TouchableOpacity
                         style={[styles.itemTab, tabIndex == 'favourite' ? styles.itemTabActive : {}]}
-                        onPress={() => setTabIndex('favourite')}>
-                        <Text>favourite</Text>
+                        onPress={() => {
+                            HandleSelectTypeNews('favourite')
+                            setTabIndex('favourite')}}>
+                        <Text>favourites</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.itemTab, tabIndex == 'all' ? styles.itemTabActive : {}]}
-                        onPress={() => setTabIndex('all')}>
+                        onPress={() => {
+                            HandleSelectTypeNews('all')
+                            setTabIndex('all')}}>
                         <Text>all</Text>
                     </TouchableOpacity>
                 </View>

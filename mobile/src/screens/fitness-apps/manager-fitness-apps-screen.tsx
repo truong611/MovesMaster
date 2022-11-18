@@ -6,6 +6,7 @@ import {
     FlatList,
     Image,
     Linking,
+    Platform,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -148,7 +149,9 @@ export const ManagerFitnessApps = observer(function ManagerFitnessApps() {
                 return
             }
             if (appName == 'Apple Health') {
-                await connectAppleHealth(appId)
+                if(Platform?.OS == 'ios'){
+                    await connectAppleHealth(appId)
+                }
                 return
             }
         // if(listFitnessAppUsage?.length > 0){

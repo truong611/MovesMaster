@@ -32,7 +32,7 @@ export function DetailActivity(props: any) {
             <Text style={{fontSize: 14}}>{formatDate(item?.Activity_Start_Time, "dd/MM/YYYY hh:mm:ss")} - {formatDate(item?.Activity_End_Time , "dd/MM/YYYY hh:mm:ss")}</Text>
             <View style={styles.row2}>
                 <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >{item?.ActivityType?.Activity_Type_Name}</Text>
-                <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >Units: {formatNumber(item?.Number_Units)} {item?.ActivityUnit?.Activity_Unit_Name}</Text>
+                <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >Units: {formatNumber(item?.Number_Units)} {item?.ActivityUnit?.Activity_Unit_Name} minute</Text>
                 <Text style={{width: '30%', fontSize: 12}} numberOfLines={1} >Move: {formatNumber(Math.floor(item?.Moves_Arising))}</Text>
                 <Text style={{width: '3%', fontSize: 12}}>{item?.Include_YN ? 'Y' : 'N'}</Text>
             </View>

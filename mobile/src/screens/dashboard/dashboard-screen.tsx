@@ -7,15 +7,20 @@ import {
     TouchableOpacity,
     FlatList,
     Dimensions,
+    Platform,
 } from 'react-native';
 import {Header, MButton, Screen, Text} from '../../components';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {color} from '../../theme';
 import CenterSpinner from "../../components/center-spinner/center-spinner";
 import {calculateDate, converStrToDate, formatDate, formatNumber, numberFormat, showToast, StatusBarHeight, timestampToDate} from "../../services";
-import {useQuery} from "@apollo/react-hooks";
+import {useMutation, useQuery} from "@apollo/react-hooks";
 import {FETCH_getDashboardMobile} from "./dashboard-service";
 import {useStores} from "../../models";
+import { FETCH_getFitnessAppUsage } from '../fitness-apps/fitness-apps-service';
+import { FETCH_uploadActivityApple, FETCH_uploadActiviyGarmin } from '../activity/activity-service';
+import AppleHealthKit, { HealthKitPermissions, } from 'react-native-health'
+import { Limit_Second } from '../../config';
 
 const ROOT: ViewStyle = {
     backgroundColor: color.primary,
@@ -24,15 +29,19 @@ const ROOT: ViewStyle = {
 
 const layout = Dimensions.get('window');
 
-export const DashboardScreen = observer(function DashboardScreen() {
+export const DashboardScreen = observer(function DashboardScreen(props: any) {
     const navigation = useNavigation();
     const [dashboard, setDashboard] = useState<any>(null);
     const [isLoading, setLoading] = useState(false);
     const [isRefresh, setRefresh] = useState(false);
     const isFocused = useIsFocused();
     const {movesModel} = useStores();
-
     const {refetch} = useQuery(FETCH_getDashboardMobile);
+    const query = useQuery(FETCH_getFitnessAppUsage)
+    const [uploadActivityGarmin, {}] = useMutation(FETCH_uploadActiviyGarmin);
+    const [uploadActivityApple, {}] = useMutation(FETCH_uploadActivityApple);
+
+    let {HandleSelectTypeNews} = props
 
     useEffect(() => {
         fetchData();
@@ -45,9 +54,25 @@ export const DashboardScreen = observer(function DashboardScreen() {
                 let {data: {getDashboardMobile}} = await refetch({
                     // GMT_Mobile
                 }); 
-                if (getDashboardMobile?.messageCode == 200) {   
+                if (getDashboardMobile?.messageCode == 200) {
+                    let {data: {getFitnessAppUsage: {FitnessApp, FitnessAppUsage}}} = await query.refetch()
+                    for(let i = 0; i < FitnessAppUsage?.length; i++){             
+                        if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Garmin") {
+                            let GMT_Mobile = new Date().getTimezoneOffset() / 60
+                            let res = await uploadActivityGarmin({
+                                variables: {
+                                    GMT_Mobile
+                                },
+                            })  
+                        }
+                        if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Apple Health") {
+                            if(Platform?.OS == 'ios') {
+                                await getData(getDashboardMobile?.data?.LastUpload)
+                            }
+                            
+                        }
+                    }
                     setDashboard(getDashboardMobile?.data);
-                    
                     await movesModel.setDonateInfo({
                         donatedMoves: getDashboardMobile?.data?.Donated_Moves,
                         amountDonated: getDashboardMobile?.data?.Amount_Donated,
@@ -61,6 +86,103 @@ export const DashboardScreen = observer(function DashboardScreen() {
             }
         }
     };
+
+    const getData = async (strDate) => {
+        console.log(strDate)
+        let  _startDate = converStrToDate(strDate)
+        const permissions = {
+        permissions: {
+            read: [
+                AppleHealthKit.Constants.Permissions.DistanceCycling,
+                AppleHealthKit.Constants.Permissions.DistanceWalkingRunning,
+                AppleHealthKit.Constants.Permissions.FlightsClimbed,
+                AppleHealthKit.Constants.Permissions.StepCount,
+                AppleHealthKit.Constants.Permissions.DistanceSwimming,
+            ],
+        },
+        } as HealthKitPermissions;
+
+        await AppleHealthKit.initHealthKit(permissions, (error: string, results: boolean) => {
+        /* Called after we receive a response from the system */
+        if (error) {
+            console.log('[ERROR] Cannot grant permissions!')
+            return
+        }
+        let startDate = new Date(_startDate?.getFullYear() , _startDate?.getMonth(), _startDate?.getDate())
+        const activityApplelheath = ['Walking']
+        for(let i = 0; i < activityApplelheath?.length; i++){
+            let res = getAppleHealthData(startDate, activityApplelheath[i]);
+        }
+        })
+    }
+    
+    const getAppleHealthData = async (fromDate, type) =>  {
+        let dataActivity = []
+        let dataActivity_final : any = []
+        let options = {
+            startDate: fromDate.toISOString(),
+            endDate: new Date().toISOString(),
+            period: 1440,
+            includeManuallyAdded: true,
+            type: type
+        }
+        await AppleHealthKit.getSamples(
+        options,
+        (err: Object, results: Array<Object>) => {
+        if(err){
+            console.log("Err: ", err);
+            return
+        } 
+        dataActivity = results.map((item, index) => {
+            let start = new Date(item.start).toString()
+            let end = new Date(item.end).toString()
+            let obj = {
+                "ID": new Date(start).getTime().toString(),
+                "Type_Name": type,
+                "StartTime": new Date(start).getTime(),
+                "EndTime": new Date(end).getTime(),
+                "Quantity": item.quantity,
+                "Unit_Minute": Math.ceil( (new Date(end).getTime() - new Date(start).getTime()) / 60000)
+            }
+            return obj
+
+        })
+        dataActivity.reverse()
+        for(let j = 0; j < dataActivity?.length; j++){
+            let obj
+            if(j == 0) dataActivity_final.push(dataActivity[j])
+            else {
+                let item = dataActivity_final[dataActivity_final?.length - 1]
+                let endDate1 = item?.EndTime
+                let startDate2 = dataActivity[j].StartTime
+                if((startDate2 - endDate1) <= Limit_Second*1000){
+                    dataActivity_final[dataActivity_final?.length - 1].EndTime = dataActivity[j].EndTime;
+                    dataActivity_final[dataActivity_final?.length - 1].Quantity = item.Quantity + dataActivity[j].Quantity;
+                    dataActivity_final[dataActivity_final?.length - 1].Unit_Minute = Math.ceil((new Date(dataActivity[j].EndTime).getTime() - new Date(item.StartTime).getTime())/60000)
+                }else{
+                    dataActivity_final.push(dataActivity[j])
+                }
+            }
+        }
+        let data_dataActivity_final : any = []
+        dataActivity_final.map(item => {
+            let obj = {...item}
+            obj.StartTime = formatDate(obj.StartTime , "YYYY/MM/DD-hh:mm:ss")
+            obj.EndTime = formatDate(obj.EndTime , "YYYY/MM/DD-hh:mm:ss")
+            data_dataActivity_final.push(obj)
+        })
+        if(dataActivity_final?.length > 0) {
+            let GMT_Mobile = new Date().getTimezoneOffset()/60
+            let res = uploadActivityApple({
+                variables: {
+                    bodyData: dataActivity_final,
+                    GMT_Mobile
+                },
+            }); 
+        }    
+        return
+        })
+    }
 
     const goToPage = (page) => {
         navigation.navigate('MainScreen', {screen: page});
@@ -88,12 +210,12 @@ export const DashboardScreen = observer(function DashboardScreen() {
                             <Text style={{marginBottom: 8}}>last uploaded: {timestampToDate(converStrToDate(dashboard?.LastUpload) , 'dd/MM/YYYY hh:mm')}</Text>
                             <Text fonts={'DemiBold'}>({calculateDate(converStrToDate(dashboard?.LastUpload), date)} ago)</Text>
                         </TouchableOpacity>
-                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                        <View style={{flexDirection: 'row',justifyContent: 'space-around', alignItems: 'center', marginVertical: 5}}>
                             <MButton
                                 onPress={() => goToPage('UploadActivityScreen')}
                                 style={styles.btnOrange}
                                 styleText={styles.textWhite}
-                                text='upload activity'/>
+                                text='upload'/>
                             <MButton
                                 onPress={() => {
                                     navigation.navigate('MainScreen', {
@@ -104,7 +226,7 @@ export const DashboardScreen = observer(function DashboardScreen() {
                                 } }
                                 style={styles.btnBlue}
                                 styleText={styles.textWhite}
-                                text='view activity'/>
+                                text='view'/>
                         </View>
                     </View>
                     <View style={styles.appsWrapper}>
@@ -125,7 +247,7 @@ export const DashboardScreen = observer(function DashboardScreen() {
                                 <Text style={styles.donationsText}>moves available</Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={{justifyContent: 'center', alignItems: 'center', marginTop: 12}}>
+                        <View style={{flexDirection: 'row',justifyContent: 'space-around', alignItems: 'center', marginTop: 15}}>
                             <MButton
                                 onPress={async () => {
                                     navigation.navigate('HomeScreen');
@@ -140,7 +262,37 @@ export const DashboardScreen = observer(function DashboardScreen() {
                                 onPress={() => goToPage('ListDonateScreen')}
                                 style={styles.btnBlue}
                                 styleText={styles.textWhite}
-                                text='view history'/>
+                                text='view'/>
+                        </View>
+                    </View>
+                    <View style={styles.appsWrapper}>
+                        <View style={{marginBottom: 12}}>
+                            <Text fonts={'DemiBold'}>News</Text>
+                        </View>
+                        <View style={{flexDirection: 'row' ,justifyContent: 'space-around', alignItems: 'center', marginTop: 12, marginBottom: 10}}>
+                            <MButton
+                                onPress={async () => {
+                                    navigation.navigate('HomeScreen');
+                                    HandleSelectTypeNews('favourite')
+                                    await movesModel.setAppInfo({
+                                        tabIndex: 2,
+                                    });
+                                    // navigation.navigate('MainScreen', {screen: "NewsScreen"});
+                                }}
+                                style={styles.btnOrange}
+                                styleText={styles.textWhite}
+                                text='favourites'/>
+                            <MButton
+                                onPress={async () => {
+                                    navigation.navigate('HomeScreen');
+                                    HandleSelectTypeNews('all')
+                                    await movesModel.setAppInfo({
+                                        tabIndex: 2,
+                                    });
+                                }}
+                                style={styles.btnBlue}
+                                styleText={styles.textWhite}
+                                text='all'/>
                         </View>
                     </View>
                 </View>
@@ -183,10 +335,12 @@ const styles = StyleSheet.create({
     btnBlue: {
         backgroundColor: color.blue,
         maxWidth: layout.width / 2,
+        width: '45%'
     },
     btnOrange: {
         backgroundColor: color.orange,
         maxWidth: layout.width / 2,
+        width: '45%'
     },
     textWhite: {
         color: color.white

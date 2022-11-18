@@ -96,7 +96,10 @@ export const UploadActivityScreen = observer(function UploadActivityScreen() {
                     })  
                     }
                     if(FitnessAppUsage[i]?.FitnessApp?.Fitness_App_Name == "Apple Health") {
-                      await getData()
+                      if(Platform?.OS == 'ios'){
+                         await getData()
+                      }
+                     
                  }
                 }
                 let {data: {getMasterDataUploadActivity: {data, message, messageCode}}} = await refetch();                     
